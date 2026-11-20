@@ -20,6 +20,6 @@ The app opens on a logo screen that asks for the 4-digit parent PIN (the first t
 
 Each child has a profile with their own pictures, goal, reward, stars and Friday report. A new install asks for the first child's name and picture (no name is built in). In the parent menu, ✏️ next to a child edits the name and picture and 🗑️ removes the child; removing the only child asks for a new one. Grown-ups tap the child's picture at the top right to open the parent menu (switch child, add a child, settings, backup). The menu is locked with a 4-digit parent PIN, a lock for little fingers; only a salted hash of the PIN is stored. While locked, a child can add a cry to the counter but not take one away.
 
-Open the page: https://ankitkatiyar567.github.io/ihaya/
+Open the page: https://ankitkatiyar567.github.io/ihaaya/
 
 The stars, notes and photos stay in the browser that you use (localStorage). Nothing is sent anywhere. Use ⚙️ Settings → Download backup (all children) to keep a copy or to move the stars to another phone or computer.
