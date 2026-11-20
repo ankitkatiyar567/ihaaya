@@ -211,6 +211,13 @@ h1 .name{color:var(--accent)}
 .track.sm .fill{background:#ffe066}
 .storyacts{display:flex;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
 .storycard .linkbtn{color:#d6c8ff;font-size:14px;padding:4px 0}
+.storyhead .linkbtn{font-size:15px}
+.tchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.tchip{min-width:46px;height:46px;border-radius:15px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:24px;line-height:1;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 8px}
+.tchip.on{border-color:#ffe066;background:rgba(255,224,102,.22)}
+.tchip .tlabel{display:none;font-size:13px;font-weight:700}
+body.words .tchip .tlabel{display:inline}
 /* parent button, PIN pad, parent menu */
 .me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
 .me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
@@ -537,10 +544,12 @@ function normalise(d) {
   const gb = s.gameBest; s.gameBest = {};
   if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count', 'ttt']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
   else if (+gb > 0) s.gameBest.balloons = Math.round(+gb);  // the first version had one game
-  // Bedtime story: pos = tonight's night; doneIdx/doneDay = the night that was heard, and when; tr/t = where it stopped.
-  const so = s.story && typeof s.story === 'object' ? s.story : {};
-  s.story = { pos: Math.max(0, Math.floor(+so.pos) || 0), doneIdx: Number.isInteger(so.doneIdx) ? so.doneIdx : -1,
-    doneDay: typeof so.doneDay === 'string' ? so.doneDay.slice(0, 10) : '', tr: Math.max(0, Math.floor(+so.tr) || 0), t: Math.max(0, +so.t || 0) };
+  // Bedtime story: day/id = today's pick (a stable key of its first file), theme, prev = the last day's pick,
+  // tr/t = where it stopped, done = heard today, heard = keys of every story heard (never picked again).
+  const so = s.story && typeof s.story === 'object' ? s.story : {}, str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+  s.story = { day: str(so.day, 10), id: str(so.id, 16), theme: str(so.theme, 12) || 'any', prev: str(so.prev, 16),
+    tr: Math.max(0, Math.floor(+so.tr) || 0), t: Math.max(0, +so.t || 0), done: so.done === true,
+    heard: Array.isArray(so.heard) ? so.heard.filter(k => typeof k === 'string').map(k => k.slice(0, 16)).slice(-5000) : [] };
   s.storyOn = s.storyOn !== false;
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
@@ -1129,10 +1138,11 @@ function showSettings() {
     '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
     '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
       '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
-    '<h3>🌙 Bedtime story</h3><p class="small">One story a night, every night, from LibriVox.org: free public-domain recordings read by volunteers, ' +
-    'played from the Internet Archive (it needs the internet). A story that was heard moves on to the next one the next day.</p>' +
+    '<h3>🌙 Bedtime story</h3><p class="small">One complete 7–10 minute story a day, picked at random, never one already heard. ' +
+    'Tap a theme picture to pick a story from that theme, or 🎲 for another one. From LibriVox.org: free public-domain recordings read ' +
+    'by volunteers, played from the Internet Archive (it needs the internet).</p>' +
     '<label class="field check"><input type="checkbox" id="sStory"' + (s.storyOn ? ' checked' : '') + '><span>Bedtime story on</span></label>' +
-    '<div class="btnrow"><button type="button" class="btn" id="sStoryReset">Start again from the first story</button></div>' +
+    '<div class="btnrow"><button type="button" class="btn" id="sStoryReset">Forget the stories heard (' + s.story.heard.length + ')</button></div>' +
     '<h3>Sounds and words</h3><p class="small">These are for this phone or computer, for all children.</p>' +
     '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
     '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>Read the question aloud when a picture is tapped</span></label>' +
@@ -1173,9 +1183,9 @@ function showSettings() {
   $('#sGame').addEventListener('change', e => { s.game = e.target.checked; save(); });
   $('#sGameMins').addEventListener('change', e => { s.gameMins = +e.target.value; save(); });
   $('#sStory').addEventListener('change', e => { s.storyOn = e.target.checked; save(); });
-  $('#sStoryReset').addEventListener('click', () => {
-    if (!confirm('Start ' + s.name + '\'s bedtime stories again from the first one?')) return;
-    stopStory(); s.story = { pos:0, doneIdx:-1, doneDay:'', tr:0, t:0 }; save(); toast('Back to the first story 🌙');
+  $('#sStoryReset').addEventListener('click', e => {
+    if (!confirm('Forget which stories ' + s.name + ' has heard? They can then be picked again.')) return;
+    s.story.heard = []; save(); e.currentTarget.textContent = 'Forget the stories heard (0)'; toast('All stories can come again 🌙');
   });
   $('#sSound').addEventListener('change', e => { pf.sound = e.target.checked; save(); if (pf.sound) sfx.stars(3); });
   $('#sSpeak').addEventListener('change', e => { pf.speak = e.target.checked; save(); renderTaskSettings(); });
@@ -1654,118 +1664,137 @@ function countGame(field, api) {
 }
 window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
 
-/* ---------- bedtime story: one LibriVox story a night (stories.json, built by tools/build-stories.py) ---------- */
-let catalog = null, catalogLoading = false, storyPlaying = null;  // storyPlaying = { night, tr, profile, savedAt }
+/* ---------- bedtime story: one complete 7-10 minute LibriVox story a day, random, never repeated ---------- */
+// stories.json (built by tools/build-stories.py): stories = [book, title, file or [[file, secs], ...], secs, themes, picture].
+let catalog = null, catalogLoading = false, storyPlaying = null;  // storyPlaying = { idx, tr, profile, tonight, savedAt }
 const storyAudio = () => $('#storyAudio');
 const ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
 const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"/></svg>';
 function loadCatalog() {
   if (catalog || catalogLoading) return;
   catalogLoading = true;
-  fetch('stories.json').then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
-    .then(d => { catalog = d; catalogLoading = false; renderStory(); })
-    .catch(() => { catalogLoading = false; const c = $('#storyCard'); if (c && !catalog) c.querySelector('.small').textContent = 'The stories need the internet the first time. Try again later.'; });
+  fetch('stories.json').then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))).then(d => {
+    if (d.v !== 2) throw new Error('old story list');
+    d.keys = d.stories.map(x => hashStr(Array.isArray(x[2]) ? x[2][0][0] : x[2]).toString(36));  // stable across rebuilds
+    d.index = new Map(d.keys.map((k, i) => [k, i]));
+    d.counts = {}; d.stories.forEach(x => x[4].split(',').forEach(k => { if (k) d.counts[k] = (d.counts[k] || 0) + 1; }));
+    catalog = d; catalogLoading = false; renderStory();
+  }).catch(() => { catalogLoading = false; const c = $('#storyCard .small'); if (c && !catalog) c.textContent = 'The stories need the internet the first time. Try again later.'; });
 }
-function nightTracks(i) { const n = catalog.nights[i], b = catalog.books[n[0]]; return { b, idx: Array.isArray(n[1]) ? n[1] : [n[1]] }; }
-const nightSecs = i => { const { b, idx } = nightTracks(i); return idx.reduce((a, j) => a + b.s[j][2], 0); };
-// Tonight's story for the current child: it moves on the day after a story was heard.
-function storyState() {
-  const st = data.settings.story, N = catalog.nights.length;
-  if (st.doneIdx === st.pos && st.doneDay && st.doneDay < keyOf(today())) {
-    st.pos = (st.pos + 1) % N; st.doneIdx = -1; st.doneDay = ''; st.tr = 0; st.t = 0; save();
+const storyTracks = i => { const x = catalog.stories[i]; return Array.isArray(x[2]) ? x[2] : [[x[2], x[3]]]; };
+function pickStory(theme, not) {
+  const heard = new Set(data.settings.story.heard), pool = [];
+  catalog.stories.forEach((x, i) => { if (i !== not && (theme === 'any' || x[4].split(',').includes(theme))) pool.push(i); });
+  const fresh = pool.filter(i => !heard.has(catalog.keys[i])), from = fresh.length ? fresh : pool;  // all heard: they can come again
+  return from.length ? from[Math.floor(Math.random() * from.length)] : 0;
+}
+// Today's story for the current child: a new random one each day.
+function tonight() {
+  const ss = data.settings.story, tk = keyOf(today());
+  let i = ss.day === tk ? catalog.index.get(ss.id) : undefined;
+  if (i === undefined) {
+    if (ss.day !== tk && ss.id) ss.prev = ss.id;
+    i = pickStory('any');
+    Object.assign(ss, { day: tk, id: catalog.keys[i], theme: 'any', tr: 0, t: 0, done: false });
+    save();
   }
-  if (st.pos >= N) st.pos = 0;
-  return st;
+  return i;
+}
+function chooseStory(theme) {
+  const ss = data.settings.story, cur = tonight();
+  stopStory();
+  const i = pickStory(theme, cur);
+  Object.assign(ss, { id: catalog.keys[i], theme, tr: 0, t: 0, done: false });
+  save(); renderStory();
 }
 function renderStory() {
   const card = $('#storyCard');
   card.hidden = !data.settings.storyOn || selKey !== keyOf(today());
   if (card.hidden) return;
   if (!catalog) { card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span></div><p class="small">Loading the stories…</p>'; loadCatalog(); return; }
-  const st = storyState(), { b, idx } = nightTracks(st.pos), first = b.s[idx[0]][0];
-  const name = idx.length > 1 ? first + ' and ' + (idx.length - 1) + ' more' : first;
+  const ss = data.settings.story, i = tonight(), x = catalog.stories[i], b = catalog.books[x[0]];
   const mine = storyPlaying && storyPlaying.profile === data, playing = mine && !storyAudio().paused;
-  card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span><small>Night ' + (st.pos + 1) + ' of ' + catalog.nights.length + '</small></div>' +
-    '<div class="storyrow"><div class="storypic" aria-hidden="true">' + esc(b.e) + '</div><div class="storytext"><b>' + esc(b.t) + '</b><span>' + esc(name) + '</span>' +
-    '<small>' + esc(b.a) + ' · ' + Math.max(1, Math.round(nightSecs(st.pos) / 60)) + ' min' + (st.doneIdx === st.pos ? ' · ✅ heard' : '') + '</small></div></div>' +
+  const chips = Object.entries(catalog.themes).filter(([k]) => (catalog.counts[k] || 0) >= 3).map(([k, v]) =>
+    '<button type="button" class="tchip' + (ss.theme === k ? ' on' : '') + '" data-theme="' + k + '" title="' + esc(v[1]) + '" aria-label="A story about ' +
+    esc(v[1]) + '"><span aria-hidden="true">' + v[0] + '</span><span class="tlabel">' + esc(v[1]) + '</span></button>').join('');
+  card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span><button type="button" class="linkbtn" id="storyNew">🎲 Another</button></div>' +
+    '<div class="storyrow"><div class="storypic" aria-hidden="true">' + esc(x[5]) + '</div><div class="storytext"><b>' + esc(x[1]) + '</b>' +
+    '<small>' + esc(b.t) + ' · ' + esc(b.a) + '</small><small>' + Math.max(1, Math.round(x[3] / 60)) + ' min' + (ss.done ? ' · ✅ heard' : '') + '</small></div></div>' +
     '<div class="storyplay"><button type="button" class="playbtn" id="storyPlay" aria-label="' + (playing ? 'Pause' : 'Play the story') + '">' + (playing ? ICON_PAUSE : ICON_PLAY) + '</button>' +
     '<div class="storyprog"><div class="track sm"><div class="fill" id="storyFill"></div></div><small id="storyTime"></small></div></div>' +
-    '<div class="storyacts">' + (st.pos > 0 ? '<button type="button" class="linkbtn" id="storyPrev">⏮ Last night\'s story</button>' : '<span></span>') +
-    '<button type="button" class="linkbtn" id="storySkip">⏭ Skip (parents)</button></div>';
+    '<div class="tchips" role="group" aria-label="Pick a theme">' + chips + '</div>' +
+    '<div class="storyacts">' + (ss.prev && catalog.index.has(ss.prev) ? '<button type="button" class="linkbtn" id="storyPrev">⏮ Last night\'s story</button>' : '<span></span>') +
+    '<small>' + ss.heard.length + ' of ' + catalog.stories.length + ' heard</small></div>';
   $('#storyPlay').addEventListener('click', () => {
     const a = storyAudio();
     if (playing) { a.pause(); return; }
-    if (mine && a.src) { a.play().catch(storyFailed); return; }
-    playNight(st.pos, true);
+    if (mine && storyPlaying.idx === i && a.src) { a.play().catch(storyFailed); return; }
+    playStory(i, true);
   });
-  const prev = $('#storyPrev'); if (prev) prev.addEventListener('click', () => playNight(st.pos - 1, false));
-  $('#storySkip').addEventListener('click', () => withParent(() => {
-    stopStory(); st.pos = (st.pos + 1) % catalog.nights.length; st.doneIdx = -1; st.doneDay = ''; st.tr = 0; st.t = 0; save(); renderStory();
-  }));
+  $('#storyNew').addEventListener('click', () => chooseStory(ss.theme));
+  card.querySelector('.tchips').addEventListener('click', e => { const c = e.target.closest('[data-theme]'); if (c) chooseStory(c.dataset.theme); });
+  const prev = $('#storyPrev'); if (prev) prev.addEventListener('click', () => playStory(catalog.index.get(ss.prev), false));
   updateStoryProgress();
 }
-function playNight(night, resume) {
-  const a = storyAudio(), st = data.settings.story, { b, idx } = nightTracks(night), same = resume && night === st.pos;
-  const tr = same ? Math.min(st.tr || 0, idx.length - 1) : 0, startAt = same ? st.t || 0 : 0;
-  storyPlaying = { night, tr, profile: data, savedAt: 0 };
-  a.src = b.b + b.s[idx[tr]][1];
+function playStory(i, resume) {
+  const a = storyAudio(), ss = data.settings.story, tracks = storyTracks(i), base = catalog.books[catalog.stories[i][0]].b;
+  const isTonight = catalog.keys[i] === ss.id, same = resume && isTonight;
+  const tr = same ? Math.min(ss.tr || 0, tracks.length - 1) : 0, startAt = same ? ss.t || 0 : 0;
+  storyPlaying = { idx: i, tr, profile: data, tonight: isTonight, savedAt: 0 };
+  a.src = base + tracks[tr][0];
   if (startAt > 5) a.addEventListener('loadedmetadata', () => { if (startAt < a.duration - 5) a.currentTime = startAt; }, { once: true });
   a.play().catch(storyFailed);
-  storyMedia(b, b.s[idx[tr]][0]);
+  storyMedia(i);
   renderStory();
 }
 function stopStory() { const a = storyAudio(); if (a) a.pause(); storyPlaying = null; }
 function storyFailed() { if (!storyPlaying) return; storyPlaying = null; toast('The story could not start. Is the internet on?'); renderStory(); }
 function storyElapsed() {
   if (!storyPlaying || !catalog) return null;
-  const { b, idx } = nightTracks(storyPlaying.night);
-  const before = idx.slice(0, storyPlaying.tr).reduce((x, j) => x + b.s[j][2], 0);
-  return { now: before + (storyAudio().currentTime || 0), total: nightSecs(storyPlaying.night) };
+  const before = storyTracks(storyPlaying.idx).slice(0, storyPlaying.tr).reduce((n, q) => n + q[1], 0);
+  return { now: before + (storyAudio().currentTime || 0), total: catalog.stories[storyPlaying.idx][3] };
 }
 function updateStoryProgress() {
   const f = $('#storyFill'), t = $('#storyTime'); if (!f || !t || !catalog) return;
-  const st = data.settings.story, mine = storyPlaying && storyPlaying.profile === data, e = mine ? storyElapsed() : null;
+  const ss = data.settings.story, i = catalog.index.get(ss.id), mine = storyPlaying && storyPlaying.profile === data, e = mine ? storyElapsed() : null;
   let now, total;
   if (e) { now = e.now; total = e.total; }
-  else {
-    const { b, idx } = nightTracks(st.pos);
-    now = idx.slice(0, st.tr).reduce((x, j) => x + b.s[j][2], 0) + (st.t || 0); total = nightSecs(st.pos);
-  }
+  else { now = storyTracks(i).slice(0, ss.tr).reduce((n, q) => n + q[1], 0) + (ss.t || 0); total = catalog.stories[i][3]; }
   f.style.width = Math.min(100, total ? now / total * 100 : 0) + '%';
-  t.textContent = mmss(now) + ' / ' + mmss(total) + (mine && storyPlaying.night !== st.pos ? ' · last night\'s story' : '');
+  t.textContent = mmss(now) + ' / ' + mmss(total) + (mine && !storyPlaying.tonight ? ' · last night\'s story' : '');
 }
-function storyMedia(b, title) {
+function storyMedia(i) {
   if (!('mediaSession' in navigator)) return;
+  const x = catalog.stories[i], b = catalog.books[x[0]];
   try {
-    navigator.mediaSession.metadata = new MediaMetadata({ title, artist: b.t + ' · ' + b.a, album: 'Ihaaya bedtime stories',
+    navigator.mediaSession.metadata = new MediaMetadata({ title: x[1], artist: b.t + ' · ' + b.a, album: 'Ihaaya bedtime stories',
       artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }] });
     navigator.mediaSession.setActionHandler('play', () => storyAudio().play().catch(storyFailed));
     navigator.mediaSession.setActionHandler('pause', () => storyAudio().pause());
   } catch (e) { /* lock-screen controls are optional */ }
 }
+function storyHeard(ss) { ss.done = true; if (!ss.heard.includes(ss.id)) ss.heard.push(ss.id); }
 (() => {
   const a = storyAudio();
   a.addEventListener('play', renderStory);
   a.addEventListener('pause', () => {  // remember where she fell asleep
     const p = storyPlaying;
-    if (p && p.night === p.profile.settings.story.pos) { const st = p.profile.settings.story; st.tr = p.tr; st.t = Math.floor(a.currentTime); save(); }
+    if (p && p.tonight) { const ss = p.profile.settings.story; ss.tr = p.tr; ss.t = Math.floor(a.currentTime); save(); }
     renderStory();
   });
   a.addEventListener('timeupdate', () => {
     updateStoryProgress();
-    const p = storyPlaying; if (!p) return;
-    const st = p.profile.settings.story;
-    if (p.night !== st.pos) return;  // replaying last night's story changes nothing
-    if (Date.now() - p.savedAt > 5000) { st.tr = p.tr; st.t = Math.floor(a.currentTime); p.savedAt = Date.now(); save(); }
+    const p = storyPlaying; if (!p || !p.tonight) return;  // replaying last night's story changes nothing
+    const ss = p.profile.settings.story;
+    if (Date.now() - p.savedAt > 5000) { ss.tr = p.tr; ss.t = Math.floor(a.currentTime); p.savedAt = Date.now(); save(); }
     const e = storyElapsed();
-    if (e && e.now >= e.total * .9 && st.doneIdx !== st.pos) { st.doneIdx = st.pos; st.doneDay = keyOf(today()); save(); }
+    if (e && e.now >= e.total * .9 && !ss.done) { storyHeard(ss); save(); }
   });
   a.addEventListener('ended', () => {
     const p = storyPlaying; if (!p) return;
-    const { b, idx } = nightTracks(p.night);
-    if (p.tr + 1 < idx.length) { p.tr++; a.src = b.b + b.s[idx[p.tr]][1]; a.play().catch(storyFailed); storyMedia(b, b.s[idx[p.tr]][0]); return; }
-    const st = p.profile.settings.story;
-    if (p.night === st.pos) { st.doneIdx = st.pos; st.doneDay = keyOf(today()); st.tr = 0; st.t = 0; save(); }
+    const tracks = storyTracks(p.idx), base = catalog.books[catalog.stories[p.idx][0]].b;
+    if (p.tr + 1 < tracks.length) { p.tr++; a.src = base + tracks[p.tr][0]; a.play().catch(storyFailed); return; }
+    if (p.tonight) { const ss = p.profile.settings.story; storyHeard(ss); ss.tr = 0; ss.t = 0; save(); }
     storyPlaying = null; renderStory(); toast('🌙 The end. Sweet dreams!');
   });
   a.addEventListener('error', () => { if (storyPlaying && a.src) storyFailed(); });
@@ -1821,7 +1850,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   navigator.serviceWorker.register('sw.js').catch(() => { /* the page works without it */ });
 }
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playNight, storyState, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playStory, tonight, chooseStory, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
