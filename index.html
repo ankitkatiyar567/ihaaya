@@ -86,18 +86,31 @@ h1 .name{color:var(--accent)}
 .task{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;padding:10px;border-radius:22px;background:var(--bg);border:2px solid var(--line);transition:background .2s,border-color .2s;--pic:clamp(66px,19vw,96px)}
 .task.got{border-color:var(--star);background:var(--star-bg)}
 .task.miss{border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
-/* children */
-.kids{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
-.kids::-webkit-scrollbar{display:none}
-.kid{flex:none;display:flex;align-items:center;gap:8px;border:3px solid transparent;background:var(--card);box-shadow:var(--shadow);border-radius:999px;padding:4px 16px 4px 4px;cursor:pointer;font-weight:800;font-size:16px}
-.kid .av{width:40px;height:40px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-size:25px;line-height:1}
-.kid.on{border-color:var(--accent)}
-.kid.on .av{background:var(--star-bg)}
-.kid.add{padding:4px;color:var(--muted)}
-.kid.add .av{font-size:20px}
 .avatars{display:flex;flex-wrap:wrap;gap:8px}
 .avbtn{width:50px;height:50px;border-radius:50%;border:3px solid transparent;background:var(--bg2);font-size:28px;cursor:pointer;padding:0;line-height:1}
 .avbtn.on{border-color:var(--accent);background:var(--star-bg)}
+/* parent button, PIN pad, parent menu */
+.me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
+.me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
+.dots{display:flex;gap:16px;justify-content:center;margin:18px 0 8px}
+.dots i{width:18px;height:18px;border-radius:50%;border:3px solid var(--accent);display:block}
+.dots i.f{background:var(--accent)}
+.dots.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.pinmsg{min-height:22px;color:var(--no);font-weight:700;font-size:14px}
+.keypad{display:grid;grid-template-columns:repeat(3,76px);gap:12px;justify-content:center;margin:6px 0 10px}
+.key{height:64px;border-radius:20px;border:0;background:var(--bg2);font-size:26px;font-weight:800;cursor:pointer}
+.key:active{transform:scale(.92)}
+.kidlist{list-style:none;padding:0;margin:6px 0 16px;display:flex;flex-direction:column;gap:8px}
+.kidrow{display:flex;align-items:center;gap:12px;width:100%;border:3px solid transparent;background:var(--bg);border-radius:18px;padding:8px 12px;cursor:pointer;text-align:left}
+.kidrow.on{border-color:var(--accent)}
+.kidrow .av{width:48px;height:48px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-size:30px;flex:none}
+.kidrow b{display:block;font-size:17px}
+.kidrow small{color:var(--muted)}
+.menuacts{display:flex;flex-direction:column;gap:8px}
+.menuacts .btn{justify-content:flex-start;padding:12px 14px;font-size:15px}
+.menuacts .btn.primary{justify-content:center}
+.btn.warnbtn{background:var(--star-bg);border:2px solid var(--star)}
 /* picture tiles */
 .pic{position:relative;width:var(--pic,88px);height:var(--pic,88px);border-radius:22px;border:0;padding:0;background:hsl(var(--h,40) var(--tile-s) var(--tile-l));display:grid;place-items:center;overflow:hidden;flex:none}
 button.pic{cursor:pointer}
@@ -226,12 +239,8 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
       <h1><span class="name" id="name">Ihanaa</span>'s Star Chart ⭐</h1>
       <div class="level" id="level"></div>
     </div>
-    <div class="hbtns">
-      <button class="iconbtn" id="wordsBtn" type="button" aria-label="Show words" title="Show words (for grown-ups)">🔤</button>
-      <button class="iconbtn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">⚙️</button>
-    </div>
+    <button class="me" id="meBtn" type="button" aria-label="Parent menu" title="Parent menu"><span id="meAv">🦄</span><span class="lock" id="meLock" aria-hidden="true">🔒</span></button>
   </header>
-  <nav class="kids" id="kids" aria-label="Children"></nav>
 
   <div class="warn" id="warn" hidden>This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
   <div class="banner" id="banner" hidden></div>
@@ -267,7 +276,7 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
   </section>
 
   <button class="reportbtn" id="reportBtn" type="button">🎁 Weekly report</button>
-  <footer>Tap a picture to hear the question. Stars are saved in this browser only: download a backup now and then in ⚙️ Settings.</footer>
+  <footer>Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
 </div>
 
 <div class="overlay" id="overlay" hidden>
@@ -303,7 +312,7 @@ const DEFAULT_TASKS = [
 ];
 const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'' };
 // Sounds, voice and words belong to the device, so they are the same for every child.
-const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false };
+const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, lastBackup:0 };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
 const VOICES = [['en-GB','English (UK)'],['en-US','English (US)'],['en-IN','English (India)'],['hi-IN','हिन्दी (Hindi)'],['fi-FI','Suomi (Finnish)']];
 const LEVELS = [[0,'🌱','Little Seed'],[40,'🌷','Tulip'],[100,'🐣','Chick'],[180,'🦋','Butterfly'],[280,'🐬','Dolphin'],
@@ -348,8 +357,11 @@ function readKey(k) {
 }
 function prefsFrom(o) {
   const p = Object.assign({}, PREF_DEFAULTS, o && typeof o === 'object' ? o : {});
+  const pin = p.pin && typeof p.pin.salt === 'string' && typeof p.pin.hash === 'string'
+    ? { salt: p.pin.salt.slice(0, 64), hash: p.pin.hash.slice(0, 128) } : null;
   return { sound: p.sound !== false, speak: p.speak !== false, words: p.words === true,
-    voice: VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB' };
+    voice: VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB', pin,
+    lastBackup: Number.isFinite(+p.lastBackup) ? +p.lastBackup : 0 };
 }
 function normaliseStore(o) {
   if (o && Array.isArray(o.profiles) && o.profiles.length) {
@@ -547,24 +559,120 @@ function rowHtml(t, v, sign) {
   return h + '</div>';
 }
 
+/* ---------- parent lock (a lock for little fingers, not for adults with the phone) ---------- */
+const UNLOCK_MS = 5 * 60 * 1000;
+let unlockedUntil = 0, pinFails = 0, pinWaitUntil = 0;
+function isUnlocked() { return !store.prefs.pin || Date.now() < unlockedUntil; }
+async function hashPin(pin, salt) {
+  const text = salt + ':' + pin;
+  try {
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (e) { /* fall back below */ }
+  let h = 0x811c9dc5;
+  for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return 'f' + h.toString(16);
+}
+function withParent(fn) {
+  if (isUnlocked()) { if (store.prefs.pin) unlockedUntil = Date.now() + UNLOCK_MS; fn(); return; }
+  showPinPad('unlock', fn);
+}
+function openParentMenu() { if (!store.prefs.pin) showPinPad('set', showMenu); else withParent(showMenu); }
+function showPinPad(mode, onDone, firstPin) {
+  const title = { unlock:'🔒 Parents only', set:'Choose a 4-digit parent PIN', confirm:'Type the PIN again' }[mode];
+  const sub = { unlock:'Type the parent PIN.', set:'It keeps switching child, adding a child and the settings away from little fingers.', confirm:'' }[mode];
+  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
+    '<h2>' + title + '</h2><p class="small">' + sub + '</p>' +
+    '<div class="dots" id="pinDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>' +
+    '<div class="pinmsg" id="pinMsg" role="alert"></div>' +
+    '<div class="keypad" id="keypad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => '<button type="button" class="key" data-k="' + n + '">' + n + '</button>').join('') +
+    '<span></span><button type="button" class="key" data-k="0">0</button><button type="button" class="key" data-k="back" aria-label="Delete">⌫</button></div>' +
+    (mode === 'unlock' ? '<button type="button" class="linkbtn" id="pinForgot">Forgot the PIN?</button>' : ''));
+  let pin = '', busy = false;
+  const dots = () => $('#pinDots').querySelectorAll('i').forEach((d, i) => d.classList.toggle('f', i < pin.length));
+  const msg = t => { $('#pinMsg').textContent = t || ''; };
+  const waitMsg = () => msg('Too many tries. Wait ' + Math.ceil((pinWaitUntil - Date.now()) / 1000) + ' seconds.');
+  if (mode === 'unlock' && Date.now() < pinWaitUntil) waitMsg();
+  $('#keypad').addEventListener('click', async e => {
+    const k = e.target.closest('[data-k]'); if (!k || busy) return;
+    if (mode === 'unlock' && Date.now() < pinWaitUntil) { waitMsg(); return; }
+    if (k.dataset.k === 'back') { pin = pin.slice(0, -1); dots(); return; }
+    if (pin.length >= 4) return;
+    pin += k.dataset.k; dots(); msg('');
+    if (pin.length < 4) return;
+    if (mode === 'set') { showPinPad('confirm', onDone, pin); return; }
+    busy = true;
+    if (mode === 'confirm') {
+      if (pin !== firstPin) { showPinPad('set', onDone); $('#pinMsg').textContent = 'The two PINs were different. Try again.'; return; }
+      const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
+      store.prefs.pin = { salt, hash: await hashPin(pin, salt) }; save();
+      unlockedUntil = Date.now() + UNLOCK_MS; closeOverlay(); toast('Parent PIN set 🔒');
+      if (onDone) onDone();
+      return;
+    }
+    const ok = (await hashPin(pin, store.prefs.pin.salt)) === store.prefs.pin.hash;
+    busy = false;
+    if (ok) { pinFails = 0; unlockedUntil = Date.now() + UNLOCK_MS; closeOverlay(); if (onDone) onDone(); return; }
+    pinFails++; pin = ''; dots();
+    const d = $('#pinDots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    if (pinFails >= 5) { pinFails = 0; pinWaitUntil = Date.now() + 30000; waitMsg(); } else msg('Not the right PIN.');
+  });
+  const fg = $('#pinForgot');
+  if (fg) fg.addEventListener('click', () => {
+    const v = prompt('Forgot the parent PIN? Type RESET to turn the PIN off. The stars are kept.');
+    if (v && v.trim().toUpperCase() === 'RESET') { store.prefs.pin = null; save(); closeOverlay(); toast('PIN turned off'); }
+  });
+}
+document.addEventListener('keydown', e => {
+  const kp = $('#keypad'); if (!kp || $('#overlay').hidden) return;
+  const k = /^[0-9]$/.test(e.key) ? e.key : e.key === 'Backspace' ? 'back' : null;
+  const b = k && kp.querySelector('[data-k="' + k + '"]');
+  if (b) { e.preventDefault(); b.click(); }
+});
+function statsOf(p) { const keep = data; data = p; try { return weekStats(weekStartOf(today())); } finally { data = keep; } }
+function showMenu() {
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
+  const pf = store.prefs, days = pf.lastBackup ? Math.floor((Date.now() - pf.lastBackup) / 86400000) : -1;
+  const ago = days < 0 ? 'never' : days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago';
+  const kids = store.profiles.map(p => '<li><button type="button" class="kidrow' + (p === data ? ' on' : '') + '" data-kid="' + esc(p.id) + '">' +
+    '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>⭐ ' + statsOf(p).stars + ' this week' +
+    (p === data ? ' · showing now' : '') + '</small></span></button></li>').join('');
+  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
+    '<h2>👪 Parents</h2><h3>Children</h3><ul class="kidlist">' + kids + '</ul>' +
+    '<div class="menuacts">' +
+    '<button type="button" class="btn" id="mAdd">＋ Add a child</button>' +
+    '<button type="button" class="btn" id="mSettings">⚙️ Settings for ' + esc(data.avatar) + ' ' + esc(data.settings.name) + '</button>' +
+    '<button type="button" class="btn" id="mWords">🔤 Words under the pictures: ' + (pf.words ? 'on' : 'off') + '</button>' +
+    '<button type="button" class="btn' + (days < 0 || days > 7 ? ' warnbtn' : '') + '" id="mBackup">💾 Download backup · last one ' + ago + '</button>' +
+    (pf.pin ? '<button type="button" class="btn" id="mPin">🔢 Change the PIN</button><button type="button" class="btn" id="mPinOff">🔓 Turn the PIN off</button>'
+            : '<button type="button" class="btn" id="mPin">🔢 Set a parent PIN</button>') +
+    '<button type="button" class="btn primary" id="mLock">' + (pf.pin ? '🔒 Lock and close' : 'Close') + '</button></div>', 'settings');
+  $('#sheet .kidlist').addEventListener('click', e => {
+    const b = e.target.closest('[data-kid]'); if (!b) return;
+    closeOverlay(); switchTo(b.dataset.kid);
+  });
+  $('#mAdd').addEventListener('click', showAddKid);
+  $('#mSettings').addEventListener('click', showSettings);
+  $('#mWords').addEventListener('click', e => { pf.words = !pf.words; save(); renderHeader(); e.currentTarget.textContent = '🔤 Words under the pictures: ' + (pf.words ? 'on' : 'off'); });
+  $('#mBackup').addEventListener('click', () => { exportData(); showMenu(); });
+  $('#mPin').addEventListener('click', () => showPinPad('set', showMenu));
+  const off = $('#mPinOff');
+  if (off) off.addEventListener('click', () => {
+    if (!confirm('Turn the parent PIN off? Then anyone can switch child and open the settings.')) return;
+    pf.pin = null; save(); showMenu(); toast('PIN turned off');
+  });
+  $('#mLock').addEventListener('click', () => { unlockedUntil = 0; closeOverlay(); });
+}
+
 /* ---------- children ---------- */
 const avatarButtons = sel => AVATARS.map(a => '<button type="button" class="avbtn' + (a === sel ? ' on' : '') +
   '" data-av="' + a + '" aria-label="' + a + '" aria-pressed="' + (a === sel) + '">' + a + '</button>').join('');
 function renderKids() {
-  const nav = $('#kids'); nav.innerHTML = '';
-  for (const p of store.profiles) {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'kid' + (p === data ? ' on' : '');
-    b.setAttribute('aria-pressed', String(p === data));
-    b.innerHTML = '<span class="av">' + esc(p.avatar) + '</span><span class="kn">' + esc(p.settings.name) + '</span>';
-    b.addEventListener('click', () => switchTo(p.id));
-    nav.appendChild(b);
-  }
-  const add = document.createElement('button');
-  add.type = 'button'; add.className = 'kid add'; add.title = 'Add a child'; add.setAttribute('aria-label', 'Add a child');
-  add.innerHTML = '<span class="av">＋</span>';
-  add.addEventListener('click', showAddKid);
-  nav.appendChild(add);
+  $('#meAv').textContent = data.avatar;
+  $('#meLock').textContent = !store.prefs.pin ? '⚙️' : isUnlocked() ? '🔓' : '🔒';
+  $('#meBtn').setAttribute('aria-label', 'Parent menu (showing ' + data.settings.name + ')');
 }
 function switchTo(id) {
   if (id === data.id) return;
@@ -610,7 +718,6 @@ function render() { renderKids(); renderHeader(); renderWeek(); renderProgress()
 function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
   document.body.classList.toggle('words', store.prefs.words);
-  $('#wordsBtn').setAttribute('aria-pressed', String(store.prefs.words));
   $('#name').textContent = s.name;
   document.title = s.name + "'s Star Chart";
   $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
@@ -689,7 +796,7 @@ $('#tasks').addEventListener('click', e => {
   const sb = e.target.closest('.sb');
   if (sb) { setVal(t, +sb.dataset.v, sb); return; }
   const cb = e.target.closest('[data-cry]');
-  if (cb) { setCry(+cb.dataset.cry); return; }
+  if (cb) { const d = +cb.dataset.cry; if (d < 0) withParent(() => setCry(d)); else setCry(d); return; }
   const pic = e.target.closest('.pic');
   if (pic) { say(t.ask || t.title); pic.classList.remove('say'); void pic.offsetWidth; pic.classList.add('say'); }
 });
@@ -735,7 +842,7 @@ $('#nextWeek').addEventListener('click', () => {
   selKey = keyOf(we > t ? t : we); render();
 });
 $('#todayBtn').addEventListener('click', () => { selKey = keyOf(today()); weekStart = weekStartOf(today()); render(); });
-$('#wordsBtn').addEventListener('click', () => { store.prefs.words = !store.prefs.words; save(); render(); });
+$('#meBtn').addEventListener('click', openParentMenu);
 
 /* ---------- overlays ---------- */
 function openOverlay(html, cls) {
@@ -846,7 +953,7 @@ function showSettings() {
       '<option value="' + v[0] + '"' + (v[0] === pf.voice ? ' selected' : '') + '>' + v[1] + '</option>').join('') + '</select></label>' +
     '<div class="btnrow"><button type="button" class="btn" id="sTest">🔊 Test the voice</button></div>' +
     '<p class="small">For another language, also type the questions below in that language.</p>' +
-    '<label class="field check"><input type="checkbox" id="sWords"' + (pf.words ? ' checked' : '') + '><span>Show words under the pictures (🔤 at the top does the same)</span></label>' +
+    '<label class="field check"><input type="checkbox" id="sWords"' + (pf.words ? ' checked' : '') + '><span>Show words under the pictures (also in the parent menu)</span></label>' +
     '<h3>' + esc(s.name) + '\'s pictures</h3><p class="small">Tick the ones to use. Change the big and small picture (any emoji), ' +
     'or add a 📷 photo of the child\'s own things: bed, toothbrush, plate. What to say is read aloud when the picture is tapped.</p>' +
     '<ul class="setlist" id="sTasks"></ul>' +
@@ -966,6 +1073,7 @@ function addPhoto(t, file) {
   rd.readAsDataURL(file);
 }
 function exportData() {
+  store.prefs.lastBackup = Date.now(); save();
   const blob = new Blob([JSON.stringify(store, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -996,12 +1104,11 @@ function importData(e) {
   };
   rd.readAsText(f);
 }
-$('#settingsBtn').addEventListener('click', showSettings);
 
 /* ---------- day change while the page stays open ---------- */
 function checkNewDay() {
   const tk = keyOf(today());
-  if (tk === todayKeySeen) { renderBanner(); return; }
+  if (tk === todayKeySeen) { renderBanner(); renderKids(); return; }
   if (selKey === todayKeySeen) { selKey = tk; weekStart = weekStartOf(today()); }
   todayKeySeen = tk; render();
 }
@@ -1011,7 +1118,7 @@ setInterval(checkNewDay, 60 * 1000);
 
 render();
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, switchTo, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, switchTo, openParentMenu, isUnlocked, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
