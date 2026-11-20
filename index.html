@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fff8ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ihaaya">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -42,11 +43,11 @@
   --backdrop:rgba(8,4,20,.6);
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);
   font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,sans-serif;line-height:1.35;
   background-image:radial-gradient(circle at 8% 0%,var(--bg2) 0,transparent 38%),radial-gradient(circle at 100% 35%,var(--bg2) 0,transparent 30%)}
-button{font:inherit;color:inherit}
+button{font:inherit;color:inherit;touch-action:manipulation}
 .wrap{max-width:760px;margin:0 auto;padding:16px 16px 48px}
 header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 h1{font-size:clamp(21px,5.8vw,36px);margin:4px 0 2px;line-height:1.1}
@@ -181,6 +182,15 @@ h1 .name{color:var(--accent)}
 .cnum{width:clamp(72px,22vw,96px);height:clamp(72px,22vw,96px);border-radius:24px;border:0;background:#fff;color:#2d2350;font-size:clamp(34px,10vw,44px);font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.14);cursor:pointer}
 .cnum.right{background:#51cf66;color:#fff;animation:pop .4s}
 .cnum.wrong{animation:shake .4s;opacity:.35}
+.game.g-ttt{background:linear-gradient(#ffe3f1,#fff4d6)}
+.twrap{position:absolute;inset:76px 16px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:2}
+.tvs{display:flex;gap:12px;align-items:center;font-size:34px;line-height:1;background:rgba(255,255,255,.85);border-radius:999px;padding:6px 18px;color:#2d2350}
+.tvs small{font-size:15px;font-weight:800;color:#6c6488}
+.tmsg{font-size:42px;min-height:50px;line-height:1.2}
+.tboard{display:grid;grid-template-columns:repeat(3,var(--ts));gap:10px;--ts:min(27vw, calc((100dvh - 320px) / 3), 120px)}
+.tcell{width:var(--ts);height:var(--ts);border:0;border-radius:22px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.12);font-size:calc(var(--ts) * .58);line-height:1;cursor:pointer;padding:0}
+.tcell.new{animation:pop .3s}
+.tcell.win{background:#fff3c4;box-shadow:0 0 0 4px #ffb800}
 /* parent button, PIN pad, parent menu */
 .me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
 .me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
@@ -319,6 +329,8 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
   .row5{gap:4px}
   .sb{border-radius:11px}
 }
+body{overscroll-behavior-y:none}
+.wrap{padding-top:max(16px, env(safe-area-inset-top));padding-bottom:max(48px, calc(env(safe-area-inset-bottom) + 24px))}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}
 }
@@ -500,7 +512,7 @@ function normalise(d) {
   s.game = s.game !== false;
   s.gameMins = [2, 3, 5].includes(+s.gameMins) ? +s.gameMins : 3;
   const gb = s.gameBest; s.gameBest = {};
-  if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
+  if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count', 'ttt']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
   else if (+gb > 0) s.gameBest.balloons = Math.round(+gb);  // the first version had one game
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
@@ -1084,7 +1096,7 @@ function showSettings() {
     '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
     '<h3>🎮 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, the day\'s game opens for a few minutes, for that day only. ' +
-    'There are five games (balloon pop, memory match, star catcher, peek-a-boo, counting): one a day, in a mixed order, each once every five days.</p>' +
+    'There are six games (balloon pop, memory match, star catcher, peek-a-boo, counting, tic-tac-toe): one a day, in a mixed order, each once every six days.</p>' +
     '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
     '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
       '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
@@ -1287,7 +1299,7 @@ function balloonSvg(c) {
     '<ellipse cx="19" cy="20" rx="6" ry="10" fill="#fff" opacity=".35"/><path d="M25 66h10l-5 6z" fill="' + c + '"/>' +
     '<path d="M30 72q-5 7 0 14" stroke="#8a8a9a" stroke-width="1.6" fill="none"/></svg>';
 }
-// Five small games. Each child gets one a day: every block of five days shows all five in a
+// Six small games. Each child gets one a day: every block of six days shows all six in a
 // shuffled order (seeded by the block and the child), and the same game never comes twice in a row.
 const GAMES = [
   { id:'balloons', icon:'🎈', name:'Balloon pop',  say:'Pop the balloons!', make: balloonGame },
@@ -1295,6 +1307,7 @@ const GAMES = [
   { id:'catch',    icon:'🧺', name:'Star catcher', say:'Move the basket and catch the stars!', make: catchGame },
   { id:'peek',     icon:'🐹', name:'Peek-a-boo',   say:'Tap the animals when they peek out!', make: peekGame },
   { id:'count',    icon:'🔢', name:'Counting',     say:'Let us count!', make: countGame },
+  { id:'ttt',      icon:'⭕', name:'Tic-tac-toe',  say:'Tic-tac-toe with Teddy! Make three in a row!', make: tttGame },
 ];
 function hashStr(str) { let h = 2166136261; for (const ch of str) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
 function seededRandom(seed) {
@@ -1514,6 +1527,61 @@ function peekGame(field, api) {
   } };
 }
 
+/* ⭕ Tic-tac-toe with Teddy: the child plays with their own picture and always starts; Teddy plays
+   kindly (takes a win 25% of the time, blocks 20%): in a simulation a 5-year-old wins about 57%,
+   Teddy 31%, draws 12%. Win 3, draw 1, a loss costs nothing. */
+const TTT_LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+function tttGame(field, api) {
+  const me = (game && game.profile.avatar) || '⭐', wrap = document.createElement('div');
+  wrap.className = 'twrap';
+  wrap.innerHTML = '<div class="tvs"><span>' + esc(me) + '</span><small>vs</small><span>🐻</span></div><div class="tmsg"></div><div class="tboard">' +
+    Array.from({ length: 9 }, (_, i) => '<button type="button" class="tcell" data-i="' + i + '" aria-label="Square ' + (i + 1) + '"></button>').join('') + '</div>';
+  field.appendChild(wrap);
+  const board = wrap.querySelector('.tboard'), cells = [...board.children], msg = wrap.querySelector('.tmsg');
+  let b = [], busy = false;
+  const result = () => {
+    for (const l of TTT_LINES) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { who: b[l[0]], line: l };
+    return b.every(Boolean) ? { who: 'draw' } : null;
+  };
+  const show = () => cells.forEach((c, i) => { c.textContent = b[i] === 'k' ? me : b[i] === 't' ? '🐻' : ''; });
+  const start = () => { b = Array(9).fill(null); busy = false; cells.forEach(c => c.classList.remove('win', 'new')); show(); msg.textContent = '👆'; };
+  const winningMove = who => {
+    for (let i = 0; i < 9; i++) if (!b[i]) { b[i] = who; const r = result(); b[i] = null; if (r && r.who === who) return i; }
+    return null;
+  };
+  const finish = () => {
+    const r = result(); if (!r) return false;
+    busy = true;
+    if (r.line) r.line.forEach(i => cells[i].classList.add('win'));
+    const p = api.spot(board);
+    if (r.who === 'k') { api.add(3, p.x, p.y, '#ffb800'); msg.textContent = '🎉'; sayEnglish('You win!'); }
+    else if (r.who === 'draw') { api.add(1, p.x, p.y, '#4dabf7', 'ding'); msg.textContent = '🤝'; sayEnglish('A draw!'); }
+    else { msg.textContent = '🐻'; sayEnglish('Teddy wins. Try again!'); }
+    setTimeout(() => { if (game && !game.over) start(); }, 1700);
+    return true;
+  };
+  const teddy = () => {
+    if (!game || game.over) return;
+    const free = b.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+    let m = Math.random() < .25 ? winningMove('t') : null;
+    if (m === null && Math.random() < .2) m = winningMove('k');
+    if (m === null && !b[4] && Math.random() < .1) m = 4;
+    if (m === null) m = free[Math.floor(Math.random() * free.length)];
+    b[m] = 't'; show(); cells[m].classList.add('new'); tone(330, 0, .1, 'triangle', .07);
+    if (!finish()) { busy = false; msg.textContent = '👆'; }
+  };
+  board.addEventListener('click', e => {
+    const c = e.target.closest('.tcell'); if (!c || busy) return;
+    const i = +c.dataset.i; if (b[i]) return;
+    b[i] = 'k'; show(); c.classList.add('new'); tone(880, 0, .1, 'sine', .07);
+    if (finish()) return;
+    busy = true; msg.textContent = '🐻💭';
+    setTimeout(teddy, 650);
+  });
+  start();
+  return {};
+}
+
 /* 🔢 Counting: "How many apples?" Tap the right number; wrong numbers just fade, no loss. */
 const COUNT_THINGS = [['🍎', 'apples'], ['⭐', 'stars'], ['🐟', 'fish'], ['🎈', 'balloons'], ['🐞', 'ladybirds'],
   ['🌸', 'flowers'], ['🍓', 'strawberries'], ['🚗', 'cars'], ['🐥', 'chicks'], ['🍪', 'cookies']];
@@ -1593,6 +1661,10 @@ setInterval(checkNewDay, 60 * 1000);
 
 render();
 showLanding();
+// Works as a phone app without internet: sw.js keeps a copy (network first, so updates show at once).
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === '127.0.0.1')) {
+  navigator.serviceWorker.register('sw.js').catch(() => { /* the page works without it */ });
+}
 // For checking the page headlessly.
 window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
