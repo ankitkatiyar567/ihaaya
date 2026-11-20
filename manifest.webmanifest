@@ -1,5 +1,5 @@
 {
-  "name": "Ihaaya Star Chart",
+  "name": "Ihaaya",
   "short_name": "Ihaaya",
   "start_url": "./",
   "scope": "./",
@@ -25,6 +25,6 @@
     }
   ],
   "id": "./",
-  "description": "A picture star chart: children rate their day, a Friday report cheers them on, and a good day opens a small game.",
+  "description": "Good days, one star at a time. A picture star chart for children: they rate their own day, a good day opens a small game, and a bedtime story ends every night.",
   "orientation": "portrait"
 }

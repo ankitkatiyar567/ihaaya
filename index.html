@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Ihaaya">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Ihaaya Star Chart</title>
+<title>Ihaaya</title>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <style>
 :root{
@@ -112,7 +112,8 @@ h1 .name{color:var(--accent)}
 .logo .lg-spark:nth-of-type(2){animation-delay:.6s}
 .logo .lg-spark:nth-of-type(3){animation-delay:1.2s}
 @keyframes twinkle{50%{transform:scale(.45);opacity:.55}}
-.ltitle{font-size:30px;margin:18px 0 2px;line-height:1.15}
+.ltitle{font-size:38px;margin:16px 0 0;line-height:1.1;letter-spacing:.5px}
+.ltag{margin:4px 0 6px;font-size:17px;font-weight:600;color:var(--muted)}
 .landpad{margin-top:10px}
 .landpad h2{font-size:21px;margin:10px 0 2px}
 .landpad .reportbtn{max-width:320px;margin:24px auto 0}
@@ -366,8 +367,9 @@ body{overscroll-behavior-y:none}
 <body>
 <div class="landing" id="landing">
   <div class="landin">
-    <div class="logo" id="landLogo" role="img" aria-label="Ihaaya Star Chart logo"></div>
-    <h1 class="ltitle">Ihaaya Star Chart</h1>
+    <div class="logo" id="landLogo" role="img" aria-label="Ihaaya logo"></div>
+    <h1 class="ltitle">Ihaaya</h1>
+    <p class="ltag">Good days, one star at a time.</p>
     <div class="landpad" id="landPad"></div>
   </div>
 </div>
@@ -902,7 +904,7 @@ function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
   document.body.classList.toggle('words', store.prefs.words);
   $('#name').textContent = s.name;
-  document.title = 'Ihaaya Star Chart';
+  document.title = 'Ihaaya';
   $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
     (next ? ' · ' + (next[0] - n) + ' more to ' + next[1] : ' · top level!');
 }

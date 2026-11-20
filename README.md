@@ -1,4 +1,6 @@
-# Ihaaya Star Chart
+# Ihaaya
+
+*Good days, one star at a time.*
 
 <p align="center">
   <img src="screenshots/1-landing.png" width="200" alt="Logo and parent PIN" />
