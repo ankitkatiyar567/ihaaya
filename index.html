@@ -232,6 +232,12 @@ body.words .tchip .tlabel{display:inline}
 .key{height:64px;border-radius:20px;border:0;background:var(--bg2);font-size:26px;font-weight:800;cursor:pointer}
 .key:active{transform:scale(.92)}
 .kidlist{list-style:none;padding:0;margin:6px 0 16px;display:flex;flex-direction:column;gap:8px}
+.kidli{display:flex;align-items:center;gap:6px}
+.kidli .kidrow{flex:1;min-width:0}
+.kidact{flex:none;width:46px;height:46px;border-radius:14px;border:0;background:var(--bg);font-size:20px;cursor:pointer;padding:0}
+.kidact:active{transform:scale(.92)}
+.nsname{display:block;max-width:320px;margin:14px auto 12px;font-size:20px;text-align:center;padding:12px}
+.nsav{justify-content:center;max-width:380px;margin:0 auto}
 .kidrow{display:flex;align-items:center;gap:12px;width:100%;border:3px solid transparent;background:var(--bg);border-radius:18px;padding:8px 12px;cursor:pointer;text-align:left}
 .kidrow.on{border-color:var(--accent)}
 .kidrow .av{width:48px;height:48px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-size:30px;flex:none}
@@ -376,7 +382,7 @@ body{overscroll-behavior-y:none}
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="name" id="name">Ihanaa</span>'s Star Chart ⭐</h1>
+      <h1><span class="name" id="name"></span>'s Star Chart ⭐</h1>
       <div class="level" id="level"></div>
     </div>
     <button class="me" id="meBtn" type="button" aria-label="Parent menu" title="Parent menu"><span id="meAv">🦄</span><span class="lock" id="meLock" aria-hidden="true">🔒</span></button>
@@ -456,7 +462,7 @@ const DEFAULT_TASKS = [
   { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
   { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (self-rated)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
 ];
-const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{}, storyOn:true };
+const DEFAULTS = { name:'', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{}, storyOn:true };
 // Sounds, voice and words belong to the device, so they are the same for every child.
 const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0 };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
@@ -539,7 +545,7 @@ function normalise(d) {
   });
   s.goal = Number.isFinite(+s.goal) ? clamp(Math.round(+s.goal), 10, 100) : 60;
   s.reportDay = Number.isFinite(+s.reportDay) ? clamp(Math.round(+s.reportDay), 0, 6) : 5;
-  s.name = String(s.name || DEFAULTS.name).slice(0, 30);
+  s.name = String(s.name || '').trim().slice(0, 30);  // empty until a parent names the child
   s.reward = String(s.reward || '').slice(0, 80);
   s.game = s.game !== false;
   s.gameMins = [2, 3, 5].includes(+s.gameMins) ? +s.gameMins : 3;
@@ -820,9 +826,11 @@ function showMenu() {
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
   const pf = store.prefs, days = pf.lastBackup ? Math.floor((Date.now() - pf.lastBackup) / 86400000) : -1;
   const ago = days < 0 ? 'never' : days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago';
-  const kids = store.profiles.map(p => '<li><button type="button" class="kidrow' + (p === data ? ' on' : '') + '" data-kid="' + esc(p.id) + '">' +
+  const kids = store.profiles.map(p => '<li class="kidli"><button type="button" class="kidrow' + (p === data ? ' on' : '') + '" data-kid="' + esc(p.id) + '">' +
     '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>⭐ ' + statsOf(p).stars + ' this week' +
-    (p === data ? ' · showing now' : '') + '</small></span></button></li>').join('');
+    (p === data ? ' · showing now' : '') + '</small></span></button>' +
+    '<button type="button" class="kidact" data-edit="' + esc(p.id) + '" aria-label="Edit ' + esc(p.settings.name) + '" title="Edit name and picture">✏️</button>' +
+    '<button type="button" class="kidact" data-del="' + esc(p.id) + '" aria-label="Remove ' + esc(p.settings.name) + '" title="Remove">🗑️</button></li>').join('');
   openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
     '<h2>👪 Parents</h2><h3>Children</h3><ul class="kidlist">' + kids + '</ul>' +
     '<div class="menuacts">' +
@@ -834,6 +842,8 @@ function showMenu() {
             : '<button type="button" class="btn" id="mPin">🔢 Set a parent PIN</button>') +
     '<button type="button" class="btn primary" id="mLock">' + (pf.pin ? '🔒 Lock and close' : 'Close') + '</button></div>', 'settings');
   $('#sheet .kidlist').addEventListener('click', e => {
+    const ed = e.target.closest('[data-edit]'); if (ed) { showEditKid(ed.dataset.edit); return; }
+    const del = e.target.closest('[data-del]'); if (del) { removeKid(del.dataset.del); return; }
     const b = e.target.closest('[data-kid]'); if (!b) return;
     closeOverlay(); switchTo(b.dataset.kid);
   });
@@ -851,6 +861,58 @@ function showMenu() {
 }
 
 /* ---------- children ---------- */
+function showEditKid(id) {
+  const p = store.profiles.find(x => x.id === id); if (!p) return;
+  let av = p.avatar;
+  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button><h2>Edit child</h2>' +
+    '<label class="field"><span>Name</span><input id="eName" maxlength="30" autocomplete="off" value="' + esc(p.settings.name) + '"></label>' +
+    '<div class="field"><span>Their picture</span><div class="avatars" id="eAv">' + avatarButtons(av) + '</div></div>' +
+    '<div class="btnrow"><button type="button" class="btn danger" id="eRemove">🗑️ Remove ' + esc(p.settings.name) + '</button></div>' +
+    '<button type="button" class="reportbtn" id="eSave">Save</button>', 'settings');
+  $('#eAv').addEventListener('click', e => {
+    const b = e.target.closest('[data-av]'); if (!b) return;
+    av = b.dataset.av; $('#eAv').innerHTML = avatarButtons(av);
+  });
+  $('#eSave').addEventListener('click', () => {
+    const v = $('#eName').value.trim().slice(0, 30);
+    if (!v) { $('#eName').focus(); return; }
+    p.settings.name = v; p.avatar = av; save(); render(); showMenu(); toast('Saved ✔');
+  });
+  $('#eRemove').addEventListener('click', () => removeKid(id));
+}
+// Remove a child and all their stars. When it was the only child, a new unnamed child takes its place,
+// and the app asks for the name.
+function removeKid(id) {
+  const p = store.profiles.find(x => x.id === id); if (!p) return;
+  const name = p.settings.name || 'this child';
+  if (!confirm('Remove ' + name + ' and all of their stars, notes and photos from this phone? Download a backup first if you want to keep them.')) return;
+  if (p === data) stopStory();
+  store.profiles = store.profiles.filter(x => x !== p);
+  if (!store.profiles.length) store.profiles.push(normalise({ id: newId(), avatar: AVATARS[0], settings: {}, days: {} }));
+  if (!store.profiles.some(x => x.id === store.active)) store.active = store.profiles[0].id;
+  data = activeProfile(); selKey = keyOf(today()); weekStart = weekStartOf(today()); todayKeySeen = selKey;
+  save(); closeOverlay(); toast(name.charAt(0).toUpperCase() + name.slice(1) + ' removed');
+  if (!data.settings.name) showNameStep(true);
+}
+// A child without a name (a new install, or after the only child was removed): ask for the name and picture.
+function showNameStep(direct) {
+  const p = store.profiles.find(x => !x.settings.name) || data, box = $('#landPad');
+  let av = p.avatar;
+  if (direct) { $('#landLogo').innerHTML = LOGO_SVG; $('#landing').hidden = false; document.body.style.overflow = 'hidden'; }
+  box.innerHTML = '<h2>Who is this chart for?</h2><p class="small">Their name and picture. You can change them later in the parent menu.</p>' +
+    '<input id="nsName" class="nsname" maxlength="30" autocomplete="off" placeholder="Name" aria-label="Child\'s name">' +
+    '<div class="avatars nsav" id="nsAv">' + avatarButtons(av) + '</div>' +
+    '<button type="button" class="reportbtn" id="nsGo">Start ⭐</button>';
+  $('#nsAv').addEventListener('click', e => {
+    const b = e.target.closest('[data-av]'); if (!b) return;
+    av = b.dataset.av; $('#nsAv').innerHTML = avatarButtons(av);
+  });
+  $('#nsGo').addEventListener('click', () => {
+    const v = $('#nsName').value.trim().slice(0, 30);
+    if (!v) { $('#nsName').focus(); return; }
+    p.settings.name = v; p.avatar = av; save(); enterApp();
+  });
+}
 const avatarButtons = sel => AVATARS.map(a => '<button type="button" class="avbtn' + (a === sel ? ' on' : '') +
   '" data-av="' + a + '" aria-label="' + a + '" aria-pressed="' + (a === sel) + '">' + a + '</button>').join('');
 function renderKids() {
@@ -1166,7 +1228,7 @@ function showSettings() {
     '<div class="btnrow"><button type="button" class="btn" id="bExport">⬇️ Download backup</button>' +
     '<label class="btn" tabindex="0">⬆️ Restore backup<input type="file" id="bImport" accept="application/json,.json" hidden></label>' +
     '<button type="button" class="btn danger" id="bReset">Clear ' + esc(s.name) + '\'s stars</button>' +
-    (store.profiles.length > 1 ? '<button type="button" class="btn danger" id="bRemove">Remove ' + esc(s.name) + '</button>' : '') + '</div>' +
+    '<button type="button" class="btn danger" id="bRemove">🗑️ Remove ' + esc(s.name) + '</button></div>' +
     '<button type="button" class="reportbtn" data-close>Done</button>';
   openOverlay(html, 'settings');
   renderTaskSettings();
@@ -1213,13 +1275,7 @@ function showSettings() {
     if (!confirm('Delete all of ' + s.name + '\'s stars and notes? The pictures and settings stay. Download a backup first if you want to keep them.')) return;
     data.days = {}; save(); closeOverlay(); toast('Fresh start for ' + s.name + ' 🌱');
   });
-  const rm = $('#bRemove');
-  if (rm) rm.addEventListener('click', () => {
-    if (!confirm('Remove ' + s.name + ' and all of their stars, notes and photos from this browser?')) return;
-    store.profiles = store.profiles.filter(p => p !== data);
-    store.active = store.profiles[0].id; data = activeProfile();
-    selKey = keyOf(today()); weekStart = weekStartOf(today()); save(); closeOverlay(); toast(s.name + ' removed');
-  });
+  $('#bRemove').addEventListener('click', () => removeKid(data.id));
 }
 function renderTaskSettings() {
   const ul = $('#sTasks'), s = data.settings; if (!ul) return;
@@ -1816,6 +1872,7 @@ function showLanding() {
   else { box.innerHTML = '<button type="button" class="reportbtn" id="landStart">Start ⭐</button>'; $('#landStart').addEventListener('click', enterApp); }
 }
 function enterApp() {
+  if (store.profiles.some(p => !p.settings.name)) { showNameStep(); return; }
   if (store.profiles.length < 2) { hideLanding(); sayEnglish('Hello ' + data.settings.name + '!'); return; }
   const box = $('#landPad');
   box.innerHTML = '<h2>Who is rating today?</h2><div class="who">' + store.profiles.map(p =>
