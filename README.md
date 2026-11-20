@@ -1,6 +1,6 @@
 # Ihaaya
 
-*Good days, one star at a time.*
+*Shine a little brighter every day.*
 
 <p align="center">
   <img src="screenshots/1-landing.png" width="200" alt="Logo and parent PIN" />
