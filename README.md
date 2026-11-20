@@ -4,6 +4,8 @@ A picture star chart for young children. Every evening she rates her own day: 1 
 
 The app opens on a logo screen that asks for the 4-digit parent PIN (the first time, you choose it). With more than one child it then asks who is rating today. After 5 minutes in the background it locks again. On a phone, use Share → Add to Home Screen for an app icon.
 
+🎈 Daily game: when every picture is rated and the day reaches the goal, a balloon-pop game opens for 3 minutes (2, 3 or 5 in Settings), for that day only. She can stop and come back; the time adds up, and her best score is kept.
+
 Each child has a profile with their own pictures, goal, reward, stars and Friday report. Grown-ups tap the child's picture at the top right to open the parent menu (switch child, add a child, settings, backup). The menu is locked with a 4-digit parent PIN, a lock for little fingers; only a salted hash of the PIN is stored. While locked, a child can add a cry to the counter but not take one away.
 
 Open the page: https://ankitkatiyar567.github.io/ihaya/

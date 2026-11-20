@@ -120,6 +120,39 @@ h1 .name{color:var(--accent)}
 .whobtn .av{font-size:60px;line-height:1}
 .whobtn b{font-size:19px}
 .whobtn:active{transform:scale(.95)}
+/* daily game */
+.gamecard{padding:10px}
+.gamebtn{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:18px;padding:12px 16px;text-align:left;background:var(--bg2);color:var(--ink)}
+.gamebtn b{display:block;font-size:21px}
+.gamebtn small{color:var(--muted);font-size:13px}
+.gamebtn .gi{position:relative;font-size:46px;line-height:1;flex:none}
+.gamebtn .gi i{position:absolute;right:-8px;bottom:-4px;font-size:21px;font-style:normal}
+.gamebtn.ready{background:linear-gradient(90deg,#2ec4b6,#4dabf7);color:#fff;cursor:pointer;box-shadow:var(--shadow);animation:pulse 1.6s ease-in-out infinite}
+.gamebtn.ready small{color:#eafcff}
+.gamebtn.ready .gb{display:inline-block;animation:hop 1s ease-in-out infinite}
+.gamebtn.locked .gb{filter:grayscale(1);opacity:.55}
+.game{position:fixed;inset:0;z-index:120;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;
+  background:linear-gradient(#a9dcff,#e3f4ff 62%,#fff4d6)}
+.game[hidden]{display:none}
+.gtop{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:12px;padding:max(12px, env(safe-area-inset-top)) 14px 10px}
+.gtime{flex:1;height:16px;border-radius:999px;background:rgba(255,255,255,.75);overflow:hidden}
+.gtime i{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#ffb800,#ff5fa2)}
+.gscore{font-size:24px;font-weight:800;color:#2d2350;background:rgba(255,255,255,.8);border-radius:999px;padding:4px 14px}
+.gtop .iconbtn{background:rgba(255,255,255,.85);color:#2d2350}
+.gfield{position:absolute;inset:0;z-index:1}
+.cloud{position:absolute;left:-25%;font-size:64px;opacity:.85;animation:cloud var(--d,50s) linear infinite;pointer-events:none}
+@keyframes cloud{to{transform:translateX(150vw)}}
+.balloon{position:absolute;left:0;top:0;width:var(--w);cursor:pointer;will-change:transform}
+.balloon svg{display:block;width:100%;height:auto;pointer-events:none}
+.balloon .bstar{position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);font-size:calc(var(--w) * .42);pointer-events:none}
+.plus{position:absolute;font-weight:900;font-size:26px;color:#7c4dff;pointer-events:none;text-shadow:0 2px 0 #fff;animation:plusup .8s ease-out forwards}
+@keyframes plusup{to{transform:translateY(-50px);opacity:0}}
+.puff{position:absolute;width:12px;height:12px;border-radius:50%;pointer-events:none;animation:puff .45s ease-out forwards}
+@keyframes puff{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+.gend{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;
+  background:rgba(255,255,255,.7);color:#2d2350}
+.gend h2{font-size:34px;margin:8px 0}
+.gend .reportbtn{max-width:280px}
 /* parent button, PIN pad, parent menu */
 .me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
 .me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
@@ -313,6 +346,8 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
     </div>
   </section>
 
+  <section class="card gamecard" id="gameCard" aria-label="Daily game" hidden></section>
+
   <button class="reportbtn" id="reportBtn" type="button">🎁 Weekly report</button>
   <footer>Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
 </div>
@@ -321,6 +356,7 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
   <div class="fx" id="fx"></div>
   <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 </div>
+<div class="game" id="game" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -348,7 +384,7 @@ const DEFAULT_TASKS = [
   { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
   { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (self-rated)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
 ];
-const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'' };
+const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:0 };
 // Sounds, voice and words belong to the device, so they are the same for every child.
 const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0 };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
@@ -433,6 +469,9 @@ function normalise(d) {
   s.reportDay = Number.isFinite(+s.reportDay) ? clamp(Math.round(+s.reportDay), 0, 6) : 5;
   s.name = String(s.name || DEFAULTS.name).slice(0, 30);
   s.reward = String(s.reward || '').slice(0, 80);
+  s.game = s.game !== false;
+  s.gameMins = [2, 3, 5].includes(+s.gameMins) ? +s.gameMins : 3;
+  s.gameBest = Number.isFinite(+s.gameBest) ? Math.max(0, Math.round(+s.gameBest)) : 0;
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
   return { id: typeof d.id === 'string' && d.id ? d.id.slice(0, 40) : newId(),
@@ -515,6 +554,17 @@ const sfx = {
   day()  { [660, 880, 1100].forEach((f, i) => tone(f, i * .1, .3, 'triangle', .12)); },
   win()  { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i * .14, .34, 'triangle', .13)); },
   soft() { tone(587, 0, .4, 'sine', .09); tone(523, .3, .6, 'sine', .09); },
+  pop() {
+    if (!store.prefs.sound) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      const t0 = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'triangle'; o.frequency.setValueAtTime(760, t0); o.frequency.exponentialRampToValueAtTime(130, t0 + .12);
+      g.gain.setValueAtTime(.2, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + .15);
+      o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + .17);
+    } catch (e) { /* no sound, no problem */ }
+  },
 };
 function say(text) {
   if (!store.prefs.speak || !text || !('speechSynthesis' in window)) return;
@@ -756,7 +806,7 @@ function showAddKid() {
     if ($('#kCopy').checked) {
       settings = JSON.parse(JSON.stringify(data.settings));
       settings.tasks.forEach(t => delete t.photo);
-      settings.name = name; settings.reward = '';
+      settings.name = name; settings.reward = ''; settings.gameBest = 0;
     }
     const p = normalise({ id: newId(), avatar: av, settings, days: {} });
     store.profiles.push(p);
@@ -766,7 +816,7 @@ function showAddKid() {
 }
 
 /* ---------- rendering ---------- */
-function render() { renderKids(); renderHeader(); renderWeek(); renderProgress(); renderDay(); renderBanner(); $('#warn').hidden = storageOk; }
+function render() { renderKids(); renderHeader(); renderWeek(); renderProgress(); renderDay(); renderGame(); renderBanner(); $('#warn').hidden = storageOk; }
 
 function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
@@ -855,12 +905,14 @@ $('#tasks').addEventListener('click', e => {
 });
 function setVal(t, v, btn) {
   const rect = btn.getBoundingClientRect(), beforeDone = dayComplete(selKey), beforeLevel = levelOf(allStars());
+  const gameBefore = gameState().unlocked;
   const r = getRec(); r.r = r.r || {};
   let starred = 0;
   if (r.r[t.id] === v) delete r.r[t.id];
   else { r.r[t.id] = v; if (v > 0) { starred = v; justPopped = t.id; } }
   tidyRec(selKey); save(); render();
   if (starred) { burstAt(rect); sfx.stars(starred); }
+  if (!gameBefore && gameState().unlocked) { gameUnlocked(); return; }
   const lv = levelOf(allStars());
   if (lv > beforeLevel) {
     toast('New level: ' + LEVELS[lv][1] + ' ' + LEVELS[lv][2] + '! Well done, ' + data.settings.name + '!');
@@ -873,10 +925,12 @@ function setVal(t, v, btn) {
   }
 }
 function setCry(delta) {
+  const gameBefore = gameState().unlocked;
   const r = getRec(), c = Math.max(0, criesOf(r) + delta);
   if (c) r.c = c; else delete r.c;
   tidyRec(selKey); save(); render();
   if (delta < 0 && c < 3) sfx.stars(1);
+  if (!gameBefore && gameState().unlocked) gameUnlocked();
 }
 $('#note').addEventListener('input', e => {
   const k = selKey, v = e.target.value;
@@ -999,6 +1053,10 @@ function showSettings() {
     'no crying ⭐⭐⭐⭐⭐ · 1 cry ⭐⭐⭐ · 2 ⭐ · 3 ❌ · 4 ❌❌❌ · 5 or more ❌❌❌❌❌.</p>' +
     '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
+    '<h3>🎈 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, a balloon game opens for a few minutes, for that day only.</p>' +
+    '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
+    '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
+      '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
     '<h3>Sounds and words</h3><p class="small">These are for this phone or computer, for all children.</p>' +
     '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
     '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>Read the question aloud when a picture is tapped</span></label>' +
@@ -1036,6 +1094,8 @@ function showSettings() {
   $('#sDay').addEventListener('change', e => { s.reportDay = +e.target.value; weekStart = weekStartOf(fromKey(selKey)); save(); });
   $('#sGoal').addEventListener('input', e => { s.goal = +e.target.value; $('#sGoalV').textContent = s.goal + '%'; save(); });
   $('#sReward').addEventListener('input', e => { s.reward = e.target.value.slice(0, 80); save(); });
+  $('#sGame').addEventListener('change', e => { s.game = e.target.checked; save(); });
+  $('#sGameMins').addEventListener('change', e => { s.gameMins = +e.target.value; save(); });
   $('#sSound').addEventListener('change', e => { pf.sound = e.target.checked; save(); if (pf.sound) sfx.stars(3); });
   $('#sSpeak').addEventListener('change', e => { pf.speak = e.target.checked; save(); renderTaskSettings(); });
   $('#sVoice').addEventListener('change', e => { pf.voice = e.target.value; save(); });
@@ -1158,9 +1218,139 @@ function importData(e) {
   rd.readAsText(f);
 }
 
+/* ---------- daily game: balloon pop, a few minutes on a good day ---------- */
+let game = null;
+const mmss = t => Math.floor(t / 60) + ':' + pad(Math.floor(t % 60));
+const BCOLORS = ['#ff5fa2', '#7c4dff', '#2ec4b6', '#ff8c42', '#4dabf7', '#51cf66', '#f06595'];
+// Open today when every picture is rated and the day reaches the goal; settings.gameMins a day.
+function gameState() {
+  const s = data.settings, tk = keyOf(today()), rec = data.days[tk], n = enabledTasks().length, st = dayStats(tk);
+  const used = rec && Number.isFinite(rec.play) ? rec.play : 0, limit = s.gameMins * 60;
+  const done = n > 0 && st.rated === n, good = st.rated > 0 && st.p >= s.goal * st.rated;
+  return { on: s.game, done, unlocked: s.game && done && good, left: Math.max(0, limit - used), limit, toRate: n - st.rated };
+}
+function renderGame() {
+  const card = $('#gameCard'), g = gameState();
+  card.hidden = !g.on || selKey !== keyOf(today());
+  if (card.hidden) return;
+  const best = data.settings.gameBest ? ' · 🏆 ' + data.settings.gameBest : '';
+  const row = (cls, icon, title, sub, btn) => (btn ? '<button type="button" id="gameBtn"' : '<div') + ' class="gamebtn ' + cls + '">' +
+    '<span class="gi">' + icon + '</span><span><b>' + title + '</b><small>' + sub + '</small></span>' + (btn ? '</button>' : '</div>');
+  const locked = '<span class="gb">🎈</span><i>🔒</i>';
+  if (g.unlocked && g.left > 0) card.innerHTML = row('ready', '<span class="gb">🎈</span>', 'Play!', mmss(g.left) + ' left today' + best, true);
+  else if (g.unlocked) card.innerHTML = row('done', '<span class="gb">🌙</span>', 'Played today', 'See you tomorrow' + best);
+  else if (g.done) card.innerHTML = row('locked', locked, 'Tomorrow!', 'More stars open the balloon game');
+  else card.innerHTML = row('locked', locked, g.toRate + ' still to rate', 'Then, with enough stars, the balloon game opens');
+  const b = $('#gameBtn'); if (b) b.addEventListener('click', startGame);
+}
+function gameUnlocked() {
+  toast('🎈 The balloon game is open! Well done, ' + data.settings.name + '!');
+  setTimeout(() => sfx.win(), 300);
+  sayEnglish('Well done! You opened the balloon game!');
+  const b = $('#gameBtn'); if (b && !reduced) b.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function balloonSvg(c) {
+  return '<svg viewBox="0 0 60 86" aria-hidden="true"><path d="M30 2C14 2 3 15 3 31c0 18 15 31 27 35 12-4 27-17 27-35C57 15 46 2 30 2z" fill="' + c + '"/>' +
+    '<ellipse cx="19" cy="20" rx="6" ry="10" fill="#fff" opacity=".35"/><path d="M25 66h10l-5 6z" fill="' + c + '"/>' +
+    '<path d="M30 72q-5 7 0 14" stroke="#8a8a9a" stroke-width="1.6" fill="none"/></svg>';
+}
+function startGame() {
+  const g = gameState();
+  if (!g.unlocked || g.left <= 0 || (game && !game.over)) return;
+  const el = $('#game');
+  el.innerHTML = '<span class="cloud" style="top:14%;--d:46s;animation-delay:-8s">☁️</span>' +
+    '<span class="cloud" style="top:40%;--d:60s;animation-delay:-30s">☁️</span>' +
+    '<span class="cloud" style="top:66%;--d:52s;animation-delay:-18s">☁️</span>' +
+    '<div class="gfield" id="gField"></div>' +
+    '<div class="gtop"><div class="gtime" aria-hidden="true"><i id="gBar"></i></div><div class="gscore">🎈 <b id="gScore">0</b></div>' +
+    '<button type="button" class="iconbtn" id="gClose" aria-label="Stop the game">✕</button></div>';
+  el.hidden = false; document.body.style.overflow = 'hidden';
+  game = { profile:data, tk:keyOf(today()), score:0, left:g.left, limit:g.limit, last:performance.now(),
+    spawnIn:.3, elapsed:0, saveIn:5, balloons:[], over:false, raf:0 };
+  $('#gField').addEventListener('pointerdown', popAt);
+  $('#gClose').addEventListener('click', () => endGame(false));
+  game.raf = requestAnimationFrame(gameTick);
+  sayEnglish('Pop the balloons!');
+}
+function gameTick(now) {
+  const g = game; if (!g || g.over) return;
+  const dt = Math.min(.05, Math.max(0, (now - g.last) / 1000)); g.last = now;
+  g.left -= dt; g.elapsed += dt;
+  const field = $('#gField'), W = field.clientWidth, H = field.clientHeight;
+  $('#gBar').style.width = Math.max(0, g.left / g.limit * 100) + '%';
+  g.spawnIn -= dt;
+  if (g.spawnIn <= 0 && g.balloons.length < 12) {
+    g.spawnIn = Math.max(.45, .95 - g.elapsed * .004);
+    const w = Math.round(64 + Math.random() * 30 + Math.min(30, W / 40)), h = w * 86 / 60, gold = Math.random() < .12;
+    const el = document.createElement('div');
+    el.className = 'balloon'; el.style.setProperty('--w', w + 'px');
+    el.innerHTML = balloonSvg(gold ? '#ffc93c' : BCOLORS[Math.floor(Math.random() * BCOLORS.length)]) + (gold ? '<span class="bstar">⭐</span>' : '');
+    field.appendChild(el);
+    g.balloons.push({ el, w, h, gold, x0: Math.random() * Math.max(1, W - w), x: 0, y: H + 10,
+      speed: H * (.11 + Math.random() * .09), amp: 10 + Math.random() * 22, ph: Math.random() * 6.3, t: 0 });
+  }
+  for (let i = g.balloons.length - 1; i >= 0; i--) {
+    const b = g.balloons[i];
+    b.t += dt; b.y -= b.speed * dt; b.x = b.x0 + Math.sin(b.t * 1.3 + b.ph) * b.amp;
+    if (b.y + b.h < 0) { b.el.remove(); g.balloons.splice(i, 1); continue; }
+    b.el.style.transform = 'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px)';
+  }
+  g.saveIn -= dt;
+  if (g.saveIn <= 0) { g.saveIn = 5; savePlay(); }
+  if (g.left <= 0) { endGame(true); return; }
+  g.raf = requestAnimationFrame(gameTick);
+}
+function savePlay() {
+  const g = game; if (!g) return;
+  const rec = g.profile.days[g.tk] || (g.profile.days[g.tk] = { r:{} });
+  rec.play = Math.min(g.limit, Math.round(g.limit - Math.max(0, g.left)));
+  save();
+}
+function popAt(e) {
+  const g = game; if (!g || g.over) return;
+  const el = e.target.closest('.balloon'); if (!el) return;
+  const i = g.balloons.findIndex(b => b.el === el); if (i < 0) return;
+  const b = g.balloons[i], field = $('#gField'), color = el.querySelector('path').getAttribute('fill');
+  const cx = b.x + b.w / 2, cy = b.y + b.h * .38;
+  g.balloons.splice(i, 1); el.remove();
+  g.score += b.gold ? 3 : 1; $('#gScore').textContent = g.score;
+  const plus = document.createElement('span');
+  plus.className = 'plus'; plus.textContent = b.gold ? '+3 ⭐' : '+1';
+  plus.style.left = (cx - 14) + 'px'; plus.style.top = (cy - 20) + 'px';
+  field.appendChild(plus); setTimeout(() => plus.remove(), 850);
+  for (let k = 0; k < 8; k++) {
+    const d = document.createElement('i'), a = Math.PI * 2 * k / 8;
+    d.className = 'puff'; d.style.background = color; d.style.left = (cx - 6) + 'px'; d.style.top = (cy - 6) + 'px';
+    d.style.setProperty('--dx', Math.round(Math.cos(a) * 46) + 'px'); d.style.setProperty('--dy', Math.round(Math.sin(a) * 46) + 'px');
+    field.appendChild(d); setTimeout(() => d.remove(), 500);
+  }
+  if (b.gold) sfx.stars(3); else sfx.pop();
+}
+function endGame(timeUp, silent) {
+  const g = game; if (!g || g.over) return;
+  g.over = true; cancelAnimationFrame(g.raf);
+  savePlay();
+  const s = g.profile.settings, record = g.score > 0 && g.score > (s.gameBest || 0);
+  if (record) { s.gameBest = g.score; save(); }
+  if (silent) { closeGame(); return; }
+  const end = document.createElement('div');
+  end.className = 'gend';
+  end.innerHTML = '<div class="hero"><span class="bounce">' + (timeUp ? '⏰' : '🎈') + '</span></div><h2>🎈 ' + g.score + ' 🎉</h2>' +
+    (record ? '<p class="cheer">🏆 New record!</p>' : '') +
+    '<p class="cheer">' + (timeUp ? 'Time is up. See you tomorrow! 🌙' : mmss(g.limit - (g.profile.days[g.tk].play || 0)) + ' left for later today') + '</p>' +
+    '<button type="button" class="reportbtn" id="gDone">OK</button>';
+  $('#game').appendChild(end);
+  $('#gDone').addEventListener('click', closeGame);
+  if (timeUp) sfx.win();
+  sayEnglish((timeUp ? 'Time is up! ' : '') + 'You scored ' + g.score + '!' + (record ? ' A new record!' : '') + (timeUp ? ' See you tomorrow!' : ''));
+}
+function closeGame() { const el = $('#game'); el.hidden = true; el.innerHTML = ''; document.body.style.overflow = ''; render(); }
+window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
+
 /* ---------- landing: logo, then the PIN, then who is rating, then the chart ---------- */
 let hiddenAt = 0;
 function showLanding() {
+  if (game && !game.over) endGame(false, true);
   if (!$('#overlay').hidden) { $('#overlay').hidden = true; $('#fx').innerHTML = ''; }
   unlockedUntil = 0;
   const pf = store.prefs, box = $('#landPad');
@@ -1203,7 +1393,7 @@ setInterval(checkNewDay, 60 * 1000);
 render();
 showLanding();
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, gameState, switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
