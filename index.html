@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
+<title>Ihanaa's Star Chart</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fff8ec; --bg2:#ffedd0; --card:#ffffff; --ink:#2d2350; --muted:#6c6488; --line:#efe3cd;
+  --star:#ffb800; --star-bg:#fff3c4; --star-edge:#e39b00;
+  --no:#e5484d; --no-bg:#ffe8e8;
+  --accent:#7c4dff; --accent2:#ff5fa2; --ok:#1f9d72;
+  --tile-s:90%; --tile-l:88%;
+  --shadow:0 6px 18px rgba(90,60,0,.08);
+  --backdrop:rgba(40,20,80,.45);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17142b; --bg2:#231e40; --card:#241f42; --ink:#f4efff; --muted:#b9b0d8; --line:#3a3362;
+    --star:#ffc93c; --star-bg:#4a3c12; --star-edge:#ffb000;
+    --no:#ff6b6f; --no-bg:#4a1f2a;
+    --accent:#a98bff; --accent2:#ff7eb6; --ok:#43d39e;
+    --tile-s:35%; --tile-l:30%;
+    --shadow:0 6px 18px rgba(0,0,0,.35);
+    --backdrop:rgba(8,4,20,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17142b; --bg2:#231e40; --card:#241f42; --ink:#f4efff; --muted:#b9b0d8; --line:#3a3362;
+  --star:#ffc93c; --star-bg:#4a3c12; --star-edge:#ffb000;
+  --no:#ff6b6f; --no-bg:#4a1f2a;
+  --accent:#a98bff; --accent2:#ff7eb6; --ok:#43d39e;
+  --tile-s:35%; --tile-l:30%;
+  --shadow:0 6px 18px rgba(0,0,0,.35);
+  --backdrop:rgba(8,4,20,.6);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);
+  font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,sans-serif;line-height:1.35;
+  background-image:radial-gradient(circle at 8% 0%,var(--bg2) 0,transparent 38%),radial-gradient(circle at 100% 35%,var(--bg2) 0,transparent 30%)}
+button{font:inherit;color:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 48px}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+h1{font-size:clamp(21px,5.8vw,36px);margin:4px 0 2px;line-height:1.1}
+h1 .name{color:var(--accent)}
+.level{color:var(--muted);font-size:14px;margin-top:4px}
+.level b{color:var(--ink);font-size:16px}
+.hbtns{display:flex;gap:8px;flex:none}
+.iconbtn{flex:none;border:0;background:var(--card);box-shadow:var(--shadow);width:46px;height:46px;border-radius:16px;font-size:21px;cursor:pointer;display:grid;place-items:center;padding:0}
+.iconbtn[aria-pressed="true"]{background:var(--accent);color:#fff}
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:16px;margin-top:14px}
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.weektitle{text-align:center}
+.weektitle b{font-size:17px;display:block}
+.weektitle small{color:var(--muted)}
+.navbtn{border:0;background:var(--bg2);border-radius:12px;width:42px;height:42px;font-size:20px;cursor:pointer;flex:none}
+.navbtn:disabled{opacity:.3;cursor:default}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;padding:2px 4px;font-size:13px}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
+.day{border:2px solid transparent;background:var(--bg2);border-radius:14px;padding:6px 0;text-align:center;cursor:pointer;min-width:0}
+.day .dn{font-size:12px;color:var(--muted);display:block}
+.day .dd{font-size:19px;font-weight:800;display:block}
+.day .ds{font-size:11px;display:block;min-height:15px;white-space:nowrap}
+.day.sel{border-color:var(--accent);background:var(--card)}
+.day.today .dd{color:var(--accent2)}
+.day:disabled{opacity:.35;cursor:default}
+.ptop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pstars{font-size:26px;font-weight:800}
+.pmeta{color:var(--muted);font-size:14px}
+.track{position:relative;height:22px;border-radius:999px;background:var(--bg2);margin-top:30px}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,var(--star),var(--accent2));transition:width .5s}
+.goal{position:absolute;top:-7px;bottom:-7px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px;opacity:.55}
+.goal span{position:absolute;top:-23px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:700;white-space:nowrap}
+.mover{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:26px;transition:left .5s;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+.banner{margin-top:14px;padding:12px 16px;border-radius:18px;background:linear-gradient(90deg,var(--star-bg),var(--bg2));font-weight:800;text-align:center}
+.warn{margin-top:14px;padding:10px 14px;border-radius:14px;background:var(--no-bg);font-size:14px}
+.dayhead h2{margin:0;font-size:21px}
+.chip{background:var(--accent2);color:#fff;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:800;vertical-align:middle;margin-left:6px}
+.daysum{margin-top:4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.daysum .big{font-size:24px;font-weight:800}
+.daysum .left{color:var(--muted);font-size:14px}
+.tasks{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.task{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;padding:10px;border-radius:22px;background:var(--bg);border:2px solid var(--line);transition:background .2s,border-color .2s;--pic:clamp(66px,19vw,96px)}
+.task.got{border-color:var(--star);background:var(--star-bg)}
+.task.miss{border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+/* picture tiles */
+.pic{position:relative;width:var(--pic,88px);height:var(--pic,88px);border-radius:22px;border:0;padding:0;background:hsl(var(--h,40) var(--tile-s) var(--tile-l));display:grid;place-items:center;overflow:hidden;flex:none}
+button.pic{cursor:pointer}
+.pic .m{font-size:calc(var(--pic,88px) * .56);line-height:1}
+.pic .b{position:absolute;right:5%;bottom:3%;font-size:calc(var(--pic,88px) * .3);line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pic .spk{position:absolute;left:6px;top:5px;font-size:12px;opacity:.65}
+.pic .fire{position:absolute;right:4px;top:4px;font-size:12px;font-weight:800;background:var(--card);color:var(--ink);border-radius:999px;padding:0 6px;line-height:18px}
+.pic.say{animation:wiggle .5s ease-in-out}
+@keyframes wiggle{25%{transform:rotate(-7deg) scale(1.05)}75%{transform:rotate(7deg) scale(1.05)}}
+/* 1-5 stars and crosses */
+.scale{display:flex;flex-direction:column;gap:6px;min-width:0}
+.row5{display:flex;gap:5px}
+.sb{flex:1 1 0;min-width:0;max-width:54px;aspect-ratio:1/1;border-radius:14px;border:2px solid var(--line);background:var(--card);padding:0;cursor:pointer;display:grid;place-items:center;font-size:clamp(17px,5.2vw,28px);line-height:1;transition:transform .12s}
+.sb span{filter:grayscale(1);opacity:.25;transition:filter .15s,opacity .15s}
+.sb:active{transform:scale(.88)}
+.sb.on span{filter:none;opacity:1}
+.stars .sb.on{background:var(--star-bg);border-color:var(--star)}
+.crosses .sb{border-radius:12px}
+.crosses .sb.on{background:var(--no-bg);border-color:var(--no)}
+.sb.pop span{animation:pop .45s ease-out both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes pop{0%{transform:scale(.4)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.cries{display:flex;align-items:center;gap:10px}
+.cbtn{width:52px;height:52px;border-radius:16px;border:2px solid var(--line);background:var(--card);font-size:28px;font-weight:800;cursor:pointer;padding:0}
+.cbtn:active{transform:scale(.9)}
+.cval{min-width:40px;text-align:center;font-size:34px;font-weight:800}
+.cmark{font-size:clamp(17px,5.2vw,26px);letter-spacing:2px;min-height:1.2em}
+.tname,.cap{display:none}
+body.words .tname{display:block;font-weight:800;font-size:15px}
+body.words .tname small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+body.words .cap{display:block;font-size:13px;max-width:90px;text-align:center;line-height:1.2}
+.notewrap{margin-top:14px}
+.notewrap label{font-weight:800;font-size:15px}
+.note{display:block;width:100%;margin-top:6px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;padding:10px 12px;min-height:58px;resize:vertical}
+.reportbtn{display:block;width:100%;margin-top:16px;border:0;border-radius:20px;padding:17px;font-size:21px;font-weight:800;color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:var(--shadow);cursor:pointer}
+.reportbtn.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+footer{color:var(--muted);font-size:13px;text-align:center;margin-top:18px}
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:100;background:var(--backdrop);display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.overlay[hidden]{display:none}
+.fx{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.sheet{position:relative;z-index:2;background:var(--card);border-radius:26px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:100%;max-width:520px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:auto;padding:24px 20px 20px;text-align:center}
+.sheet.settings{text-align:left;max-width:640px}
+.sheet .close{position:absolute;top:12px;right:12px;width:40px;height:40px;font-size:18px}
+.repweek{color:var(--muted);font-size:14px;font-weight:700}
+.hero{font-size:88px;line-height:1;margin:10px 0 4px}
+.hero .bounce{display:inline-block;animation:hop 1s ease-in-out infinite}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.cryface{display:inline-block;animation:rock 2.6s ease-in-out infinite}
+@keyframes rock{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.sheet h2{margin:6px 0 6px;font-size:26px;line-height:1.15}
+.sheet h3{margin:20px 0 10px;font-size:17px}
+.bigstars{font-size:34px;font-weight:800;margin:4px 0 0}
+.sheet .track{margin:34px 4px 6px}
+.reward{margin-top:14px;padding:12px;border-radius:16px;background:var(--star-bg);font-size:17px}
+.cheer{font-size:17px}
+.better{margin-top:12px;font-weight:800;color:var(--ok)}
+.tiles{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.tile{display:flex;flex-direction:column;align-items:center;gap:4px;--pic:76px}
+.tile b{font-size:17px}
+.moments{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;text-align:left}
+.moments li{background:var(--bg);border-radius:14px;padding:9px 12px}
+.moments li i{color:var(--muted);font-style:normal;font-size:13px;display:block}
+.sheet .reportbtn{font-size:18px;padding:13px;margin-top:20px}
+/* running stars */
+.runner{position:absolute;left:0;top:0;will-change:transform;animation:run linear infinite}
+@keyframes run{from{transform:translateX(-170px)}to{transform:translateX(calc(100vw + 40px))}}
+.bob{animation:bob var(--step,.3s) ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-14%)}}
+.runner svg{display:block;width:100%;height:auto;overflow:visible;transform:rotate(9deg)}
+.runner .body{fill:var(--star);stroke:var(--star-edge);stroke-width:3;stroke-linejoin:round}
+.runner .eye{fill:#3b2a00}
+.runner .cheek{fill:#ff8fa3;opacity:.7}
+.runner .smile{fill:none;stroke:#3b2a00;stroke-width:3;stroke-linecap:round}
+.runner .leg line{stroke:#6b4a12;stroke-width:5;stroke-linecap:round}
+.runner .leg ellipse{fill:var(--accent2)}
+.runner .l1{transform-origin:41px 74px;animation:swing var(--step,.3s) ease-in-out infinite alternate}
+.runner .l2{transform-origin:59px 74px;animation:swing var(--step,.3s) ease-in-out infinite alternate-reverse}
+@keyframes swing{from{transform:rotate(32deg)}to{transform:rotate(-32deg)}}
+.confetti{position:absolute;top:-24px;width:10px;height:15px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(calc(100vh + 60px)) rotate(760deg)}}
+.spark{position:fixed;z-index:60;pointer-events:none;font-size:18px;transform:translate(-50%,-50%);animation:spark .75s ease-out forwards}
+@keyframes spark{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.4);opacity:0}}
+.toast{position:fixed;left:50%;bottom:22px;z-index:200;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:18px;padding:13px 18px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+/* settings */
+.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.field > span{font-weight:700;font-size:15px}
+.field.check{flex-direction:row;align-items:center;gap:10px}
+.small{color:var(--muted);font-size:13px;margin:4px 0}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0;width:100%}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);padding:0;flex:none}
+input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
+.setlist{list-style:none;padding:0;margin:8px 0;display:flex;flex-direction:column;gap:10px}
+.setlist li{display:grid;grid-template-columns:24px 56px minmax(0,1fr) 36px;gap:6px 8px;align-items:center;padding:10px;border-radius:16px;background:var(--bg);--pic:56px}
+.setlist li.off{opacity:.55}
+.setlist .full{grid-column:2/-1}
+.picrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.picrow input{width:58px;text-align:center;padding:6px}
+.del{border:0;background:none;font-size:18px;cursor:pointer;padding:0}
+.addtask{display:grid;grid-template-columns:58px 58px minmax(0,1fr);gap:6px;padding:10px;border-radius:16px;border:2px dashed var(--line)}
+.addtask input.e{text-align:center;padding:6px}
+.addtask .full{grid-column:1/-1}
+.btn{border:0;border-radius:12px;padding:9px 13px;font-weight:800;background:var(--bg2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.danger{background:var(--no-bg);color:var(--no)}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.scoretbl{font-size:13px;color:var(--muted);line-height:1.6}
+@media (max-width:420px){
+  .wrap{padding:12px 12px 40px}
+  .card{padding:12px}
+  .task{gap:9px;padding:8px}
+  .row5{gap:4px}
+  .sb{border-radius:11px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="name" id="name">Ihanaa</span>'s Star Chart ⭐</h1>
+      <div class="level" id="level"></div>
+    </div>
+    <div class="hbtns">
+      <button class="iconbtn" id="wordsBtn" type="button" aria-label="Show words" title="Show words (for grown-ups)">🔤</button>
+      <button class="iconbtn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <div class="warn" id="warn" hidden>This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
+  <div class="banner" id="banner" hidden></div>
+
+  <section class="card" aria-label="Week">
+    <div class="weeknav">
+      <button class="navbtn" id="prevWeek" type="button" aria-label="Previous week">‹</button>
+      <div class="weektitle"><b id="weekLabel"></b><small id="weekHint"></small> <button class="linkbtn" id="todayBtn" type="button" hidden>Back to today</button></div>
+      <button class="navbtn" id="nextWeek" type="button" aria-label="Next week">›</button>
+    </div>
+    <div class="days" id="days"></div>
+    <div class="ptop">
+      <div class="pstars">⭐ <span id="wStars">0</span></div>
+      <div class="pmeta" id="wMeta"></div>
+    </div>
+    <div class="track" aria-hidden="true">
+      <div class="fill" id="fill" style="width:0"></div>
+      <div class="goal" id="goal"><span id="goalLbl"></span></div>
+      <div class="mover" id="mover">⭐</div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Day">
+    <div class="dayhead">
+      <h2><span id="dayName"></span><span class="chip" id="todayChip" hidden>Today</span></h2>
+      <div class="daysum" id="daySum"></div>
+    </div>
+    <ul class="tasks" id="tasks"></ul>
+    <div class="notewrap">
+      <label for="note">💌 A lovely moment today (optional)</label>
+      <textarea class="note" id="note" maxlength="300" placeholder="She shared her crayons with her cousin…"></textarea>
+    </div>
+  </section>
+
+  <button class="reportbtn" id="reportBtn" type="button">🎁 Weekly report</button>
+  <footer>Tap a picture to hear the question. Stars are saved in this browser only: download a backup now and then in ⚙️ Settings.</footer>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="fx" id="fx"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const STORE_KEY = 'ihanaa-star-chart-v2';
+// emoji = the big picture, badge = the small picture in the corner, ask = what the page says when she taps the picture.
+const DEFAULT_TASKS = [
+  { id:'sleep',   h:250, emoji:'😴', badge:'🌙', title:'Slept well',        hint:'Went to bed nicely and slept through the night', ask:'Did you sleep well last night?', on:true },
+  { id:'rest',    h:200, emoji:'🛌', badge:'☀️', title:'Daytime rest',      hint:'Napped or rested for about 1 hour', ask:'Did you have your rest today?', on:true },
+  { id:'tv',      h:15,  emoji:'📺', badge:'⏰', title:'TV time',           hint:'30 minutes at most, and switched it off herself', ask:'Did you watch TV for a short time, and switch it off yourself?', on:true },
+  { id:'play',    h:48,  emoji:'🖍️', badge:'🧩', title:'Played by herself', hint:'Craft, colouring, Lego or another game', ask:'Did you play by yourself? Colouring, crafts or Lego?', on:true },
+  { id:'food',    h:115, emoji:'🍽️', badge:'😋', title:'Finished her food', hint:'Ate her meal and finished on time', ask:'Did you finish your food, on time?', on:true },
+  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + each time she cries. No crying = 5 stars; each cry takes 2 stars away', ask:'How many times did you cry today?', on:true, count:true },
+  { id:'teeth',   h:185, emoji:'🪥', badge:'😁', title:'Brushed teeth',     hint:'Morning and bedtime', ask:'Did you brush your teeth, morning and night?', on:true },
+  { id:'tidy',    h:28,  emoji:'🧸', badge:'🧺', title:'Tidied up',         hint:'Put her toys back after playing', ask:'Did you put your toys back after playing?', on:true },
+  { id:'kind',    h:345, emoji:'🤗', badge:'💛', title:'Kind and helpful',  hint:'Helped, shared or said something nice', ask:'Were you kind and helpful today?', on:true },
+  { id:'dress',   h:275, emoji:'👗', badge:'👟', title:'Got dressed',       hint:'Put her clothes on herself (a little help is fine)', ask:'Did you get dressed by yourself?', on:false },
+  { id:'listen',  h:160, emoji:'👂', badge:'👍', title:'Listened the first time', hint:'Did it when asked, without reminders', ask:'Did you listen the first time?', on:false },
+  { id:'manners', h:60,  emoji:'🙏', badge:'💬', title:'Please and thank you', hint:'Used her magic words', ask:'Did you say please and thank you?', on:false },
+  { id:'brave',   h:95,  emoji:'🥦', badge:'🦁', title:'Tried something new', hint:'A new food, a new game or something brave', ask:'Did you try something new today?', on:false },
+  { id:'book',    h:220, emoji:'📖', badge:'🐻', title:'Story time',        hint:'Looked at a book or listened to a story', ask:'Did you read a book or listen to a story?', on:false },
+  { id:'outside', h:135, emoji:'🌳', badge:'⚽', title:'Played outside',    hint:'Fresh air and running around', ask:'Did you play outside today?', on:false },
+  { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
+  { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (she rates herself)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
+];
+const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, sound:true, speak:true, voice:'en-GB', words:false, reward:'' };
+const VOICES = [['en-GB','English (UK)'],['en-US','English (US)'],['en-IN','English (India)'],['hi-IN','हिन्दी (Hindi)'],['fi-FI','Suomi (Finnish)']];
+const LEVELS = [[0,'🌱','Little Seed'],[40,'🌷','Tulip'],[100,'🐣','Chick'],[180,'🦋','Butterfly'],[280,'🐬','Dolphin'],
+  [400,'🦄','Unicorn'],[550,'🚀','Rocket'],[750,'🌈','Rainbow'],[1000,'👑','Star Queen'],[1300,'🌟','Shining Star']];
+const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const STAR_SVG = '<svg viewBox="0 0 100 120" aria-hidden="true">' +
+  '<g class="leg l1"><line x1="41" y1="74" x2="41" y2="107"/><ellipse cx="45" cy="109" rx="8" ry="4.5"/></g>' +
+  '<g class="leg l2"><line x1="59" y1="74" x2="59" y2="107"/><ellipse cx="63" cy="109" rx="8" ry="4.5"/></g>' +
+  '<path class="body" d="M50 8 L61.17 36.63 L91.85 38.4 L68.07 57.87 L75.86 87.6 L50 71 L24.14 87.6 L31.93 57.87 L8.15 38.4 L38.83 36.63 Z"/>' +
+  '<circle class="eye" cx="43" cy="46" r="4"/><circle class="eye" cx="57" cy="46" r="4"/>' +
+  '<circle class="cheek" cx="36" cy="55" r="4"/><circle class="cheek" cx="64" cy="55" r="4"/>' +
+  '<path class="smile" d="M43 56 Q50 64 57 56"/></svg>';
+const PHOTO_RE = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+const pad = n => String(n).padStart(2, '0');
+const keyOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const fromKey = k => { const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const today = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const fmtShort = d => d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+const fmtLong = d => d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+const okV = v => Number.isInteger(v) && v !== 0 && v >= -5 && v <= 5;
+// Score of one mark: ⭐5 = 100, ⭐1 = 60, ❌1 = 40, ❌5 = 0.
+const points = v => 50 + 10 * v;
+const hueOf = t => Number.isFinite(t.h) ? t.h : [...t.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+
+let storageOk = true;
+let data = load();
+let selKey = keyOf(today());
+let weekStart = weekStartOf(today());
+let todayKeySeen = selKey;
+let justPopped = null;
+let noteTimer = null;
+
+function load() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { storageOk = false; }
+  return normalise(d);
+}
+function normalise(d) {
+  if (!d || typeof d !== 'object') d = {};
+  const s = Object.assign({}, DEFAULTS, d.settings && typeof d.settings === 'object' ? d.settings : {});
+  let tasks = Array.isArray(s.tasks) ? s.tasks.filter(t => t && typeof t.id === 'string') : DEFAULT_TASKS.map(t => Object.assign({}, t));
+  for (const t of DEFAULT_TASKS) if (!tasks.some(x => x.id === t.id)) tasks.push(Object.assign({}, t, { on:false }));
+  s.tasks = tasks.map(t => {
+    const def = DEFAULT_TASKS.find(x => x.id === t.id) || {};
+    const o = Object.assign({ emoji:'⭐', badge:'', title:'Task', hint:'', ask:'', on:true }, def, t, { count: !!def.count });
+    for (const k of ['emoji', 'badge', 'title', 'hint', 'ask']) o[k] = String(o[k] == null ? '' : o[k]).slice(0, k === 'emoji' || k === 'badge' ? 8 : 120);
+    o.on = o.on !== false;
+    if (o.photo && !PHOTO_RE.test(o.photo)) delete o.photo;
+    return o;
+  });
+  s.goal = Number.isFinite(+s.goal) ? clamp(Math.round(+s.goal), 10, 100) : 60;
+  s.reportDay = Number.isFinite(+s.reportDay) ? clamp(Math.round(+s.reportDay), 0, 6) : 5;
+  s.name = String(s.name || DEFAULTS.name).slice(0, 30);
+  s.reward = String(s.reward || '').slice(0, 80);
+  s.voice = VOICES.some(v => v[0] === s.voice) ? s.voice : 'en-GB';
+  s.sound = s.sound !== false; s.speak = s.speak !== false; s.words = s.words === true;
+  const days = d.days && typeof d.days === 'object' ? d.days : {};
+  return { version:2, settings:s, days };
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); storageOk = true; } catch (e) { storageOk = false; }
+  $('#warn').hidden = storageOk;
+  return storageOk;
+}
+function weekStartOf(d) {
+  const start = (data.settings.reportDay + 1) % 7;
+  return addDays(d, -((d.getDay() - start + 7) % 7));
+}
+const enabledTasks = () => data.settings.tasks.filter(t => t.on);
+const findTask = id => data.settings.tasks.find(t => t.id === id);
+// Crying counter: 0 cries = ⭐5, 1 = ⭐3, 2 = ⭐1, 3 = ❌1, 4 = ❌3, 5 or more = ❌5 (each cry = 20 points).
+const cryMark = c => [5, 3, 1, -1, -3][c] || -5;
+const criesOf = rec => rec && Number.isInteger(rec.c) && rec.c > 0 ? rec.c : 0;
+function tracked(rec) { return !!rec && (criesOf(rec) > 0 || (!!rec.r && Object.keys(rec.r).some(id => okV(rec.r[id])))); }
+function val(t, rec) {
+  if (t.count) return tracked(rec) ? cryMark(criesOf(rec)) : 0;
+  const v = rec && rec.r ? rec.r[t.id] : 0; return okV(v) ? v : 0;
+}
+function dayStats(k) {
+  const rec = data.days[k]; let stars = 0, crosses = 0, rated = 0, p = 0;
+  for (const t of enabledTasks()) {
+    const v = val(t, rec); if (!v) continue;
+    rated++; p += points(v); if (v > 0) stars += v; else crosses -= v;
+  }
+  return { stars, crosses, rated, p };
+}
+function dayComplete(k) { const st = dayStats(k); return st.rated > 0 && st.rated === enabledTasks().length; }
+function weekStats(ws) {
+  const per = {}; let stars = 0, crosses = 0, rated = 0, p = 0, cries = 0;
+  for (const t of enabledTasks()) per[t.id] = { stars:0, crosses:0, rated:0, p:0 };
+  for (let i = 0; i < 7; i++) {
+    const rec = data.days[keyOf(addDays(ws, i))]; if (!rec) continue;
+    cries += criesOf(rec);
+    for (const t of enabledTasks()) {
+      const v = val(t, rec); if (!v) continue;
+      const q = per[t.id]; rated++; q.rated++; p += points(v); q.p += points(v);
+      if (v > 0) { stars += v; q.stars += v; } else { crosses -= v; q.crosses -= v; }
+    }
+  }
+  return { stars, crosses, rated, p, per, cries, pct: rated ? Math.round(p / rated) : 0, win: rated > 0 && p >= data.settings.goal * rated };
+}
+function allStars() { let n = 0; for (const k in data.days) n += dayStats(k).stars; return n; }
+function levelOf(n) { let i = 0; while (i + 1 < LEVELS.length && n >= LEVELS[i + 1][0]) i++; return i; }
+function streak(t, k) {
+  let d = fromKey(k);
+  if (!val(t, data.days[k])) d = addDays(d, -1);
+  let n = 0;
+  for (let i = 0; i < 400 && val(t, data.days[keyOf(d)]) > 0; i++) { n++; d = addDays(d, -1); }
+  return n;
+}
+function getRec() { return data.days[selKey] || (data.days[selKey] = { r:{} }); }
+function tidyRec(k) {
+  const r = data.days[k]; if (!r) return;
+  if ((!r.r || !Object.keys(r.r).length) && !(Number.isInteger(r.c) && r.c > 0) && !r.note) delete data.days[k];
+}
+
+/* ---------- sounds and voice ---------- */
+let actx = null;
+function tone(freq, at, dur, type, vol) {
+  if (!data.settings.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const t0 = actx.currentTime + at, o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol || 0.14, t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+  } catch (e) { /* no sound, no problem */ }
+}
+const sfx = {
+  stars(n) { [784, 880, 988, 1175, 1319].slice(0, n).forEach((f, i) => tone(f, i * .08, .24)); },
+  day()  { [660, 880, 1100].forEach((f, i) => tone(f, i * .1, .3, 'triangle', .12)); },
+  win()  { [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i * .14, .34, 'triangle', .13)); },
+  soft() { tone(587, 0, .4, 'sine', .09); tone(523, .3, .6, 'sine', .09); },
+};
+function say(text) {
+  if (!data.settings.speak || !text || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text), lang = data.settings.voice;
+    u.lang = lang; u.rate = .9; u.pitch = 1.1;
+    const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.replace('_', '-').toLowerCase() === lang.toLowerCase()) ||
+      speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  } catch (e) { /* no voice, no problem */ }
+}
+const sayEnglish = text => { if (data.settings.voice.startsWith('en')) say(text); };
+if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* ignore */ } }
+
+/* ---------- little effects ---------- */
+function burstAt(rect) {
+  if (reduced || !rect) return;
+  const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('span'), a = Math.PI * 2 * i / 8;
+    s.className = 'spark'; s.textContent = i % 2 ? '✨' : '⭐';
+    s.style.left = cx + 'px'; s.style.top = cy + 'px';
+    s.style.setProperty('--dx', Math.round(Math.cos(a) * 62) + 'px');
+    s.style.setProperty('--dy', Math.round(Math.sin(a) * 62) + 'px');
+    document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+  }
+}
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+function confetti(box, n) {
+  if (reduced) return;
+  const colors = ['#ffb800', '#ff5fa2', '#7c4dff', '#2ec4b6', '#ff8c42', '#4dabf7'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i'); c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + '%';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = (2.4 + Math.random() * 2.2) + 's';
+    c.style.animationDelay = (Math.random() * .8) + 's';
+    box.appendChild(c); setTimeout(() => c.remove(), 5600);
+  }
+}
+function runningStars(box) {
+  const n = window.innerWidth < 600 ? 8 : 14;
+  for (let i = 0; i < n; i++) {
+    const r = document.createElement('div'), w = 44 + Math.random() * 46, dur = 4 + Math.random() * 5;
+    r.className = 'runner';
+    r.style.width = Math.round(w) + 'px';
+    r.style.top = (i % 2 ? 2 + Math.random() * 14 : 74 + Math.random() * 12).toFixed(1) + '%';
+    r.style.setProperty('--step', (0.2 + Math.random() * 0.14).toFixed(2) + 's');
+    if (reduced) { r.style.animation = 'none'; r.style.left = (Math.random() * 85).toFixed(1) + '%'; }
+    else { r.style.animationDuration = dur.toFixed(2) + 's'; r.style.animationDelay = (-Math.random() * dur).toFixed(2) + 's'; }
+    r.innerHTML = '<div class="bob">' + STAR_SVG + '</div>';
+    box.appendChild(r);
+  }
+}
+
+/* ---------- pictures ---------- */
+function picHtml(t, o) {
+  o = o || {};
+  const inner = t.photo ? '<img src="' + esc(t.photo) + '" alt="">'
+    : '<span class="m">' + esc(t.emoji) + '</span>' + (t.badge ? '<span class="b">' + esc(t.badge) + '</span>' : '');
+  const style = '--h:' + hueOf(t) + (o.size ? ';--pic:' + o.size + 'px' : '');
+  const extra = (o.speak && data.settings.speak ? '<span class="spk" aria-hidden="true">🔊</span>' : '') +
+    (o.fire ? '<span class="fire" title="' + o.fire + ' days in a row">🔥' + o.fire + '</span>' : '');
+  return o.speak
+    ? '<button type="button" class="pic" style="' + style + '" aria-label="' + esc(t.title) + ': tap to hear the question">' + inner + extra + '</button>'
+    : '<div class="pic" style="' + style + '" role="img" aria-label="' + esc(t.title) + '">' + inner + extra + '</div>';
+}
+function rowHtml(t, v, sign) {
+  const filled = sign > 0 ? Math.max(0, v) : Math.max(0, -v), sym = sign > 0 ? '⭐' : '❌', word = sign > 0 ? 'star' : 'cross';
+  let h = '<div class="row5 ' + (sign > 0 ? 'stars' : 'crosses') + '" role="group" aria-label="' + (sign > 0 ? 'Stars' : 'Crosses') + ': ' + esc(t.title) + '">';
+  for (let i = 1; i <= 5; i++) {
+    const on = i <= filled, pop = on && sign > 0 && justPopped === t.id;
+    h += '<button type="button" class="sb' + (on ? ' on' : '') + (pop ? ' pop' : '') + '" style="--i:' + (i - 1) + '" data-v="' + (sign * i) +
+      '" aria-pressed="' + (filled === i) + '" aria-label="' + i + ' ' + word + (i > 1 ? (sign > 0 ? 's' : 'es') : '') + '"><span>' + sym + '</span></button>';
+  }
+  return h + '</div>';
+}
+
+/* ---------- rendering ---------- */
+function render() { renderHeader(); renderWeek(); renderProgress(); renderDay(); renderBanner(); $('#warn').hidden = storageOk; }
+
+function renderHeader() {
+  const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
+  document.body.classList.toggle('words', s.words);
+  $('#wordsBtn').setAttribute('aria-pressed', String(s.words));
+  $('#name').textContent = s.name;
+  document.title = s.name + "'s Star Chart";
+  $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
+    (next ? ' · ' + (next[0] - n) + ' more to ' + next[1] : ' · top level!');
+}
+function renderWeek() {
+  const t = today(), tk = keyOf(t), we = addDays(weekStart, 6), isNow = keyOf(weekStart) === keyOf(weekStartOf(t));
+  $('#weekLabel').textContent = fmtShort(weekStart) + ' – ' + fmtShort(we);
+  $('#weekHint').textContent = isNow ? 'This week · report on ' + WEEKDAYS[data.settings.reportDay] : '';
+  $('#todayBtn').hidden = isNow && selKey === tk;
+  $('#nextWeek').disabled = addDays(weekStart, 7) > t;
+  const box = $('#days'); box.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStart, i), k = keyOf(d), st = dayStats(k), b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'day' + (k === selKey ? ' sel' : '') + (k === tk ? ' today' : '');
+    b.disabled = d > t;
+    b.innerHTML = '<span class="dn">' + esc(d.toLocaleDateString('en-GB', { weekday:'short' })) + '</span><span class="dd">' +
+      d.getDate() + '</span><span class="ds">' + (st.stars ? '⭐' + st.stars : '') + '</span>';
+    b.setAttribute('aria-label', fmtLong(d) + ': ' + st.stars + ' stars');
+    b.addEventListener('click', () => { selKey = k; render(); });
+    box.appendChild(b);
+  }
+}
+function renderProgress() {
+  const st = weekStats(weekStart), g = data.settings.goal;
+  $('#wStars').textContent = st.stars;
+  $('#wMeta').textContent = st.rated ? 'Score ' + st.pct + '% · goal ' + g + '%' : 'Goal: ' + g + '%';
+  $('#fill').style.width = st.pct + '%';
+  $('#goal').style.left = g + '%';
+  $('#goalLbl').textContent = '🏁 ' + g + '%';
+  $('#mover').style.left = clamp(st.pct, 3, 97) + '%';
+  $('#mover').textContent = st.win ? '🌟' : '⭐';
+}
+function renderDay() {
+  const d = fromKey(selKey), rec = data.days[selKey] || {}, st = dayStats(selKey), n = enabledTasks().length;
+  $('#dayName').textContent = fmtLong(d);
+  $('#todayChip').hidden = selKey !== keyOf(today());
+  const left = n - st.rated;
+  $('#daySum').innerHTML = '<span class="big">⭐ ' + st.stars + '</span><span class="big">❌ ' + st.crosses + '</span>' +
+    '<span class="left">' + (left ? left + ' still to rate' : 'all rated ✔') + '</span>';
+  const ul = $('#tasks'); ul.innerHTML = '';
+  for (const t of enabledTasks()) {
+    const v = val(t, rec), sk = streak(t, selKey), li = document.createElement('li');
+    li.className = 'task' + (v > 0 ? ' got' : v < 0 ? ' miss' : '');
+    li.dataset.id = t.id;
+    let h = picHtml(t, { speak:true, fire: sk >= 2 ? sk : 0 }) + '<div class="scale">';
+    if (t.count) {
+      const c = criesOf(rec), m = cryMark(c);
+      h += '<div class="cries"><button type="button" class="cbtn" data-cry="-1" aria-label="One cry less">−</button>' +
+        '<span class="cval" aria-label="Cries today">' + c + '</span>' +
+        '<button type="button" class="cbtn" data-cry="1" aria-label="One more cry">+</button></div>' +
+        '<div class="cmark" aria-label="' + (m > 0 ? m + ' stars' : -m + ' crosses') + '">' + (m > 0 ? '⭐'.repeat(m) : '❌'.repeat(-m)) + '</div>';
+    } else h += rowHtml(t, v, 1) + rowHtml(t, v, -1);
+    h += '<div class="tname">' + esc(t.title) + (t.hint ? '<small>' + esc(t.hint) + '</small>' : '') + '</div></div>';
+    li.innerHTML = h;
+    ul.appendChild(li);
+  }
+  justPopped = null;
+  const note = $('#note');
+  if (document.activeElement !== note) note.value = rec.note || '';
+}
+function renderBanner() {
+  const now = new Date(), s = data.settings;
+  const show = now.getDay() === s.reportDay && now.getHours() >= 16 && keyOf(weekStart) === keyOf(weekStartOf(today()));
+  const b = $('#banner');
+  b.hidden = !show;
+  if (show) b.textContent = '🎉 It\'s ' + WEEKDAYS[s.reportDay] + ' evening: time for ' + s.name + '\'s weekly report!';
+  $('#reportBtn').classList.toggle('pulse', show && !reduced);
+}
+
+/* ---------- actions ---------- */
+$('#tasks').addEventListener('click', e => {
+  const li = e.target.closest('.task'); if (!li) return;
+  const t = findTask(li.dataset.id); if (!t) return;
+  const sb = e.target.closest('.sb');
+  if (sb) { setVal(t, +sb.dataset.v, sb); return; }
+  const cb = e.target.closest('[data-cry]');
+  if (cb) { setCry(+cb.dataset.cry); return; }
+  const pic = e.target.closest('.pic');
+  if (pic) { say(t.ask || t.title); pic.classList.remove('say'); void pic.offsetWidth; pic.classList.add('say'); }
+});
+function setVal(t, v, btn) {
+  const rect = btn.getBoundingClientRect(), beforeDone = dayComplete(selKey), beforeLevel = levelOf(allStars());
+  const r = getRec(); r.r = r.r || {};
+  let starred = 0;
+  if (r.r[t.id] === v) delete r.r[t.id];
+  else { r.r[t.id] = v; if (v > 0) { starred = v; justPopped = t.id; } }
+  tidyRec(selKey); save(); render();
+  if (starred) { burstAt(rect); sfx.stars(starred); }
+  const lv = levelOf(allStars());
+  if (lv > beforeLevel) {
+    toast('New level: ' + LEVELS[lv][1] + ' ' + LEVELS[lv][2] + '! Well done, ' + data.settings.name + '!');
+    setTimeout(() => sfx.day(), 400); return;
+  }
+  if (!beforeDone && dayComplete(selKey)) {
+    const st = dayStats(selKey);
+    if (st.p >= data.settings.goal * st.rated) { toast('What a day, ' + data.settings.name + '! ⭐ ' + st.stars); setTimeout(() => sfx.day(), 400); }
+    else toast('⭐ ' + st.stars + ' today. Tomorrow is a new adventure 🌈');
+  }
+}
+function setCry(delta) {
+  const r = getRec(), c = Math.max(0, criesOf(r) + delta);
+  if (c) r.c = c; else delete r.c;
+  tidyRec(selKey); save(); render();
+  if (delta < 0 && c < 3) sfx.stars(1);
+}
+$('#note').addEventListener('input', e => {
+  const k = selKey, v = e.target.value;
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => {
+    const r = data.days[k] || (data.days[k] = { r:{} });
+    if (v.trim()) r.note = v; else delete r.note;
+    tidyRec(k); save();
+  }, 400);
+});
+$('#prevWeek').addEventListener('click', () => { weekStart = addDays(weekStart, -7); selKey = keyOf(addDays(weekStart, 6)); render(); });
+$('#nextWeek').addEventListener('click', () => {
+  const t = today(), ws = addDays(weekStart, 7);
+  if (ws > t) return;
+  weekStart = ws; const we = addDays(ws, 6);
+  selKey = keyOf(we > t ? t : we); render();
+});
+$('#todayBtn').addEventListener('click', () => { selKey = keyOf(today()); weekStart = weekStartOf(today()); render(); });
+$('#wordsBtn').addEventListener('click', () => { data.settings.words = !data.settings.words; save(); render(); });
+
+/* ---------- overlays ---------- */
+function openOverlay(html, cls) {
+  const ov = $('#overlay'), sh = $('#sheet');
+  $('#fx').innerHTML = '';
+  sh.className = 'sheet' + (cls ? ' ' + cls : '');
+  sh.innerHTML = html; ov.hidden = false; sh.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  const c = sh.querySelector('.close'); if (c) c.focus({ preventScroll:true });
+}
+function closeOverlay() {
+  $('#overlay').hidden = true; $('#fx').innerHTML = ''; document.body.style.overflow = '';
+  if ('speechSynthesis' in window) { try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+  render();
+}
+$('#overlay').addEventListener('click', e => {
+  if (e.target.id === 'overlay' || e.target.closest('[data-close]')) closeOverlay();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#overlay').hidden) closeOverlay(); });
+
+/* ---------- weekly report ---------- */
+function showReport() {
+  const s = data.settings, name = esc(s.name), st = weekStats(weekStart), prev = weekStats(addDays(weekStart, -7));
+  const we = addDays(weekStart, 6), soFar = today() < we, tasks = enabledTasks();
+  const avg = t => st.per[t.id].p / st.per[t.id].rated;
+  const great = tasks.filter(t => st.per[t.id].stars > 0).sort((a, b) => st.per[b.id].stars - st.per[a.id].stars).slice(0, 3);
+  const weak = tasks.filter(t => st.per[t.id].rated > 0).sort((a, b) => avg(a) - avg(b));
+  const happy = t => t.count && !t.photo ? Object.assign({}, t, { emoji:'😊', badge:'🌈' }) : t;
+  const tile = (t, label, good) => '<div class="tile">' + picHtml(good ? happy(t) : t) + (label ? '<b>' + label + '</b>' : '') + '<span class="cap">' + esc(t.title) + '</span></div>';
+  const bar = '<div class="track" aria-hidden="true"><div class="fill" style="width:' + st.pct + '%"></div>' +
+    '<div class="goal" style="left:' + s.goal + '%"><span>🏁 ' + s.goal + '%</span></div>' +
+    '<div class="mover" style="left:' + clamp(st.pct, 3, 97) + '%">' + (st.win ? '🌟' : '⭐') + '</div></div>' +
+    '<div class="pmeta">⭐ ' + st.stars + ' · ❌ ' + st.crosses + ' · score ' + st.pct + '% (goal ' + s.goal + '%)</div>';
+  const greatHtml = great.length ? '<h3>You were great at</h3><div class="tiles">' + great.map(t => tile(t, '⭐ ' + st.per[t.id].stars, true)).join('') + '</div>' : '';
+  let better = '';
+  if (prev.rated && st.rated) {
+    if (st.stars > prev.stars) better = '<div class="better">📈 ' + (st.stars - prev.stars) + ' more stars than last week!</div>';
+    else if (st.pct > prev.pct) better = '<div class="better">📈 Better than last week: ' + prev.pct + '% → ' + st.pct + '%</div>';
+  }
+  if (prev.cries > 0 && st.cries < prev.cries) better += '<div class="better">🌈 Fewer tears than last week: 😢 ' + prev.cries + ' → ' + st.cries + '</div>';
+  const moments = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(weekStart, i), r = data.days[keyOf(d)];
+    if (r && r.note) moments.push('<li><i>' + esc(fmtLong(d)) + '</i>' + esc(r.note) + '</li>');
+  }
+  const momentsHtml = moments.length ? '<h3>💌 Lovely moments</h3><ul class="moments">' + moments.join('') + '</ul>' : '';
+  let html = '<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
+    '<div class="repweek">' + esc(fmtShort(weekStart)) + ' – ' + esc(fmtShort(we)) + (soFar ? ' · so far' : '') + '</div>';
+  let mode = 'none';
+  if (!st.rated) {
+    html += '<div class="hero">🌱</div><h2>No stars yet this week</h2><p>Rate each picture during the week. The report fills up here.</p>';
+  } else if (st.win) {
+    mode = 'win';
+    const next = weak.filter(t => avg(t) < 80)[0];
+    html += '<div class="hero"><span class="bounce">🏆</span></div><h2>Superstar week, ' + name + '!</h2>' +
+      '<p class="bigstars">⭐ ' + st.stars + '</p>' + bar +
+      (s.reward ? '<div class="reward">🎁 Your reward: <b>' + esc(s.reward) + '</b></div>' : '') +
+      better + greatHtml +
+      (next ? '<h3>Next superpower 💪</h3><div class="tiles">' + tile(next) + '</div>' : '') + momentsHtml;
+  } else {
+    mode = 'soft';
+    const steps = Math.max(1, Math.ceil((s.goal - st.p / st.rated) / 10));
+    const tryMsg = steps === 1 ? 'Just <b>one more ⭐</b> on each picture next week and you reach the goal.'
+      : steps === 2 ? 'Try for <b>two more ⭐</b> on each picture next week.'
+      : 'A few more <b>⭐</b> every day, little by little.';
+    const practise = weak.filter(t => avg(t) < 60).slice(0, 2);
+    html += '<div class="hero"><span class="cryface">😢</span></div><h2>Not this time, ' + name + ', and that\'s okay!</h2>' +
+      '<p class="cheer">You still collected <b>⭐ ' + st.stars + '</b> this week. 🤗</p>' + bar +
+      '<p class="cheer">' + tryMsg + ' You can do it! 💪</p>' +
+      better + greatHtml +
+      (practise.length ? '<h3>Let\'s practise next week</h3><div class="tiles">' + practise.map(t => tile(t)).join('') + '</div>' : '') +
+      momentsHtml;
+  }
+  html += '<button type="button" class="reportbtn" data-close>' + (mode === 'win' ? 'Yay! 🎉' : 'Close') + '</button>';
+  openOverlay(html);
+  if (mode === 'win') {
+    runningStars($('#fx')); confetti($('#fx'), 70); sfx.win();
+    setTimeout(() => sayEnglish('Superstar week, ' + s.name + '! You collected ' + st.stars + ' stars!'), 900);
+  } else if (mode === 'soft') {
+    sfx.soft();
+    setTimeout(() => sayEnglish('Not this time, ' + s.name + ', and that is okay. You collected ' + st.stars + ' stars. You can do it next week!'), 900);
+  }
+}
+$('#reportBtn').addEventListener('click', showReport);
+
+/* ---------- settings ---------- */
+function showSettings() {
+  const s = data.settings;
+  const html = '<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
+    '<h2>⚙️ Settings</h2>' +
+    '<label class="field"><span>Child\'s name</span><input id="sName" maxlength="30" value="' + esc(s.name) + '"></label>' +
+    '<label class="field"><span>Report day</span><select id="sDay">' + WEEKDAYS.map((n, i) =>
+      '<option value="' + i + '"' + (i === s.reportDay ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label>' +
+    '<p class="small">The week runs up to the report day. With Friday it is Saturday to Friday.</p>' +
+    '<label class="field"><span>Goal for the week: <b id="sGoalV">' + s.goal + '%</b></span>' +
+    '<input type="range" id="sGoal" min="30" max="90" step="5" value="' + s.goal + '"></label>' +
+    '<p class="small scoretbl">How the score works: each mark is worth ⭐⭐⭐⭐⭐ 100 · ⭐⭐⭐⭐ 90 · ⭐⭐⭐ 80 · ⭐⭐ 70 · ⭐ 60 · ' +
+    '❌ 40 · ❌❌ 30 · ❌❌❌ 20 · ❌❌❌❌ 10 · ❌❌❌❌❌ 0. The week\'s score is the average of all marks. ' +
+    'Pictures she has not rated do not count. The 😢 crying counter counts on every day with a mark: ' +
+    'no crying ⭐⭐⭐⭐⭐ · 1 cry ⭐⭐⭐ · 2 ⭐ · 3 ❌ · 4 ❌❌❌ · 5 or more ❌❌❌❌❌.</p>' +
+    '<label class="field"><span>This week\'s reward (optional, shown when she reaches the goal)</span>' +
+    '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
+    '<label class="field check"><input type="checkbox" id="sSound"' + (s.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
+    '<label class="field check"><input type="checkbox" id="sSpeak"' + (s.speak ? ' checked' : '') + '><span>Read the question aloud when she taps a picture</span></label>' +
+    '<label class="field"><span>Voice language</span><select id="sVoice">' + VOICES.map(v =>
+      '<option value="' + v[0] + '"' + (v[0] === s.voice ? ' selected' : '') + '>' + v[1] + '</option>').join('') + '</select></label>' +
+    '<div class="btnrow"><button type="button" class="btn" id="sTest">🔊 Test the voice</button></div>' +
+    '<p class="small">For another language, also type the questions below in that language.</p>' +
+    '<label class="field check"><input type="checkbox" id="sWords"' + (s.words ? ' checked' : '') + '><span>Show words under the pictures (🔤 at the top does the same)</span></label>' +
+    '<h3>Pictures</h3><p class="small">Tick the ones to use. Change the big and small picture (any emoji), ' +
+    'or add a 📷 photo of her own things: her bed, her toothbrush, her plate. What to say is read aloud when she taps the picture.</p>' +
+    '<ul class="setlist" id="sTasks"></ul>' +
+    '<div class="addtask"><input class="e" id="nEmoji" maxlength="8" value="🎹" aria-label="Big picture">' +
+    '<input class="e" id="nBadge" maxlength="8" value="🎵" aria-label="Small picture">' +
+    '<input id="nTitle" maxlength="40" placeholder="New task, e.g. Piano practice" aria-label="New task">' +
+    '<input class="full" id="nAsk" maxlength="120" placeholder="What to say, e.g. Did you practise the piano?" aria-label="What to say">' +
+    '<button type="button" class="btn primary full" id="nAdd">＋ Add picture</button></div>' +
+    '<h3>Backup</h3><p class="small">The stars live in this browser only (each phone or computer has its own). ' +
+    'Download a backup now and then; restore it on another device to move the stars there.</p>' +
+    '<div class="btnrow"><button type="button" class="btn" id="bExport">⬇️ Download backup</button>' +
+    '<label class="btn" tabindex="0">⬆️ Restore backup<input type="file" id="bImport" accept="application/json,.json" hidden></label>' +
+    '<button type="button" class="btn danger" id="bReset">Start over</button></div>' +
+    '<button type="button" class="reportbtn" data-close>Done</button>';
+  openOverlay(html, 'settings');
+  renderTaskSettings();
+  $('#sName').addEventListener('input', e => { s.name = e.target.value.trim().slice(0, 30) || DEFAULTS.name; save(); renderHeader(); });
+  $('#sDay').addEventListener('change', e => { s.reportDay = +e.target.value; weekStart = weekStartOf(fromKey(selKey)); save(); });
+  $('#sGoal').addEventListener('input', e => { s.goal = +e.target.value; $('#sGoalV').textContent = s.goal + '%'; save(); });
+  $('#sReward').addEventListener('input', e => { s.reward = e.target.value.slice(0, 80); save(); });
+  $('#sSound').addEventListener('change', e => { s.sound = e.target.checked; save(); if (s.sound) sfx.stars(3); });
+  $('#sSpeak').addEventListener('change', e => { s.speak = e.target.checked; save(); renderTaskSettings(); });
+  $('#sVoice').addEventListener('change', e => { s.voice = e.target.value; save(); });
+  $('#sTest').addEventListener('click', () => {
+    const first = enabledTasks()[0];
+    const was = s.speak; s.speak = true;
+    say(s.voice.startsWith('en') ? 'Hello ' + s.name + '! ' + (first ? first.ask : '') : (first ? first.ask || first.title : s.name));
+    s.speak = was;
+  });
+  $('#sWords').addEventListener('change', e => { s.words = e.target.checked; save(); renderHeader(); });
+  $('#nAdd').addEventListener('click', () => {
+    const title = $('#nTitle').value.trim();
+    if (!title) { $('#nTitle').focus(); return; }
+    s.tasks.push({ id:'c-' + Date.now().toString(36), emoji:$('#nEmoji').value.trim() || '⭐', badge:$('#nBadge').value.trim(),
+      title, hint:'', ask:$('#nAsk').value.trim() || title, on:true });
+    $('#nTitle').value = ''; $('#nAsk').value = '';
+    save(); renderTaskSettings(); toast('Added: ' + title);
+  });
+  $('#bExport').addEventListener('click', exportData);
+  $('#bImport').addEventListener('change', importData);
+  $('#bReset').addEventListener('click', () => {
+    if (!confirm('Delete all stars, notes, photos and settings in this browser? Download a backup first if you want to keep them.')) return;
+    data = normalise(null); selKey = keyOf(today()); weekStart = weekStartOf(today()); save(); closeOverlay(); toast('Fresh start 🌱');
+  });
+}
+function renderTaskSettings() {
+  const ul = $('#sTasks'), s = data.settings; if (!ul) return;
+  ul.innerHTML = '';
+  s.tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = t.on ? '' : 'off';
+    li.innerHTML = '<input type="checkbox" data-f="on" aria-label="Use this picture"' + (t.on ? ' checked' : '') + '>' +
+      picHtml(t) +
+      '<input data-f="title" maxlength="40" aria-label="Name (for grown-ups)" value="' + esc(t.title) + '">' +
+      (t.id.startsWith('c-') ? '<button type="button" class="del" data-a="del" aria-label="Delete">🗑️</button>' : '<span></span>') +
+      '<div class="picrow full"><input data-f="emoji" maxlength="8" aria-label="Big picture" value="' + esc(t.emoji) + '">' +
+      '<input data-f="badge" maxlength="8" aria-label="Small picture" value="' + esc(t.badge) + '">' +
+      '<label class="btn">📷 Photo<input type="file" accept="image/*" data-a="photo" hidden></label>' +
+      (t.photo ? '<button type="button" class="btn" data-a="nophoto">Remove photo</button>' : '') + '</div>' +
+      '<input class="full" data-f="ask" maxlength="120" aria-label="What to say" placeholder="What to say when she taps it" value="' + esc(t.ask) + '">';
+    li.addEventListener('input', e => {
+      const f = e.target.dataset.f; if (!f || f === 'on') return;
+      t[f] = e.target.value.trim();
+      if (f === 'emoji' && !t.emoji) t.emoji = '⭐';
+      if (f === 'title' && !t.title) t.title = 'Task';
+      save();
+      if (f === 'emoji' || f === 'badge') li.querySelector('.pic').outerHTML = picHtml(t);
+    });
+    li.addEventListener('change', e => {
+      const el = e.target;
+      if (el.dataset.f === 'on') { t.on = el.checked; li.className = t.on ? '' : 'off'; save(); }
+      if (el.dataset.a === 'photo' && el.files && el.files[0]) addPhoto(t, el.files[0]);
+    });
+    li.addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'nophoto') { delete t.photo; save(); renderTaskSettings(); }
+      if (a.dataset.a === 'del') {
+        if (!confirm('Delete "' + t.title + '"? Its stars stop counting.')) return;
+        s.tasks.splice(i, 1); save(); renderTaskSettings();
+      }
+    });
+    ul.appendChild(li);
+  });
+}
+function addPhoto(t, file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 240, c = document.createElement('canvas'), side = Math.min(img.width, img.height);
+      c.width = c.height = size;
+      c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+      const prev = t.photo;
+      t.photo = c.toDataURL('image/jpeg', .82);
+      if (!save()) { if (prev) t.photo = prev; else delete t.photo; save(); alert('That photo could not be saved: the browser storage is full.'); }
+      renderTaskSettings();
+    };
+    img.onerror = () => alert('That file is not a picture this browser can open.');
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (data.settings.name || 'star-chart').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-stars-' + keyOf(today()) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function importData(e) {
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    let obj = null;
+    try { obj = JSON.parse(rd.result); } catch (err) { obj = null; }
+    if (!obj || typeof obj !== 'object' || !obj.days || !obj.settings) { alert('That file is not a star chart backup.'); return; }
+    if (!confirm('Replace the stars in this browser with the backup (' + Object.keys(obj.days).length + ' days)?')) return;
+    data = normalise(obj); weekStart = weekStartOf(fromKey(selKey)); save(); closeOverlay(); toast('Backup restored ✔');
+  };
+  rd.readAsText(f);
+}
+$('#settingsBtn').addEventListener('click', showSettings);
+
+/* ---------- day change while the page stays open ---------- */
+function checkNewDay() {
+  const tk = keyOf(today());
+  if (tk === todayKeySeen) { renderBanner(); return; }
+  if (selKey === todayKeySeen) { selKey = tk; weekStart = weekStartOf(today()); }
+  todayKeySeen = tk; render();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkNewDay(); });
+window.addEventListener('focus', checkNewDay);
+setInterval(checkNewDay, 60 * 1000);
+
+render();
+// For checking the page headlessly.
+window.__starChart = { get data() { return data; }, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+  setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
+})();
+</script>
+</body>
+</html>
