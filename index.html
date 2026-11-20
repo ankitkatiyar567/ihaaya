@@ -140,7 +140,7 @@ h1 .name{color:var(--accent)}
 .gscore{font-size:24px;font-weight:800;color:#2d2350;background:rgba(255,255,255,.8);border-radius:999px;padding:4px 14px}
 .gtop .iconbtn{background:rgba(255,255,255,.85);color:#2d2350}
 .gfield{position:absolute;inset:0;z-index:1}
-.cloud{position:absolute;left:-25%;font-size:64px;opacity:.85;animation:cloud var(--d,50s) linear infinite;pointer-events:none}
+.cloud{position:absolute;z-index:0;left:-25%;font-size:64px;opacity:.85;animation:cloud var(--d,50s) linear infinite;pointer-events:none}
 @keyframes cloud{to{transform:translateX(150vw)}}
 .balloon{position:absolute;left:0;top:0;width:var(--w);cursor:pointer;will-change:transform}
 .balloon svg{display:block;width:100%;height:auto;pointer-events:none}
@@ -153,6 +153,34 @@ h1 .name{color:var(--accent)}
   background:rgba(255,255,255,.7);color:#2d2350}
 .gend h2{font-size:34px;margin:8px 0}
 .gend .reportbtn{max-width:280px}
+.game.g-peek{background:linear-gradient(#a9dcff,#e3f4ff 30%,#b6ec8f 31%,#7fcf5a)}
+.mgrid{position:absolute;left:50%;top:calc(50% + 30px);transform:translate(-50%,-50%);display:grid;grid-template-columns:repeat(3,var(--cs));gap:12px;
+  --cs:min(27vw, calc((100dvh - 170px) / 4.5), 120px);z-index:2}
+.mcard{width:var(--cs);height:var(--cs);border:0;padding:0;background:none;perspective:600px;cursor:pointer}
+.mi{position:relative;display:block;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.mcard.open .mi{transform:rotateY(180deg)}
+.mf{position:absolute;inset:0;display:grid;place-items:center;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 4px 12px rgba(0,0,0,.14)}
+.mb{background:linear-gradient(145deg,#7c4dff,#ff5fa2);font-size:calc(var(--cs) * .4)}
+.mfront{background:#fff;transform:rotateY(180deg);font-size:calc(var(--cs) * .58)}
+.mcard.done .mfront{background:#fff3c4;box-shadow:0 0 0 4px #ffb800}
+.basket{position:absolute;left:0;top:0;line-height:1;z-index:2;will-change:transform;pointer-events:none}
+.basket span{display:block}
+.basket.bump span{animation:pop .3s}
+.faller{position:absolute;left:0;top:0;line-height:1;will-change:transform;pointer-events:none}
+.pgrid{position:absolute;left:50%;top:calc(50% + 34px);transform:translate(-50%,-50%);display:grid;grid-template-columns:repeat(3,var(--hs));gap:14px;
+  --hs:min(27vw, calc((100dvh - 200px) / 3.4), 150px);z-index:2}
+.hole{position:relative;width:var(--hs);height:var(--hs);border:0;padding:0;background:none;cursor:pointer;overflow:hidden}
+.hole::before{content:'';position:absolute;left:6%;right:6%;bottom:6%;height:30%;border-radius:50%;background:radial-gradient(#2e1f12 40%,#6b4a2a)}
+.critter{position:absolute;left:0;right:0;bottom:14%;text-align:center;font-size:calc(var(--hs) * .58);line-height:1;transform:translateY(150%);transition:transform .18s ease-out}
+.hole.up .critter{transform:translateY(0)}
+.hole.hit .critter{animation:pop .3s}
+.cwrap{position:absolute;inset:76px 16px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;z-index:2}
+.cbox{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;max-width:420px;min-height:120px;padding:18px;border-radius:26px;background:rgba(255,255,255,.8)}
+.cbox span{font-size:clamp(34px,10vw,52px);line-height:1;animation:pop .35s both;animation-delay:calc(var(--i) * 60ms)}
+.cnums{display:flex;gap:16px}
+.cnum{width:clamp(72px,22vw,96px);height:clamp(72px,22vw,96px);border-radius:24px;border:0;background:#fff;color:#2d2350;font-size:clamp(34px,10vw,44px);font-weight:900;box-shadow:0 6px 16px rgba(0,0,0,.14);cursor:pointer}
+.cnum.right{background:#51cf66;color:#fff;animation:pop .4s}
+.cnum.wrong{animation:shake .4s;opacity:.35}
 /* parent button, PIN pad, parent menu */
 .me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
 .me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
@@ -384,7 +412,7 @@ const DEFAULT_TASKS = [
   { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
   { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (self-rated)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
 ];
-const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:0 };
+const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{} };
 // Sounds, voice and words belong to the device, so they are the same for every child.
 const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0 };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
@@ -471,7 +499,9 @@ function normalise(d) {
   s.reward = String(s.reward || '').slice(0, 80);
   s.game = s.game !== false;
   s.gameMins = [2, 3, 5].includes(+s.gameMins) ? +s.gameMins : 3;
-  s.gameBest = Number.isFinite(+s.gameBest) ? Math.max(0, Math.round(+s.gameBest)) : 0;
+  const gb = s.gameBest; s.gameBest = {};
+  if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
+  else if (+gb > 0) s.gameBest.balloons = Math.round(+gb);  // the first version had one game
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
   return { id: typeof d.id === 'string' && d.id ? d.id.slice(0, 40) : newId(),
@@ -806,7 +836,7 @@ function showAddKid() {
     if ($('#kCopy').checked) {
       settings = JSON.parse(JSON.stringify(data.settings));
       settings.tasks.forEach(t => delete t.photo);
-      settings.name = name; settings.reward = ''; settings.gameBest = 0;
+      settings.name = name; settings.reward = ''; settings.gameBest = {};
     }
     const p = normalise({ id: newId(), avatar: av, settings, days: {} });
     store.profiles.push(p);
@@ -1053,7 +1083,8 @@ function showSettings() {
     'no crying ⭐⭐⭐⭐⭐ · 1 cry ⭐⭐⭐ · 2 ⭐ · 3 ❌ · 4 ❌❌❌ · 5 or more ❌❌❌❌❌.</p>' +
     '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
-    '<h3>🎈 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, a balloon game opens for a few minutes, for that day only.</p>' +
+    '<h3>🎮 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, the day\'s game opens for a few minutes, for that day only. ' +
+    'There are five games (balloon pop, memory match, star catcher, peek-a-boo, counting): one a day, in a mixed order, each once every five days.</p>' +
     '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
     '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
       '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
@@ -1227,26 +1258,28 @@ function gameState() {
   const s = data.settings, tk = keyOf(today()), rec = data.days[tk], n = enabledTasks().length, st = dayStats(tk);
   const used = rec && Number.isFinite(rec.play) ? rec.play : 0, limit = s.gameMins * 60;
   const done = n > 0 && st.rated === n, good = st.rated > 0 && st.p >= s.goal * st.rated;
-  return { on: s.game, done, unlocked: s.game && done && good, left: Math.max(0, limit - used), limit, toRate: n - st.rated };
+  return { on: s.game, done, unlocked: s.game && done && good, left: Math.max(0, limit - used), limit, toRate: n - st.rated, game: todaysGame(data, tk) };
 }
 function renderGame() {
   const card = $('#gameCard'), g = gameState();
   card.hidden = !g.on || selKey !== keyOf(today());
   if (card.hidden) return;
-  const best = data.settings.gameBest ? ' · 🏆 ' + data.settings.gameBest : '';
+  const gm = g.game, bestN = data.settings.gameBest[gm.id] || 0, best = bestN ? ' · 🏆 ' + bestN : '';
+  const next = todaysGame(data, keyOf(addDays(today(), 1))), tomorrow = 'Tomorrow: ' + next.icon + ' ' + esc(next.name);
   const row = (cls, icon, title, sub, btn) => (btn ? '<button type="button" id="gameBtn"' : '<div') + ' class="gamebtn ' + cls + '">' +
     '<span class="gi">' + icon + '</span><span><b>' + title + '</b><small>' + sub + '</small></span>' + (btn ? '</button>' : '</div>');
-  const locked = '<span class="gb">🎈</span><i>🔒</i>';
-  if (g.unlocked && g.left > 0) card.innerHTML = row('ready', '<span class="gb">🎈</span>', 'Play!', mmss(g.left) + ' left today' + best, true);
-  else if (g.unlocked) card.innerHTML = row('done', '<span class="gb">🌙</span>', 'Played today', 'See you tomorrow' + best);
-  else if (g.done) card.innerHTML = row('locked', locked, 'Tomorrow!', 'More stars open the balloon game');
-  else card.innerHTML = row('locked', locked, g.toRate + ' still to rate', 'Then, with enough stars, the balloon game opens');
-  const b = $('#gameBtn'); if (b) b.addEventListener('click', startGame);
+  const icon = '<span class="gb">' + gm.icon + '</span>', locked = icon + '<i>🔒</i>';
+  if (g.unlocked && g.left > 0) card.innerHTML = row('ready', icon, 'Play!', esc(gm.name) + ' · ' + mmss(g.left) + ' left today' + best, true);
+  else if (g.unlocked) card.innerHTML = row('done', '<span class="gb">🌙</span>', 'Played today', tomorrow);
+  else if (g.done) card.innerHTML = row('locked', locked, 'Tomorrow!', 'More stars open the game. ' + tomorrow);
+  else card.innerHTML = row('locked', locked, g.toRate + ' still to rate', 'Then, with enough stars, ' + esc(gm.name) + ' opens');
+  const b = $('#gameBtn'); if (b) b.addEventListener('click', () => startGame());
 }
 function gameUnlocked() {
-  toast('🎈 The balloon game is open! Well done, ' + data.settings.name + '!');
+  const gm = gameState().game;
+  toast(gm.icon + ' ' + gm.name + ' is open! Well done, ' + data.settings.name + '!');
   setTimeout(() => sfx.win(), 300);
-  sayEnglish('Well done! You opened the balloon game!');
+  sayEnglish('Well done! You opened ' + gm.name + '!');
   const b = $('#gameBtn'); if (b && !reduced) b.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 function balloonSvg(c) {
@@ -1254,47 +1287,75 @@ function balloonSvg(c) {
     '<ellipse cx="19" cy="20" rx="6" ry="10" fill="#fff" opacity=".35"/><path d="M25 66h10l-5 6z" fill="' + c + '"/>' +
     '<path d="M30 72q-5 7 0 14" stroke="#8a8a9a" stroke-width="1.6" fill="none"/></svg>';
 }
-function startGame() {
+// Five small games. Each child gets one a day: every block of five days shows all five in a
+// shuffled order (seeded by the block and the child), and the same game never comes twice in a row.
+const GAMES = [
+  { id:'balloons', icon:'🎈', name:'Balloon pop',  say:'Pop the balloons!', make: balloonGame },
+  { id:'memory',   icon:'🃏', name:'Memory match', say:'Find the pairs!', make: memoryGame },
+  { id:'catch',    icon:'🧺', name:'Star catcher', say:'Move the basket and catch the stars!', make: catchGame },
+  { id:'peek',     icon:'🐹', name:'Peek-a-boo',   say:'Tap the animals when they peek out!', make: peekGame },
+  { id:'count',    icon:'🔢', name:'Counting',     say:'Let us count!', make: countGame },
+];
+function hashStr(str) { let h = 2166136261; for (const ch of str) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
+function seededRandom(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function shuffle(a, r = Math.random) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const gameOrder = (block, pid) => shuffle(GAMES.map((_, i) => i), seededRandom(hashStr(block + '|' + pid)));
+function todaysGame(p, tk) {
+  const d = fromKey(tk), n = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000), L = GAMES.length;
+  const block = Math.floor(n / L), o = gameOrder(block, p.id);
+  if (o[0] === gameOrder(block - 1, p.id)[L - 1]) [o[0], o[1]] = [o[1], o[0]];  // no repeat across blocks
+  return GAMES[o[n % L]];
+}
+function startGame(forceId) {
   const g = gameState();
   if (!g.unlocked || g.left <= 0 || (game && !game.over)) return;
-  const el = $('#game');
-  el.innerHTML = '<span class="cloud" style="top:14%;--d:46s;animation-delay:-8s">☁️</span>' +
+  const def = (forceId && GAMES.find(x => x.id === forceId)) || g.game, el = $('#game');
+  el.className = 'game g-' + def.id;
+  const sky = def.id === 'balloons' || def.id === 'catch';
+  el.innerHTML = (sky ? '<span class="cloud" style="top:14%;--d:46s;animation-delay:-8s">☁️</span>' +
     '<span class="cloud" style="top:40%;--d:60s;animation-delay:-30s">☁️</span>' +
-    '<span class="cloud" style="top:66%;--d:52s;animation-delay:-18s">☁️</span>' +
+    '<span class="cloud" style="top:66%;--d:52s;animation-delay:-18s">☁️</span>' : '') +
     '<div class="gfield" id="gField"></div>' +
-    '<div class="gtop"><div class="gtime" aria-hidden="true"><i id="gBar"></i></div><div class="gscore">🎈 <b id="gScore">0</b></div>' +
+    '<div class="gtop"><div class="gtime" aria-hidden="true"><i id="gBar"></i></div><div class="gscore">' + def.icon + ' <b id="gScore">0</b></div>' +
     '<button type="button" class="iconbtn" id="gClose" aria-label="Stop the game">✕</button></div>';
   el.hidden = false; document.body.style.overflow = 'hidden';
-  game = { profile:data, tk:keyOf(today()), score:0, left:g.left, limit:g.limit, last:performance.now(),
-    spawnIn:.3, elapsed:0, saveIn:5, balloons:[], over:false, raf:0 };
-  $('#gField').addEventListener('pointerdown', popAt);
+  const field = $('#gField');
+  game = { def, profile:data, tk:keyOf(today()), score:0, left:g.left, limit:g.limit, last:performance.now(), saveIn:5, over:false, raf:0 };
+  game.mod = def.make(field, gameApi(field)) || {};
   $('#gClose').addEventListener('click', () => endGame(false));
   game.raf = requestAnimationFrame(gameTick);
-  sayEnglish('Pop the balloons!');
+  sayEnglish(def.say);
+}
+function gameApi(field) {
+  return {
+    // Add points at a spot in the field: a "+n", a puff in the colour, and a sound.
+    add(n, x, y, color, sound) {
+      const g = game; if (!g || g.over) return;
+      g.score += n; $('#gScore').textContent = g.score;
+      const plus = document.createElement('span');
+      plus.className = 'plus'; plus.textContent = n > 1 ? '+' + n + ' ⭐' : '+' + n;
+      plus.style.left = (x - 14) + 'px'; plus.style.top = (y - 20) + 'px';
+      field.appendChild(plus); setTimeout(() => plus.remove(), 850);
+      if (color) for (let k = 0; k < 8; k++) {
+        const d = document.createElement('i'), a = Math.PI * 2 * k / 8;
+        d.className = 'puff'; d.style.background = color; d.style.left = (x - 6) + 'px'; d.style.top = (y - 6) + 'px';
+        d.style.setProperty('--dx', Math.round(Math.cos(a) * 46) + 'px'); d.style.setProperty('--dy', Math.round(Math.sin(a) * 46) + 'px');
+        field.appendChild(d); setTimeout(() => d.remove(), 500);
+      }
+      if (n > 1) sfx.stars(3); else if (sound === 'ding') sfx.stars(1); else sfx.pop();
+    },
+    spot(el) { const f = field.getBoundingClientRect(), r = el.getBoundingClientRect(); return { x: r.left - f.left + r.width / 2, y: r.top - f.top + r.height / 2 }; },
+  };
 }
 function gameTick(now) {
   const g = game; if (!g || g.over) return;
   const dt = Math.min(.05, Math.max(0, (now - g.last) / 1000)); g.last = now;
-  g.left -= dt; g.elapsed += dt;
-  const field = $('#gField'), W = field.clientWidth, H = field.clientHeight;
+  g.left -= dt;
   $('#gBar').style.width = Math.max(0, g.left / g.limit * 100) + '%';
-  g.spawnIn -= dt;
-  if (g.spawnIn <= 0 && g.balloons.length < 12) {
-    g.spawnIn = Math.max(.45, .95 - g.elapsed * .004);
-    const w = Math.round(64 + Math.random() * 30 + Math.min(30, W / 40)), h = w * 86 / 60, gold = Math.random() < .12;
-    const el = document.createElement('div');
-    el.className = 'balloon'; el.style.setProperty('--w', w + 'px');
-    el.innerHTML = balloonSvg(gold ? '#ffc93c' : BCOLORS[Math.floor(Math.random() * BCOLORS.length)]) + (gold ? '<span class="bstar">⭐</span>' : '');
-    field.appendChild(el);
-    g.balloons.push({ el, w, h, gold, x0: Math.random() * Math.max(1, W - w), x: 0, y: H + 10,
-      speed: H * (.11 + Math.random() * .09), amp: 10 + Math.random() * 22, ph: Math.random() * 6.3, t: 0 });
-  }
-  for (let i = g.balloons.length - 1; i >= 0; i--) {
-    const b = g.balloons[i];
-    b.t += dt; b.y -= b.speed * dt; b.x = b.x0 + Math.sin(b.t * 1.3 + b.ph) * b.amp;
-    if (b.y + b.h < 0) { b.el.remove(); g.balloons.splice(i, 1); continue; }
-    b.el.style.transform = 'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px)';
-  }
+  if (g.mod.tick) { const f = $('#gField'); g.mod.tick(dt, f.clientWidth, f.clientHeight); }
   g.saveIn -= dt;
   if (g.saveIn <= 0) { g.saveIn = 5; savePlay(); }
   if (g.left <= 0) { endGame(true); return; }
@@ -1306,36 +1367,16 @@ function savePlay() {
   rec.play = Math.min(g.limit, Math.round(g.limit - Math.max(0, g.left)));
   save();
 }
-function popAt(e) {
-  const g = game; if (!g || g.over) return;
-  const el = e.target.closest('.balloon'); if (!el) return;
-  const i = g.balloons.findIndex(b => b.el === el); if (i < 0) return;
-  const b = g.balloons[i], field = $('#gField'), color = el.querySelector('path').getAttribute('fill');
-  const cx = b.x + b.w / 2, cy = b.y + b.h * .38;
-  g.balloons.splice(i, 1); el.remove();
-  g.score += b.gold ? 3 : 1; $('#gScore').textContent = g.score;
-  const plus = document.createElement('span');
-  plus.className = 'plus'; plus.textContent = b.gold ? '+3 ⭐' : '+1';
-  plus.style.left = (cx - 14) + 'px'; plus.style.top = (cy - 20) + 'px';
-  field.appendChild(plus); setTimeout(() => plus.remove(), 850);
-  for (let k = 0; k < 8; k++) {
-    const d = document.createElement('i'), a = Math.PI * 2 * k / 8;
-    d.className = 'puff'; d.style.background = color; d.style.left = (cx - 6) + 'px'; d.style.top = (cy - 6) + 'px';
-    d.style.setProperty('--dx', Math.round(Math.cos(a) * 46) + 'px'); d.style.setProperty('--dy', Math.round(Math.sin(a) * 46) + 'px');
-    field.appendChild(d); setTimeout(() => d.remove(), 500);
-  }
-  if (b.gold) sfx.stars(3); else sfx.pop();
-}
 function endGame(timeUp, silent) {
   const g = game; if (!g || g.over) return;
   g.over = true; cancelAnimationFrame(g.raf);
   savePlay();
-  const s = g.profile.settings, record = g.score > 0 && g.score > (s.gameBest || 0);
-  if (record) { s.gameBest = g.score; save(); }
+  const bests = g.profile.settings.gameBest, record = g.score > 0 && g.score > (bests[g.def.id] || 0);
+  if (record) { bests[g.def.id] = g.score; save(); }
   if (silent) { closeGame(); return; }
   const end = document.createElement('div');
   end.className = 'gend';
-  end.innerHTML = '<div class="hero"><span class="bounce">' + (timeUp ? '⏰' : '🎈') + '</span></div><h2>🎈 ' + g.score + ' 🎉</h2>' +
+  end.innerHTML = '<div class="hero"><span class="bounce">' + (timeUp ? '⏰' : g.def.icon) + '</span></div><h2>' + g.def.icon + ' ' + g.score + ' 🎉</h2>' +
     (record ? '<p class="cheer">🏆 New record!</p>' : '') +
     '<p class="cheer">' + (timeUp ? 'Time is up. See you tomorrow! 🌙' : mmss(g.limit - (g.profile.days[g.tk].play || 0)) + ' left for later today') + '</p>' +
     '<button type="button" class="reportbtn" id="gDone">OK</button>';
@@ -1344,7 +1385,167 @@ function endGame(timeUp, silent) {
   if (timeUp) sfx.win();
   sayEnglish((timeUp ? 'Time is up! ' : '') + 'You scored ' + g.score + '!' + (record ? ' A new record!' : '') + (timeUp ? ' See you tomorrow!' : ''));
 }
-function closeGame() { const el = $('#game'); el.hidden = true; el.innerHTML = ''; document.body.style.overflow = ''; render(); }
+function closeGame() { const el = $('#game'); el.hidden = true; el.className = 'game'; el.innerHTML = ''; document.body.style.overflow = ''; render(); }
+
+/* 🎈 Balloon pop: tap balloons as they float up; a gold star balloon is worth 3. */
+function balloonGame(field, api) {
+  const balloons = []; let spawnIn = .3, elapsed = 0;
+  field.addEventListener('pointerdown', e => {
+    const el = e.target.closest('.balloon'); if (!el) return;
+    const i = balloons.findIndex(b => b.el === el); if (i < 0) return;
+    const b = balloons[i]; balloons.splice(i, 1); el.remove();
+    api.add(b.gold ? 3 : 1, b.x + b.w / 2, b.y + b.h * .38, b.color);
+  });
+  return { tick(dt, W, H) {
+    elapsed += dt; spawnIn -= dt;
+    if (spawnIn <= 0 && balloons.length < 12) {
+      spawnIn = Math.max(.45, .95 - elapsed * .004);
+      const w = Math.round(64 + Math.random() * 30 + Math.min(30, W / 40)), gold = Math.random() < .12;
+      const color = gold ? '#ffc93c' : BCOLORS[Math.floor(Math.random() * BCOLORS.length)], el = document.createElement('div');
+      el.className = 'balloon'; el.style.setProperty('--w', w + 'px');
+      el.innerHTML = balloonSvg(color) + (gold ? '<span class="bstar">⭐</span>' : '');
+      field.appendChild(el);
+      balloons.push({ el, w, h: w * 86 / 60, gold, color, x0: Math.random() * Math.max(1, W - w), x: 0, y: H + 10,
+        speed: H * (.11 + Math.random() * .09), amp: 10 + Math.random() * 22, ph: Math.random() * 6.3, t: 0 });
+    }
+    for (let i = balloons.length - 1; i >= 0; i--) {
+      const b = balloons[i];
+      b.t += dt; b.y -= b.speed * dt; b.x = b.x0 + Math.sin(b.t * 1.3 + b.ph) * b.amp;
+      if (b.y + b.h < 0) { b.el.remove(); balloons.splice(i, 1); continue; }
+      b.el.style.transform = 'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px)';
+    }
+  } };
+}
+
+/* 🃏 Memory match: six pairs of animals; a full board gives 3 more and deals a new one. */
+const MEMO = ['🐶', '🐱', '🦁', '🐸', '🐵', '🐼', '🐰', '🦊', '🐯', '🐨', '🐷', '🐮', '🦄', '🐙', '🐢', '🐝', '🦋', '🐞'];
+function memoryGame(field, api) {
+  const grid = document.createElement('div'); grid.className = 'mgrid'; field.appendChild(grid);
+  let open = [], busy = false, pairsLeft = 0;
+  const deal = () => {
+    const pick = shuffle([...MEMO]).slice(0, 6), cards = shuffle([...pick, ...pick]);
+    grid.innerHTML = cards.map(c => '<button type="button" class="mcard" data-c="' + c + '" aria-label="Card"><span class="mi">' +
+      '<span class="mf mb">⭐</span><span class="mf mfront">' + c + '</span></span></button>').join('');
+    open = []; busy = false; pairsLeft = 6;
+  };
+  grid.addEventListener('click', e => {
+    const c = e.target.closest('.mcard'); if (!c || busy || c.classList.contains('open')) return;
+    c.classList.add('open'); open.push(c); tone(660, 0, .08, 'sine', .06);
+    if (open.length < 2) return;
+    const [a, b] = open; open = [];
+    if (a.dataset.c === b.dataset.c) {
+      a.classList.add('done'); b.classList.add('done');
+      const p = api.spot(b); api.add(1, p.x, p.y, '#ffb800', 'ding');
+      if (--pairsLeft === 0) {
+        busy = true;
+        setTimeout(() => { if (!game || game.over) return; api.add(3, field.clientWidth / 2, field.clientHeight / 2, '#7c4dff'); deal(); }, 700);
+      }
+    } else {
+      busy = true;
+      setTimeout(() => { a.classList.remove('open'); b.classList.remove('open'); busy = false; }, 850);
+    }
+  });
+  deal();
+  return {};
+}
+
+/* 🧺 Star catcher: slide the basket (drag or tap) to catch falling stars and fruit; 🌟 is worth 3. */
+const FALLERS = ['⭐', '⭐', '⭐', '🍎', '🍓', '🍌', '🍒'];
+function catchGame(field, api) {
+  const basket = document.createElement('div'); basket.className = 'basket'; basket.innerHTML = '<span>🧺</span>'; field.appendChild(basket);
+  const items = []; let bx = null, target = null, spawnIn = .5, elapsed = 0;
+  const aim = e => { const r = field.getBoundingClientRect(); target = e.clientX - r.left; };
+  field.addEventListener('pointerdown', aim);
+  field.addEventListener('pointermove', aim);
+  return { tick(dt, W, H) {
+    const BW = Math.min(110, W * .26), by = H - BW * 1.05 - 12;
+    if (bx === null) bx = W / 2;
+    if (target !== null) bx += (target - bx) * Math.min(1, dt * 14);
+    bx = clamp(bx, BW / 2, W - BW / 2);
+    basket.style.fontSize = Math.round(BW) + 'px';
+    basket.style.transform = 'translate(' + (bx - BW / 2).toFixed(1) + 'px,' + by.toFixed(1) + 'px)';
+    elapsed += dt; spawnIn -= dt;
+    if (spawnIn <= 0 && items.length < 8) {
+      spawnIn = Math.max(.5, 1 - elapsed * .004);
+      const gold = Math.random() < .12, sz = Math.round(44 + Math.random() * 14), el = document.createElement('span');
+      el.className = 'faller'; el.textContent = gold ? '🌟' : FALLERS[Math.floor(Math.random() * FALLERS.length)];
+      el.style.fontSize = sz + 'px'; field.appendChild(el);
+      items.push({ el, sz, gold, x: sz / 2 + Math.random() * Math.max(1, W - sz), y: -sz, speed: H * (.16 + Math.random() * .1), spin: (Math.random() - .5) * 200, rot: 0 });
+    }
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i]; it.y += it.speed * dt; it.rot += it.spin * dt;
+      const cy = it.y + it.sz / 2;
+      if (cy >= by + BW * .2 && cy <= by + BW * .8 && Math.abs(it.x - bx) < BW / 2 + it.sz * .25) {
+        it.el.remove(); items.splice(i, 1);
+        api.add(it.gold ? 3 : 1, it.x, by, '#ffb800');
+        basket.classList.remove('bump'); void basket.offsetWidth; basket.classList.add('bump');
+        continue;
+      }
+      if (it.y > H) { it.el.remove(); items.splice(i, 1); continue; }
+      it.el.style.transform = 'translate(' + (it.x - it.sz / 2).toFixed(1) + 'px,' + it.y.toFixed(1) + 'px) rotate(' + Math.round(it.rot) + 'deg)';
+    }
+  } };
+}
+
+/* 🐹 Peek-a-boo: animals peek out of nine holes; tap them before they hide. 🌟 is worth 3. */
+const PEEKERS = ['🐹', '🐰', '🐸', '🐼', '🐶', '🐱', '🦊', '🐻', '🐨', '🐷'];
+function peekGame(field, api) {
+  const grid = document.createElement('div'); grid.className = 'pgrid';
+  grid.innerHTML = Array.from({ length: 9 }, (_, i) => '<button type="button" class="hole" data-i="' + i + '" aria-label="Hole"><span class="critter"></span></button>').join('');
+  field.appendChild(grid);
+  const holes = [...grid.children].map(el => ({ el, c: el.firstChild, up: false, hit: false, gold: false, until: 0 }));
+  let t = 0, elapsed = 0, spawnIn = .6;
+  grid.addEventListener('pointerdown', e => {
+    const b = e.target.closest('.hole'); if (!b) return;
+    const h = holes[+b.dataset.i]; if (!h.up || h.hit) return;
+    h.hit = true; h.el.classList.add('hit'); h.c.textContent = '💫'; h.until = t + .3;
+    const p = api.spot(b); api.add(h.gold ? 3 : 1, p.x, p.y - b.offsetHeight * .2, '#51cf66');
+  });
+  return { tick(dt) {
+    t += dt; elapsed += dt; spawnIn -= dt;
+    for (const h of holes) if (h.up && t >= h.until) { h.up = false; h.hit = false; h.el.classList.remove('up', 'hit'); }
+    const maxUp = elapsed > 40 ? 2 : 1, free = holes.filter(h => !h.up);
+    if (spawnIn <= 0 && holes.length - free.length < maxUp && free.length) {
+      const h = free[Math.floor(Math.random() * free.length)];
+      h.gold = Math.random() < .1; h.c.textContent = h.gold ? '🌟' : PEEKERS[Math.floor(Math.random() * PEEKERS.length)];
+      h.up = true; h.hit = false; h.until = t + Math.max(1.1, 1.8 - elapsed * .006); h.el.classList.add('up');
+      spawnIn = Math.max(.45, 1 - elapsed * .004) + Math.random() * .3;
+    }
+  } };
+}
+
+/* 🔢 Counting: "How many apples?" Tap the right number; wrong numbers just fade, no loss. */
+const COUNT_THINGS = [['🍎', 'apples'], ['⭐', 'stars'], ['🐟', 'fish'], ['🎈', 'balloons'], ['🐞', 'ladybirds'],
+  ['🌸', 'flowers'], ['🍓', 'strawberries'], ['🚗', 'cars'], ['🐥', 'chicks'], ['🍪', 'cookies']];
+function countGame(field, api) {
+  const box = document.createElement('div'); box.className = 'cwrap';
+  box.innerHTML = '<div class="cbox"></div><div class="cnums"></div>';
+  field.appendChild(box);
+  let right = 0, answer = 0, busy = false;
+  const next = () => {
+    const max = right < 5 ? 5 : right < 12 ? 7 : 10;
+    let n; do { n = 1 + Math.floor(Math.random() * max); } while (n === answer);
+    answer = n;
+    const [emo, word] = COUNT_THINGS[Math.floor(Math.random() * COUNT_THINGS.length)];
+    box.querySelector('.cbox').innerHTML = Array.from({ length: n }, (_, i) => '<span style="--i:' + i + '">' + emo + '</span>').join('');
+    const near = shuffle([n - 2, n - 1, n + 1, n + 2].filter(v => v >= 1 && v <= 10)).slice(0, 2);
+    box.querySelector('.cnums').innerHTML = [n, ...near].sort((a, b) => a - b).map(v => '<button type="button" class="cnum" data-n="' + v + '">' + v + '</button>').join('');
+    busy = false;
+    sayEnglish('How many ' + word + '?');
+  };
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.cnum'); if (!b || busy || b.disabled) return;
+    const v = +b.dataset.n;
+    if (v === answer) {
+      busy = true; right++; b.classList.add('right');
+      const p = api.spot(b); api.add(1, p.x, p.y - 30, '#51cf66', 'ding');
+      sayEnglish('Yes! ' + v + '!');
+      setTimeout(() => { if (game && !game.over) next(); }, 1100);
+    } else { b.classList.add('wrong'); b.disabled = true; sayEnglish('Try again!'); }
+  });
+  next();
+  return {};
+}
 window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
 
 /* ---------- landing: logo, then the PIN, then who is rating, then the chart ---------- */
@@ -1393,7 +1594,7 @@ setInterval(checkNewDay, 60 * 1000);
 render();
 showLanding();
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, gameState, switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
