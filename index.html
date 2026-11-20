@@ -191,6 +191,26 @@ h1 .name{color:var(--accent)}
 .tcell{width:var(--ts);height:var(--ts);border:0;border-radius:22px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.12);font-size:calc(var(--ts) * .58);line-height:1;cursor:pointer;padding:0}
 .tcell.new{animation:pop .3s}
 .tcell.win{background:#fff3c4;box-shadow:0 0 0 4px #ffb800}
+/* bedtime story */
+.storycard{padding:14px 16px;color:#f4efff;background:radial-gradient(circle at 85% 15%,rgba(255,224,102,.25) 0,transparent 22%),linear-gradient(145deg,#1f1b4d,#3e2f86)}
+.storyhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.storyhead b{font-size:18px}
+.storyhead small,.storytext small,.storyprog small{color:rgba(244,239,255,.72);font-size:13px}
+.storycard .small{color:rgba(244,239,255,.8)}
+.storyrow{display:flex;align-items:center;gap:14px;margin-top:10px}
+.storypic{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;font-size:42px;line-height:1;flex:none;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18)}
+.storytext{display:flex;flex-direction:column;min-width:0;gap:1px}
+.storytext b{font-size:17px}
+.storytext span{font-size:15px}
+.storyplay{display:flex;align-items:center;gap:14px;margin-top:12px}
+.playbtn{width:68px;height:68px;border-radius:50%;border:0;background:#ffe066;color:#2d2350;cursor:pointer;flex:none;display:grid;place-items:center;padding:0;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.playbtn svg{width:34px;height:34px}
+.playbtn:active{transform:scale(.94)}
+.storyprog{flex:1;min-width:0}
+.track.sm{height:10px;margin:0 0 6px;background:rgba(255,255,255,.2)}
+.track.sm .fill{background:#ffe066}
+.storyacts{display:flex;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.storycard .linkbtn{color:#d6c8ff;font-size:14px;padding:4px 0}
 /* parent button, PIN pad, parent menu */
 .me{position:relative;flex:none;border:3px solid var(--card);background:var(--star-bg);box-shadow:var(--shadow);border-radius:50%;width:58px;height:58px;padding:0;cursor:pointer;display:grid;place-items:center;font-size:34px;line-height:1}
 .me .lock{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:13px}
@@ -388,8 +408,10 @@ body{overscroll-behavior-y:none}
 
   <section class="card gamecard" id="gameCard" aria-label="Daily game" hidden></section>
 
+  <section class="card storycard" id="storyCard" aria-label="Bedtime story" hidden></section>
+
   <button class="reportbtn" id="reportBtn" type="button">🎁 Weekly report</button>
-  <footer>Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
+  <footer>Bedtime stories: free public-domain recordings from LibriVox.org, read by volunteers. Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
 </div>
 
 <div class="overlay" id="overlay" hidden>
@@ -397,6 +419,7 @@ body{overscroll-behavior-y:none}
   <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 </div>
 <div class="game" id="game" hidden></div>
+<audio id="storyAudio" preload="none"></audio>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -424,7 +447,7 @@ const DEFAULT_TASKS = [
   { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
   { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (self-rated)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
 ];
-const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{} };
+const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{}, storyOn:true };
 // Sounds, voice and words belong to the device, so they are the same for every child.
 const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0 };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
@@ -514,6 +537,11 @@ function normalise(d) {
   const gb = s.gameBest; s.gameBest = {};
   if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count', 'ttt']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
   else if (+gb > 0) s.gameBest.balloons = Math.round(+gb);  // the first version had one game
+  // Bedtime story: pos = tonight's night; doneIdx/doneDay = the night that was heard, and when; tr/t = where it stopped.
+  const so = s.story && typeof s.story === 'object' ? s.story : {};
+  s.story = { pos: Math.max(0, Math.floor(+so.pos) || 0), doneIdx: Number.isInteger(so.doneIdx) ? so.doneIdx : -1,
+    doneDay: typeof so.doneDay === 'string' ? so.doneDay.slice(0, 10) : '', tr: Math.max(0, Math.floor(+so.tr) || 0), t: Math.max(0, +so.t || 0) };
+  s.storyOn = s.storyOn !== false;
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
   return { id: typeof d.id === 'string' && d.id ? d.id.slice(0, 40) : newId(),
@@ -821,6 +849,7 @@ function renderKids() {
 }
 function switchTo(id) {
   if (id === data.id) return;
+  stopStory();
   store.active = id; data = activeProfile();
   selKey = keyOf(today()); weekStart = weekStartOf(today()); todayKeySeen = selKey;
   save(); render();
@@ -848,7 +877,7 @@ function showAddKid() {
     if ($('#kCopy').checked) {
       settings = JSON.parse(JSON.stringify(data.settings));
       settings.tasks.forEach(t => delete t.photo);
-      settings.name = name; settings.reward = ''; settings.gameBest = {};
+      settings.name = name; settings.reward = ''; settings.gameBest = {}; settings.story = {};
     }
     const p = normalise({ id: newId(), avatar: av, settings, days: {} });
     store.profiles.push(p);
@@ -858,7 +887,7 @@ function showAddKid() {
 }
 
 /* ---------- rendering ---------- */
-function render() { renderKids(); renderHeader(); renderWeek(); renderProgress(); renderDay(); renderGame(); renderBanner(); $('#warn').hidden = storageOk; }
+function render() { renderKids(); renderHeader(); renderWeek(); renderProgress(); renderDay(); renderGame(); renderStory(); renderBanner(); $('#warn').hidden = storageOk; }
 
 function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
@@ -1100,6 +1129,10 @@ function showSettings() {
     '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
     '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
       '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
+    '<h3>🌙 Bedtime story</h3><p class="small">One story a night, every night, from LibriVox.org: free public-domain recordings read by volunteers, ' +
+    'played from the Internet Archive (it needs the internet). A story that was heard moves on to the next one the next day.</p>' +
+    '<label class="field check"><input type="checkbox" id="sStory"' + (s.storyOn ? ' checked' : '') + '><span>Bedtime story on</span></label>' +
+    '<div class="btnrow"><button type="button" class="btn" id="sStoryReset">Start again from the first story</button></div>' +
     '<h3>Sounds and words</h3><p class="small">These are for this phone or computer, for all children.</p>' +
     '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
     '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>Read the question aloud when a picture is tapped</span></label>' +
@@ -1139,6 +1172,11 @@ function showSettings() {
   $('#sReward').addEventListener('input', e => { s.reward = e.target.value.slice(0, 80); save(); });
   $('#sGame').addEventListener('change', e => { s.game = e.target.checked; save(); });
   $('#sGameMins').addEventListener('change', e => { s.gameMins = +e.target.value; save(); });
+  $('#sStory').addEventListener('change', e => { s.storyOn = e.target.checked; save(); });
+  $('#sStoryReset').addEventListener('click', () => {
+    if (!confirm('Start ' + s.name + '\'s bedtime stories again from the first one?')) return;
+    stopStory(); s.story = { pos:0, doneIdx:-1, doneDay:'', tr:0, t:0 }; save(); toast('Back to the first story 🌙');
+  });
   $('#sSound').addEventListener('change', e => { pf.sound = e.target.checked; save(); if (pf.sound) sfx.stars(3); });
   $('#sSpeak').addEventListener('change', e => { pf.speak = e.target.checked; save(); renderTaskSettings(); });
   $('#sVoice').addEventListener('change', e => { pf.voice = e.target.value; save(); });
@@ -1616,6 +1654,123 @@ function countGame(field, api) {
 }
 window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
 
+/* ---------- bedtime story: one LibriVox story a night (stories.json, built by tools/build-stories.py) ---------- */
+let catalog = null, catalogLoading = false, storyPlaying = null;  // storyPlaying = { night, tr, profile, savedAt }
+const storyAudio = () => $('#storyAudio');
+const ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"/></svg>';
+function loadCatalog() {
+  if (catalog || catalogLoading) return;
+  catalogLoading = true;
+  fetch('stories.json').then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+    .then(d => { catalog = d; catalogLoading = false; renderStory(); })
+    .catch(() => { catalogLoading = false; const c = $('#storyCard'); if (c && !catalog) c.querySelector('.small').textContent = 'The stories need the internet the first time. Try again later.'; });
+}
+function nightTracks(i) { const n = catalog.nights[i], b = catalog.books[n[0]]; return { b, idx: Array.isArray(n[1]) ? n[1] : [n[1]] }; }
+const nightSecs = i => { const { b, idx } = nightTracks(i); return idx.reduce((a, j) => a + b.s[j][2], 0); };
+// Tonight's story for the current child: it moves on the day after a story was heard.
+function storyState() {
+  const st = data.settings.story, N = catalog.nights.length;
+  if (st.doneIdx === st.pos && st.doneDay && st.doneDay < keyOf(today())) {
+    st.pos = (st.pos + 1) % N; st.doneIdx = -1; st.doneDay = ''; st.tr = 0; st.t = 0; save();
+  }
+  if (st.pos >= N) st.pos = 0;
+  return st;
+}
+function renderStory() {
+  const card = $('#storyCard');
+  card.hidden = !data.settings.storyOn || selKey !== keyOf(today());
+  if (card.hidden) return;
+  if (!catalog) { card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span></div><p class="small">Loading the stories…</p>'; loadCatalog(); return; }
+  const st = storyState(), { b, idx } = nightTracks(st.pos), first = b.s[idx[0]][0];
+  const name = idx.length > 1 ? first + ' and ' + (idx.length - 1) + ' more' : first;
+  const mine = storyPlaying && storyPlaying.profile === data, playing = mine && !storyAudio().paused;
+  card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span><small>Night ' + (st.pos + 1) + ' of ' + catalog.nights.length + '</small></div>' +
+    '<div class="storyrow"><div class="storypic" aria-hidden="true">' + esc(b.e) + '</div><div class="storytext"><b>' + esc(b.t) + '</b><span>' + esc(name) + '</span>' +
+    '<small>' + esc(b.a) + ' · ' + Math.max(1, Math.round(nightSecs(st.pos) / 60)) + ' min' + (st.doneIdx === st.pos ? ' · ✅ heard' : '') + '</small></div></div>' +
+    '<div class="storyplay"><button type="button" class="playbtn" id="storyPlay" aria-label="' + (playing ? 'Pause' : 'Play the story') + '">' + (playing ? ICON_PAUSE : ICON_PLAY) + '</button>' +
+    '<div class="storyprog"><div class="track sm"><div class="fill" id="storyFill"></div></div><small id="storyTime"></small></div></div>' +
+    '<div class="storyacts">' + (st.pos > 0 ? '<button type="button" class="linkbtn" id="storyPrev">⏮ Last night\'s story</button>' : '<span></span>') +
+    '<button type="button" class="linkbtn" id="storySkip">⏭ Skip (parents)</button></div>';
+  $('#storyPlay').addEventListener('click', () => {
+    const a = storyAudio();
+    if (playing) { a.pause(); return; }
+    if (mine && a.src) { a.play().catch(storyFailed); return; }
+    playNight(st.pos, true);
+  });
+  const prev = $('#storyPrev'); if (prev) prev.addEventListener('click', () => playNight(st.pos - 1, false));
+  $('#storySkip').addEventListener('click', () => withParent(() => {
+    stopStory(); st.pos = (st.pos + 1) % catalog.nights.length; st.doneIdx = -1; st.doneDay = ''; st.tr = 0; st.t = 0; save(); renderStory();
+  }));
+  updateStoryProgress();
+}
+function playNight(night, resume) {
+  const a = storyAudio(), st = data.settings.story, { b, idx } = nightTracks(night), same = resume && night === st.pos;
+  const tr = same ? Math.min(st.tr || 0, idx.length - 1) : 0, startAt = same ? st.t || 0 : 0;
+  storyPlaying = { night, tr, profile: data, savedAt: 0 };
+  a.src = b.b + b.s[idx[tr]][1];
+  if (startAt > 5) a.addEventListener('loadedmetadata', () => { if (startAt < a.duration - 5) a.currentTime = startAt; }, { once: true });
+  a.play().catch(storyFailed);
+  storyMedia(b, b.s[idx[tr]][0]);
+  renderStory();
+}
+function stopStory() { const a = storyAudio(); if (a) a.pause(); storyPlaying = null; }
+function storyFailed() { if (!storyPlaying) return; storyPlaying = null; toast('The story could not start. Is the internet on?'); renderStory(); }
+function storyElapsed() {
+  if (!storyPlaying || !catalog) return null;
+  const { b, idx } = nightTracks(storyPlaying.night);
+  const before = idx.slice(0, storyPlaying.tr).reduce((x, j) => x + b.s[j][2], 0);
+  return { now: before + (storyAudio().currentTime || 0), total: nightSecs(storyPlaying.night) };
+}
+function updateStoryProgress() {
+  const f = $('#storyFill'), t = $('#storyTime'); if (!f || !t || !catalog) return;
+  const st = data.settings.story, mine = storyPlaying && storyPlaying.profile === data, e = mine ? storyElapsed() : null;
+  let now, total;
+  if (e) { now = e.now; total = e.total; }
+  else {
+    const { b, idx } = nightTracks(st.pos);
+    now = idx.slice(0, st.tr).reduce((x, j) => x + b.s[j][2], 0) + (st.t || 0); total = nightSecs(st.pos);
+  }
+  f.style.width = Math.min(100, total ? now / total * 100 : 0) + '%';
+  t.textContent = mmss(now) + ' / ' + mmss(total) + (mine && storyPlaying.night !== st.pos ? ' · last night\'s story' : '');
+}
+function storyMedia(b, title) {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({ title, artist: b.t + ' · ' + b.a, album: 'Ihaaya bedtime stories',
+      artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }] });
+    navigator.mediaSession.setActionHandler('play', () => storyAudio().play().catch(storyFailed));
+    navigator.mediaSession.setActionHandler('pause', () => storyAudio().pause());
+  } catch (e) { /* lock-screen controls are optional */ }
+}
+(() => {
+  const a = storyAudio();
+  a.addEventListener('play', renderStory);
+  a.addEventListener('pause', () => {  // remember where she fell asleep
+    const p = storyPlaying;
+    if (p && p.night === p.profile.settings.story.pos) { const st = p.profile.settings.story; st.tr = p.tr; st.t = Math.floor(a.currentTime); save(); }
+    renderStory();
+  });
+  a.addEventListener('timeupdate', () => {
+    updateStoryProgress();
+    const p = storyPlaying; if (!p) return;
+    const st = p.profile.settings.story;
+    if (p.night !== st.pos) return;  // replaying last night's story changes nothing
+    if (Date.now() - p.savedAt > 5000) { st.tr = p.tr; st.t = Math.floor(a.currentTime); p.savedAt = Date.now(); save(); }
+    const e = storyElapsed();
+    if (e && e.now >= e.total * .9 && st.doneIdx !== st.pos) { st.doneIdx = st.pos; st.doneDay = keyOf(today()); save(); }
+  });
+  a.addEventListener('ended', () => {
+    const p = storyPlaying; if (!p) return;
+    const { b, idx } = nightTracks(p.night);
+    if (p.tr + 1 < idx.length) { p.tr++; a.src = b.b + b.s[idx[p.tr]][1]; a.play().catch(storyFailed); storyMedia(b, b.s[idx[p.tr]][0]); return; }
+    const st = p.profile.settings.story;
+    if (p.night === st.pos) { st.doneIdx = st.pos; st.doneDay = keyOf(today()); st.tr = 0; st.t = 0; save(); }
+    storyPlaying = null; renderStory(); toast('🌙 The end. Sweet dreams!');
+  });
+  a.addEventListener('error', () => { if (storyPlaying && a.src) storyFailed(); });
+})();
+
 /* ---------- landing: logo, then the PIN, then who is rating, then the chart ---------- */
 let hiddenAt = 0;
 function showLanding() {
@@ -1666,7 +1821,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   navigator.serviceWorker.register('sw.js').catch(() => { /* the page works without it */ });
 }
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playNight, storyState, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
