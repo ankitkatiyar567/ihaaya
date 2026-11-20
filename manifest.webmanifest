@@ -1,6 +1,6 @@
 {
-  "name": "Star Chart",
-  "short_name": "Star Chart",
+  "name": "Ihaaya Star Chart",
+  "short_name": "Ihaaya",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

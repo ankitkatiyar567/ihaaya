@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#fff8ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Star Chart">
+<meta name="apple-mobile-web-app-title" content="Ihaaya">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Ihanaa's Star Chart</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<title>Ihaaya Star Chart</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
 <style>
 :root{
   --bg:#fff8ec; --bg2:#ffedd0; --card:#ffffff; --ink:#2d2350; --muted:#6c6488; --line:#efe3cd;
@@ -99,11 +99,19 @@ h1 .name{color:var(--accent)}
   padding:max(28px, env(safe-area-inset-top)) 16px 28px;background:radial-gradient(circle at 50% -10%,var(--star-bg) 0,var(--bg) 60%)}
 .landing[hidden]{display:none}
 .landin{width:100%;max-width:420px;text-align:center}
-.logo{width:150px;height:150px;margin:6px auto 0;border-radius:44px;background:linear-gradient(145deg,#7c4dff,#ff5fa2);
-  box-shadow:0 14px 34px rgba(124,77,255,.35);display:grid;place-items:center;--step:.42s}
-.logo svg{width:92px;height:auto;overflow:visible}
-.ltitle{font-size:30px;margin:16px 0 2px;line-height:1.15}
-.lkids{font-size:28px;letter-spacing:4px;min-height:10px}
+.logo{width:160px;height:160px;margin:10px auto 0;border-radius:37px;box-shadow:0 14px 34px rgba(124,77,255,.35)}
+.logo svg{display:block;width:100%;height:100%;overflow:visible}
+.logo .lg-bar{transform-box:fill-box;transform-origin:50% 100%;animation:grow .55s cubic-bezier(.3,1.4,.5,1) both;animation-delay:calc(var(--i) * 80ms)}
+@keyframes grow{from{transform:scaleY(0)}}
+.logo .lg-pop{transform-box:fill-box;transform-origin:50% 50%;animation:popin .6s .62s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes popin{from{transform:scale(0) rotate(-40deg)}}
+.logo .lg-float{transform-box:fill-box;transform-origin:50% 50%;animation:float 2.6s 1.3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-3px) rotate(4deg)}}
+.logo .lg-spark{transform-box:fill-box;transform-origin:50% 50%;animation:twinkle 1.8s ease-in-out infinite}
+.logo .lg-spark:nth-of-type(2){animation-delay:.6s}
+.logo .lg-spark:nth-of-type(3){animation-delay:1.2s}
+@keyframes twinkle{50%{transform:scale(.45);opacity:.55}}
+.ltitle{font-size:30px;margin:18px 0 2px;line-height:1.15}
 .landpad{margin-top:10px}
 .landpad h2{font-size:21px;margin:10px 0 2px}
 .landpad .reportbtn{max-width:320px;margin:24px auto 0}
@@ -258,9 +266,8 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
 <body>
 <div class="landing" id="landing">
   <div class="landin">
-    <div class="logo starguy" id="landLogo" aria-hidden="true"></div>
-    <h1 class="ltitle" id="landTitle">Star Chart</h1>
-    <div class="lkids" id="landKids"></div>
+    <div class="logo" id="landLogo" role="img" aria-label="Ihaaya Star Chart logo"></div>
+    <h1 class="ltitle">Ihaaya Star Chart</h1>
     <div class="landpad" id="landPad"></div>
   </div>
 </div>
@@ -356,6 +363,8 @@ const STAR_SVG = '<svg viewBox="0 0 100 120" aria-hidden="true">' +
   '<circle class="eye" cx="43" cy="46" r="4"/><circle class="eye" cx="57" cy="46" r="4"/>' +
   '<circle class="cheek" cx="36" cy="55" r="4"/><circle class="cheek" cx="64" cy="55" r="4"/>' +
   '<path class="smile" d="M43 56 Q50 64 57 56"/></svg>';
+// The app logo: a week of growing bars (Friday in gold) under a smiling star.
+const LOGO_SVG = '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient><linearGradient id="lgGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#ffb800"/></linearGradient></defs><rect class="lg-bg" width="120" height="120" rx="28" fill="url(#lgBg)"/><rect class="lg-bar" style="--i:0" x="15" y="86" width="9" height="14" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:1" x="28.5" y="80" width="9" height="20" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:2" x="42" y="83" width="9" height="17" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:3" x="55.5" y="75" width="9" height="25" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:4" x="69" y="70" width="9" height="30" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:5" x="82.5" y="64" width="9" height="36" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:6" x="96" y="56" width="9" height="44" rx="4.5" fill="url(#lgGold)"/><path class="lg-spark" fill="#fff" d="M24 19 Q24 26 31 26 Q24 26 24 33 Q24 26 17 26 Q24 26 24 19 Z"/><path class="lg-spark" fill="#fff" d="M98 15 Q98 20 103 20 Q98 20 98 25 Q98 20 93 20 Q98 20 98 15 Z"/><path class="lg-spark" fill="#fff" d="M16 46.5 Q16 50 19.5 50 Q16 50 16 53.5 Q16 50 12.5 50 Q16 50 16 46.5 Z"/><g class="lg-pop"><g class="lg-float"><path d="M60 11 L66.76 28.7 L85.68 29.66 L70.94 41.55 L75.87 59.84 L60 49.5 L44.13 59.84 L49.06 41.55 L34.32 29.66 L53.24 28.7 Z" fill="url(#lgGold)" stroke="#e39b00" stroke-width="2.5" stroke-linejoin="round"/><circle cx="55" cy="35" r="2.6" fill="#3b2a00"/><circle cx="65" cy="35" r="2.6" fill="#3b2a00"/><circle cx="52" cy="41.5" r="2.2" fill="#ff8fa3" opacity=".75"/><circle cx="68" cy="41.5" r="2.2" fill="#ff8fa3" opacity=".75"/><path d="M55 41.5 Q60 46.5 65 41.5" fill="none" stroke="#3b2a00" stroke-width="2.4" stroke-linecap="round"/></g></g></svg>';
 const PHOTO_RE = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
 
 const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -763,7 +772,7 @@ function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
   document.body.classList.toggle('words', store.prefs.words);
   $('#name').textContent = s.name;
-  document.title = s.name + "'s Star Chart";
+  document.title = 'Ihaaya Star Chart';
   $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
     (next ? ' · ' + (next[0] - n) + ' more to ' + next[1] : ' · top level!');
 }
@@ -1154,10 +1163,8 @@ let hiddenAt = 0;
 function showLanding() {
   if (!$('#overlay').hidden) { $('#overlay').hidden = true; $('#fx').innerHTML = ''; }
   unlockedUntil = 0;
-  const one = store.profiles.length === 1, pf = store.prefs, box = $('#landPad');
-  $('#landLogo').innerHTML = '<div class="bob">' + STAR_SVG + '</div>';
-  $('#landTitle').textContent = one ? store.profiles[0].settings.name + '\'s Star Chart' : 'Star Chart';
-  $('#landKids').textContent = one ? '' : store.profiles.map(p => p.avatar).join(' ');
+  const pf = store.prefs, box = $('#landPad');
+  $('#landLogo').innerHTML = LOGO_SVG;
   $('#landing').hidden = false; document.body.style.overflow = 'hidden';
   if (pf.pin) pinPad(box, 'unlock', enterApp, null, true);
   else if (!pf.pinOff) pinPad(box, 'set', enterApp, null, true);
