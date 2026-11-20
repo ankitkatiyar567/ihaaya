@@ -86,6 +86,18 @@ h1 .name{color:var(--accent)}
 .task{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;padding:10px;border-radius:22px;background:var(--bg);border:2px solid var(--line);transition:background .2s,border-color .2s;--pic:clamp(66px,19vw,96px)}
 .task.got{border-color:var(--star);background:var(--star-bg)}
 .task.miss{border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+/* children */
+.kids{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.kids::-webkit-scrollbar{display:none}
+.kid{flex:none;display:flex;align-items:center;gap:8px;border:3px solid transparent;background:var(--card);box-shadow:var(--shadow);border-radius:999px;padding:4px 16px 4px 4px;cursor:pointer;font-weight:800;font-size:16px}
+.kid .av{width:40px;height:40px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;font-size:25px;line-height:1}
+.kid.on{border-color:var(--accent)}
+.kid.on .av{background:var(--star-bg)}
+.kid.add{padding:4px;color:var(--muted)}
+.kid.add .av{font-size:20px}
+.avatars{display:flex;flex-wrap:wrap;gap:8px}
+.avbtn{width:50px;height:50px;border-radius:50%;border:3px solid transparent;background:var(--bg2);font-size:28px;cursor:pointer;padding:0;line-height:1}
+.avbtn.on{border-color:var(--accent);background:var(--star-bg)}
 /* picture tiles */
 .pic{position:relative;width:var(--pic,88px);height:var(--pic,88px);border-radius:22px;border:0;padding:0;background:hsl(var(--h,40) var(--tile-s) var(--tile-l));display:grid;place-items:center;overflow:hidden;flex:none}
 button.pic{cursor:pointer}
@@ -219,6 +231,7 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
       <button class="iconbtn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">⚙️</button>
     </div>
   </header>
+  <nav class="kids" id="kids" aria-label="Children"></nav>
 
   <div class="warn" id="warn" hidden>This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
   <div class="banner" id="banner" hidden></div>
@@ -249,7 +262,7 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
     <ul class="tasks" id="tasks"></ul>
     <div class="notewrap">
       <label for="note">💌 A lovely moment today (optional)</label>
-      <textarea class="note" id="note" maxlength="300" placeholder="She shared her crayons with her cousin…"></textarea>
+      <textarea class="note" id="note" maxlength="300" placeholder="Shared crayons with a cousin…"></textarea>
     </div>
   </section>
 
@@ -266,28 +279,32 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0;background:none}
 <script>
 (() => {
 'use strict';
-const STORE_KEY = 'ihanaa-star-chart-v2';
+// v3 keeps every child's profile; v2 (one child) is read once and becomes the first profile.
+const STORE_KEY = 'star-chart-v3', OLD_KEY = 'ihanaa-star-chart-v2';
 // emoji = the big picture, badge = the small picture in the corner, ask = what the page says when she taps the picture.
 const DEFAULT_TASKS = [
   { id:'sleep',   h:250, emoji:'😴', badge:'🌙', title:'Slept well',        hint:'Went to bed nicely and slept through the night', ask:'Did you sleep well last night?', on:true },
   { id:'rest',    h:200, emoji:'🛌', badge:'☀️', title:'Daytime rest',      hint:'Napped or rested for about 1 hour', ask:'Did you have your rest today?', on:true },
-  { id:'tv',      h:15,  emoji:'📺', badge:'⏰', title:'TV time',           hint:'30 minutes at most, and switched it off herself', ask:'Did you watch TV for a short time, and switch it off yourself?', on:true },
-  { id:'play',    h:48,  emoji:'🖍️', badge:'🧩', title:'Played by herself', hint:'Craft, colouring, Lego or another game', ask:'Did you play by yourself? Colouring, crafts or Lego?', on:true },
-  { id:'food',    h:115, emoji:'🍽️', badge:'😋', title:'Finished her food', hint:'Ate her meal and finished on time', ask:'Did you finish your food, on time?', on:true },
-  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + each time she cries. No crying = 5 stars; each cry takes 2 stars away', ask:'How many times did you cry today?', on:true, count:true },
+  { id:'tv',      h:15,  emoji:'📺', badge:'⏰', title:'TV time',           hint:'30 minutes at most, and switched it off without help', ask:'Did you watch TV for a short time, and switch it off yourself?', on:true },
+  { id:'play',    h:48,  emoji:'🖍️', badge:'🧩', title:'Played alone', hint:'Craft, colouring, Lego or another game', ask:'Did you play by yourself? Colouring, crafts or Lego?', on:true },
+  { id:'food',    h:115, emoji:'🍽️', badge:'😋', title:'Finished the food', hint:'Ate her meal and finished on time', ask:'Did you finish your food, on time?', on:true },
+  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + for each cry. No crying = 5 stars; each cry takes 2 stars away', ask:'How many times did you cry today?', on:true, count:true },
   { id:'teeth',   h:185, emoji:'🪥', badge:'😁', title:'Brushed teeth',     hint:'Morning and bedtime', ask:'Did you brush your teeth, morning and night?', on:true },
-  { id:'tidy',    h:28,  emoji:'🧸', badge:'🧺', title:'Tidied up',         hint:'Put her toys back after playing', ask:'Did you put your toys back after playing?', on:true },
+  { id:'tidy',    h:28,  emoji:'🧸', badge:'🧺', title:'Tidied up',         hint:'Put the toys back after playing', ask:'Did you put your toys back after playing?', on:true },
   { id:'kind',    h:345, emoji:'🤗', badge:'💛', title:'Kind and helpful',  hint:'Helped, shared or said something nice', ask:'Were you kind and helpful today?', on:true },
-  { id:'dress',   h:275, emoji:'👗', badge:'👟', title:'Got dressed',       hint:'Put her clothes on herself (a little help is fine)', ask:'Did you get dressed by yourself?', on:false },
+  { id:'dress',   h:275, emoji:'👗', badge:'👟', title:'Got dressed',       hint:'Put clothes on (a little help is fine)', ask:'Did you get dressed by yourself?', on:false },
   { id:'listen',  h:160, emoji:'👂', badge:'👍', title:'Listened the first time', hint:'Did it when asked, without reminders', ask:'Did you listen the first time?', on:false },
-  { id:'manners', h:60,  emoji:'🙏', badge:'💬', title:'Please and thank you', hint:'Used her magic words', ask:'Did you say please and thank you?', on:false },
+  { id:'manners', h:60,  emoji:'🙏', badge:'💬', title:'Please and thank you', hint:'Used the magic words', ask:'Did you say please and thank you?', on:false },
   { id:'brave',   h:95,  emoji:'🥦', badge:'🦁', title:'Tried something new', hint:'A new food, a new game or something brave', ask:'Did you try something new today?', on:false },
   { id:'book',    h:220, emoji:'📖', badge:'🐻', title:'Story time',        hint:'Looked at a book or listened to a story', ask:'Did you read a book or listen to a story?', on:false },
   { id:'outside', h:135, emoji:'🌳', badge:'⚽', title:'Played outside',    hint:'Fresh air and running around', ask:'Did you play outside today?', on:false },
   { id:'hands',   h:195, emoji:'🧼', badge:'👐', title:'Washed hands',      hint:'Before eating and after the toilet', ask:'Did you wash your hands before eating?', on:false },
-  { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (she rates herself)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
+  { id:'calm',    h:330, emoji:'😊', badge:'🌈', title:'Calm day',          hint:'Used words when upset (self-rated)', ask:'Were you calm today? Did you use your words when you were upset?', on:false },
 ];
-const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, sound:true, speak:true, voice:'en-GB', words:false, reward:'' };
+const DEFAULTS = { name:'Ihanaa', goal:60, reportDay:5, reward:'' };
+// Sounds, voice and words belong to the device, so they are the same for every child.
+const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false };
+const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
 const VOICES = [['en-GB','English (UK)'],['en-US','English (US)'],['en-IN','English (India)'],['hi-IN','हिन्दी (Hindi)'],['fi-FI','Suomi (Finnish)']];
 const LEVELS = [[0,'🌱','Little Seed'],[40,'🌷','Tulip'],[100,'🐣','Chick'],[180,'🦋','Butterfly'],[280,'🐬','Dolphin'],
   [400,'🦄','Unicorn'],[550,'🚀','Rocket'],[750,'🌈','Rainbow'],[1000,'👑','Star Queen'],[1300,'🌟','Shining Star']];
@@ -318,18 +335,35 @@ const points = v => 50 + 10 * v;
 const hueOf = t => Number.isFinite(t.h) ? t.h : [...t.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 
 let storageOk = true;
-let data = load();
+let store = loadStore();
+let data = activeProfile();
 let selKey = keyOf(today());
 let weekStart = weekStartOf(today());
 let todayKeySeen = selKey;
 let justPopped = null;
 let noteTimer = null;
 
-function load() {
-  let d = null;
-  try { d = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { storageOk = false; }
-  return normalise(d);
+function readKey(k) {
+  try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { storageOk = false; return null; }
 }
+function prefsFrom(o) {
+  const p = Object.assign({}, PREF_DEFAULTS, o && typeof o === 'object' ? o : {});
+  return { sound: p.sound !== false, speak: p.speak !== false, words: p.words === true,
+    voice: VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB' };
+}
+function normaliseStore(o) {
+  if (o && Array.isArray(o.profiles) && o.profiles.length) {
+    const profiles = o.profiles.map(normalise), seen = new Set();
+    for (const p of profiles) { while (seen.has(p.id)) p.id += 'x'; seen.add(p.id); }
+    return { version:3, prefs: prefsFrom(o.prefs), active: profiles.some(p => p.id === o.active) ? o.active : profiles[0].id, profiles };
+  }
+  // One child's data (the first version of the page, or its backup) becomes the first profile.
+  const one = o && typeof o === 'object' && (o.settings || o.days) ? o : null, p = normalise(one);
+  return { version:3, prefs: prefsFrom(one && one.settings), active: p.id, profiles: [p] };
+}
+function loadStore() { return normaliseStore(readKey(STORE_KEY) || readKey(OLD_KEY)); }
+function activeProfile() { return store.profiles.find(p => p.id === store.active) || store.profiles[0]; }
+function newId() { return 'k-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function normalise(d) {
   if (!d || typeof d !== 'object') d = {};
   const s = Object.assign({}, DEFAULTS, d.settings && typeof d.settings === 'object' ? d.settings : {});
@@ -347,13 +381,13 @@ function normalise(d) {
   s.reportDay = Number.isFinite(+s.reportDay) ? clamp(Math.round(+s.reportDay), 0, 6) : 5;
   s.name = String(s.name || DEFAULTS.name).slice(0, 30);
   s.reward = String(s.reward || '').slice(0, 80);
-  s.voice = VOICES.some(v => v[0] === s.voice) ? s.voice : 'en-GB';
-  s.sound = s.sound !== false; s.speak = s.speak !== false; s.words = s.words === true;
+  for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
-  return { version:2, settings:s, days };
+  return { id: typeof d.id === 'string' && d.id ? d.id.slice(0, 40) : newId(),
+    avatar: typeof d.avatar === 'string' && d.avatar ? d.avatar.slice(0, 8) : AVATARS[0], settings:s, days };
 }
 function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); storageOk = true; } catch (e) { storageOk = false; }
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); storageOk = true; } catch (e) { storageOk = false; }
   $('#warn').hidden = storageOk;
   return storageOk;
 }
@@ -412,7 +446,7 @@ function tidyRec(k) {
 /* ---------- sounds and voice ---------- */
 let actx = null;
 function tone(freq, at, dur, type, vol) {
-  if (!data.settings.sound) return;
+  if (!store.prefs.sound) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
@@ -431,10 +465,10 @@ const sfx = {
   soft() { tone(587, 0, .4, 'sine', .09); tone(523, .3, .6, 'sine', .09); },
 };
 function say(text) {
-  if (!data.settings.speak || !text || !('speechSynthesis' in window)) return;
+  if (!store.prefs.speak || !text || !('speechSynthesis' in window)) return;
   try {
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text), lang = data.settings.voice;
+    const u = new SpeechSynthesisUtterance(text), lang = store.prefs.voice;
     u.lang = lang; u.rate = .9; u.pitch = 1.1;
     const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.replace('_', '-').toLowerCase() === lang.toLowerCase()) ||
       speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
@@ -442,7 +476,7 @@ function say(text) {
     speechSynthesis.speak(u);
   } catch (e) { /* no voice, no problem */ }
 }
-const sayEnglish = text => { if (data.settings.voice.startsWith('en')) say(text); };
+const sayEnglish = text => { if (store.prefs.voice.startsWith('en')) say(text); };
 if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* ignore */ } }
 
 /* ---------- little effects ---------- */
@@ -496,7 +530,7 @@ function picHtml(t, o) {
   const inner = t.photo ? '<img src="' + esc(t.photo) + '" alt="">'
     : '<span class="m">' + esc(t.emoji) + '</span>' + (t.badge ? '<span class="b">' + esc(t.badge) + '</span>' : '');
   const style = '--h:' + hueOf(t) + (o.size ? ';--pic:' + o.size + 'px' : '');
-  const extra = (o.speak && data.settings.speak ? '<span class="spk" aria-hidden="true">🔊</span>' : '') +
+  const extra = (o.speak && store.prefs.speak ? '<span class="spk" aria-hidden="true">🔊</span>' : '') +
     (o.fire ? '<span class="fire" title="' + o.fire + ' days in a row">🔥' + o.fire + '</span>' : '');
   return o.speak
     ? '<button type="button" class="pic" style="' + style + '" aria-label="' + esc(t.title) + ': tap to hear the question">' + inner + extra + '</button>'
@@ -513,13 +547,70 @@ function rowHtml(t, v, sign) {
   return h + '</div>';
 }
 
+/* ---------- children ---------- */
+const avatarButtons = sel => AVATARS.map(a => '<button type="button" class="avbtn' + (a === sel ? ' on' : '') +
+  '" data-av="' + a + '" aria-label="' + a + '" aria-pressed="' + (a === sel) + '">' + a + '</button>').join('');
+function renderKids() {
+  const nav = $('#kids'); nav.innerHTML = '';
+  for (const p of store.profiles) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'kid' + (p === data ? ' on' : '');
+    b.setAttribute('aria-pressed', String(p === data));
+    b.innerHTML = '<span class="av">' + esc(p.avatar) + '</span><span class="kn">' + esc(p.settings.name) + '</span>';
+    b.addEventListener('click', () => switchTo(p.id));
+    nav.appendChild(b);
+  }
+  const add = document.createElement('button');
+  add.type = 'button'; add.className = 'kid add'; add.title = 'Add a child'; add.setAttribute('aria-label', 'Add a child');
+  add.innerHTML = '<span class="av">＋</span>';
+  add.addEventListener('click', showAddKid);
+  nav.appendChild(add);
+}
+function switchTo(id) {
+  if (id === data.id) return;
+  store.active = id; data = activeProfile();
+  selKey = keyOf(today()); weekStart = weekStartOf(today()); todayKeySeen = selKey;
+  save(); render();
+  sayEnglish('Hello ' + data.settings.name + '!');
+}
+function showAddKid() {
+  const taken = new Set(store.profiles.map(p => p.avatar)), first = AVATARS.find(a => !taken.has(a)) || AVATARS[0];
+  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
+    '<h2>Add a child</h2>' +
+    '<label class="field"><span>Name</span><input id="kName" maxlength="30" autocomplete="off"></label>' +
+    '<div class="field"><span>Their picture</span><div class="avatars" id="kAv">' + avatarButtons(first) + '</div></div>' +
+    '<label class="field check"><input type="checkbox" id="kCopy"><span>Start with ' + esc(data.settings.name) +
+    '\'s pictures, goal and report day (not the photos)</span></label>' +
+    '<p class="small">Each child has their own pictures, goal, reward, stars and Friday report.</p>' +
+    '<button type="button" class="reportbtn" id="kAdd">Add</button>', 'settings');
+  let av = first;
+  $('#kAv').addEventListener('click', e => {
+    const b = e.target.closest('[data-av]'); if (!b) return;
+    av = b.dataset.av; $('#kAv').innerHTML = avatarButtons(av);
+  });
+  $('#kAdd').addEventListener('click', () => {
+    const name = $('#kName').value.trim().slice(0, 30);
+    if (!name) { $('#kName').focus(); return; }
+    let settings = { name };
+    if ($('#kCopy').checked) {
+      settings = JSON.parse(JSON.stringify(data.settings));
+      settings.tasks.forEach(t => delete t.photo);
+      settings.name = name; settings.reward = '';
+    }
+    const p = normalise({ id: newId(), avatar: av, settings, days: {} });
+    store.profiles.push(p);
+    closeOverlay(); switchTo(p.id); toast(av + ' ' + name + ' added');
+  });
+  setTimeout(() => $('#kName') && $('#kName').focus(), 50);
+}
+
 /* ---------- rendering ---------- */
-function render() { renderHeader(); renderWeek(); renderProgress(); renderDay(); renderBanner(); $('#warn').hidden = storageOk; }
+function render() { renderKids(); renderHeader(); renderWeek(); renderProgress(); renderDay(); renderBanner(); $('#warn').hidden = storageOk; }
 
 function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
-  document.body.classList.toggle('words', s.words);
-  $('#wordsBtn').setAttribute('aria-pressed', String(s.words));
+  document.body.classList.toggle('words', store.prefs.words);
+  $('#wordsBtn').setAttribute('aria-pressed', String(store.prefs.words));
   $('#name').textContent = s.name;
   document.title = s.name + "'s Star Chart";
   $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
@@ -644,7 +735,7 @@ $('#nextWeek').addEventListener('click', () => {
   selKey = keyOf(we > t ? t : we); render();
 });
 $('#todayBtn').addEventListener('click', () => { selKey = keyOf(today()); weekStart = weekStartOf(today()); render(); });
-$('#wordsBtn').addEventListener('click', () => { data.settings.words = !data.settings.words; save(); render(); });
+$('#wordsBtn').addEventListener('click', () => { store.prefs.words = !store.prefs.words; save(); render(); });
 
 /* ---------- overlays ---------- */
 function openOverlay(html, cls) {
@@ -732,10 +823,11 @@ $('#reportBtn').addEventListener('click', showReport);
 
 /* ---------- settings ---------- */
 function showSettings() {
-  const s = data.settings;
+  const s = data.settings, pf = store.prefs;
   const html = '<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
-    '<h2>⚙️ Settings</h2>' +
+    '<h2>⚙️ Settings for <span id="sTitle">' + esc(data.avatar) + ' ' + esc(s.name) + '</span></h2>' +
     '<label class="field"><span>Child\'s name</span><input id="sName" maxlength="30" value="' + esc(s.name) + '"></label>' +
+    '<div class="field"><span>Their picture</span><div class="avatars" id="sAv">' + avatarButtons(data.avatar) + '</div></div>' +
     '<label class="field"><span>Report day</span><select id="sDay">' + WEEKDAYS.map((n, i) =>
       '<option value="' + i + '"' + (i === s.reportDay ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label>' +
     '<p class="small">The week runs up to the report day. With Friday it is Saturday to Friday.</p>' +
@@ -743,19 +835,20 @@ function showSettings() {
     '<input type="range" id="sGoal" min="30" max="90" step="5" value="' + s.goal + '"></label>' +
     '<p class="small scoretbl">How the score works: each mark is worth ⭐⭐⭐⭐⭐ 100 · ⭐⭐⭐⭐ 90 · ⭐⭐⭐ 80 · ⭐⭐ 70 · ⭐ 60 · ' +
     '❌ 40 · ❌❌ 30 · ❌❌❌ 20 · ❌❌❌❌ 10 · ❌❌❌❌❌ 0. The week\'s score is the average of all marks. ' +
-    'Pictures she has not rated do not count. The 😢 crying counter counts on every day with a mark: ' +
+    'Pictures that are not rated do not count. The 😢 crying counter counts on every day with a mark: ' +
     'no crying ⭐⭐⭐⭐⭐ · 1 cry ⭐⭐⭐ · 2 ⭐ · 3 ❌ · 4 ❌❌❌ · 5 or more ❌❌❌❌❌.</p>' +
-    '<label class="field"><span>This week\'s reward (optional, shown when she reaches the goal)</span>' +
+    '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
-    '<label class="field check"><input type="checkbox" id="sSound"' + (s.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
-    '<label class="field check"><input type="checkbox" id="sSpeak"' + (s.speak ? ' checked' : '') + '><span>Read the question aloud when she taps a picture</span></label>' +
+    '<h3>Sounds and words</h3><p class="small">These are for this phone or computer, for all children.</p>' +
+    '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
+    '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>Read the question aloud when a picture is tapped</span></label>' +
     '<label class="field"><span>Voice language</span><select id="sVoice">' + VOICES.map(v =>
-      '<option value="' + v[0] + '"' + (v[0] === s.voice ? ' selected' : '') + '>' + v[1] + '</option>').join('') + '</select></label>' +
+      '<option value="' + v[0] + '"' + (v[0] === pf.voice ? ' selected' : '') + '>' + v[1] + '</option>').join('') + '</select></label>' +
     '<div class="btnrow"><button type="button" class="btn" id="sTest">🔊 Test the voice</button></div>' +
     '<p class="small">For another language, also type the questions below in that language.</p>' +
-    '<label class="field check"><input type="checkbox" id="sWords"' + (s.words ? ' checked' : '') + '><span>Show words under the pictures (🔤 at the top does the same)</span></label>' +
-    '<h3>Pictures</h3><p class="small">Tick the ones to use. Change the big and small picture (any emoji), ' +
-    'or add a 📷 photo of her own things: her bed, her toothbrush, her plate. What to say is read aloud when she taps the picture.</p>' +
+    '<label class="field check"><input type="checkbox" id="sWords"' + (pf.words ? ' checked' : '') + '><span>Show words under the pictures (🔤 at the top does the same)</span></label>' +
+    '<h3>' + esc(s.name) + '\'s pictures</h3><p class="small">Tick the ones to use. Change the big and small picture (any emoji), ' +
+    'or add a 📷 photo of the child\'s own things: bed, toothbrush, plate. What to say is read aloud when the picture is tapped.</p>' +
     '<ul class="setlist" id="sTasks"></ul>' +
     '<div class="addtask"><input class="e" id="nEmoji" maxlength="8" value="🎹" aria-label="Big picture">' +
     '<input class="e" id="nBadge" maxlength="8" value="🎵" aria-label="Small picture">' +
@@ -763,27 +856,36 @@ function showSettings() {
     '<input class="full" id="nAsk" maxlength="120" placeholder="What to say, e.g. Did you practise the piano?" aria-label="What to say">' +
     '<button type="button" class="btn primary full" id="nAdd">＋ Add picture</button></div>' +
     '<h3>Backup</h3><p class="small">The stars live in this browser only (each phone or computer has its own). ' +
-    'Download a backup now and then; restore it on another device to move the stars there.</p>' +
+    'A backup holds all children. Download one now and then; restore it on another device to move the stars there.</p>' +
     '<div class="btnrow"><button type="button" class="btn" id="bExport">⬇️ Download backup</button>' +
     '<label class="btn" tabindex="0">⬆️ Restore backup<input type="file" id="bImport" accept="application/json,.json" hidden></label>' +
-    '<button type="button" class="btn danger" id="bReset">Start over</button></div>' +
+    '<button type="button" class="btn danger" id="bReset">Clear ' + esc(s.name) + '\'s stars</button>' +
+    (store.profiles.length > 1 ? '<button type="button" class="btn danger" id="bRemove">Remove ' + esc(s.name) + '</button>' : '') + '</div>' +
     '<button type="button" class="reportbtn" data-close>Done</button>';
   openOverlay(html, 'settings');
   renderTaskSettings();
-  $('#sName').addEventListener('input', e => { s.name = e.target.value.trim().slice(0, 30) || DEFAULTS.name; save(); renderHeader(); });
+  $('#sName').addEventListener('input', e => {
+    const v = e.target.value.trim().slice(0, 30); if (!v) return;
+    s.name = v; save(); renderKids(); renderHeader(); $('#sTitle').textContent = data.avatar + ' ' + v;
+  });
+  $('#sAv').addEventListener('click', e => {
+    const b = e.target.closest('[data-av]'); if (!b) return;
+    data.avatar = b.dataset.av; save(); renderKids();
+    $('#sAv').innerHTML = avatarButtons(data.avatar); $('#sTitle').textContent = data.avatar + ' ' + s.name;
+  });
   $('#sDay').addEventListener('change', e => { s.reportDay = +e.target.value; weekStart = weekStartOf(fromKey(selKey)); save(); });
   $('#sGoal').addEventListener('input', e => { s.goal = +e.target.value; $('#sGoalV').textContent = s.goal + '%'; save(); });
   $('#sReward').addEventListener('input', e => { s.reward = e.target.value.slice(0, 80); save(); });
-  $('#sSound').addEventListener('change', e => { s.sound = e.target.checked; save(); if (s.sound) sfx.stars(3); });
-  $('#sSpeak').addEventListener('change', e => { s.speak = e.target.checked; save(); renderTaskSettings(); });
-  $('#sVoice').addEventListener('change', e => { s.voice = e.target.value; save(); });
+  $('#sSound').addEventListener('change', e => { pf.sound = e.target.checked; save(); if (pf.sound) sfx.stars(3); });
+  $('#sSpeak').addEventListener('change', e => { pf.speak = e.target.checked; save(); renderTaskSettings(); });
+  $('#sVoice').addEventListener('change', e => { pf.voice = e.target.value; save(); });
   $('#sTest').addEventListener('click', () => {
     const first = enabledTasks()[0];
-    const was = s.speak; s.speak = true;
-    say(s.voice.startsWith('en') ? 'Hello ' + s.name + '! ' + (first ? first.ask : '') : (first ? first.ask || first.title : s.name));
-    s.speak = was;
+    const was = pf.speak; pf.speak = true;
+    say(pf.voice.startsWith('en') ? 'Hello ' + s.name + '! ' + (first ? first.ask : '') : (first ? first.ask || first.title : s.name));
+    pf.speak = was;
   });
-  $('#sWords').addEventListener('change', e => { s.words = e.target.checked; save(); renderHeader(); });
+  $('#sWords').addEventListener('change', e => { pf.words = e.target.checked; save(); renderHeader(); });
   $('#nAdd').addEventListener('click', () => {
     const title = $('#nTitle').value.trim();
     if (!title) { $('#nTitle').focus(); return; }
@@ -795,8 +897,15 @@ function showSettings() {
   $('#bExport').addEventListener('click', exportData);
   $('#bImport').addEventListener('change', importData);
   $('#bReset').addEventListener('click', () => {
-    if (!confirm('Delete all stars, notes, photos and settings in this browser? Download a backup first if you want to keep them.')) return;
-    data = normalise(null); selKey = keyOf(today()); weekStart = weekStartOf(today()); save(); closeOverlay(); toast('Fresh start 🌱');
+    if (!confirm('Delete all of ' + s.name + '\'s stars and notes? The pictures and settings stay. Download a backup first if you want to keep them.')) return;
+    data.days = {}; save(); closeOverlay(); toast('Fresh start for ' + s.name + ' 🌱');
+  });
+  const rm = $('#bRemove');
+  if (rm) rm.addEventListener('click', () => {
+    if (!confirm('Remove ' + s.name + ' and all of their stars, notes and photos from this browser?')) return;
+    store.profiles = store.profiles.filter(p => p !== data);
+    store.active = store.profiles[0].id; data = activeProfile();
+    selKey = keyOf(today()); weekStart = weekStartOf(today()); save(); closeOverlay(); toast(s.name + ' removed');
   });
 }
 function renderTaskSettings() {
@@ -813,7 +922,7 @@ function renderTaskSettings() {
       '<input data-f="badge" maxlength="8" aria-label="Small picture" value="' + esc(t.badge) + '">' +
       '<label class="btn">📷 Photo<input type="file" accept="image/*" data-a="photo" hidden></label>' +
       (t.photo ? '<button type="button" class="btn" data-a="nophoto">Remove photo</button>' : '') + '</div>' +
-      '<input class="full" data-f="ask" maxlength="120" aria-label="What to say" placeholder="What to say when she taps it" value="' + esc(t.ask) + '">';
+      '<input class="full" data-f="ask" maxlength="120" aria-label="What to say" placeholder="What to say when it is tapped" value="' + esc(t.ask) + '">';
     li.addEventListener('input', e => {
       const f = e.target.dataset.f; if (!f || f === 'on') return;
       t[f] = e.target.value.trim();
@@ -857,10 +966,10 @@ function addPhoto(t, file) {
   rd.readAsDataURL(file);
 }
 function exportData() {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const blob = new Blob([JSON.stringify(store, null, 2)], { type:'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = (data.settings.name || 'star-chart').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-stars-' + keyOf(today()) + '.json';
+  a.download = 'star-chart-backup-' + keyOf(today()) + '.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
@@ -871,9 +980,19 @@ function importData(e) {
   rd.onload = () => {
     let obj = null;
     try { obj = JSON.parse(rd.result); } catch (err) { obj = null; }
-    if (!obj || typeof obj !== 'object' || !obj.days || !obj.settings) { alert('That file is not a star chart backup.'); return; }
-    if (!confirm('Replace the stars in this browser with the backup (' + Object.keys(obj.days).length + ' days)?')) return;
-    data = normalise(obj); weekStart = weekStartOf(fromKey(selKey)); save(); closeOverlay(); toast('Backup restored ✔');
+    const all = obj && typeof obj === 'object' && Array.isArray(obj.profiles) && obj.profiles.length > 0;
+    const one = obj && typeof obj === 'object' && obj.days && obj.settings;
+    if (!all && !one) { alert('That file is not a star chart backup.'); return; }
+    if (all) {
+      if (!confirm('Replace all children and stars in this browser with the backup (' + obj.profiles.length + ' children)?')) return;
+      store = normaliseStore(obj);
+    } else {
+      if (!confirm('Replace ' + data.settings.name + '\'s stars and pictures with this backup (' + Object.keys(obj.days).length + ' days)?')) return;
+      const p = normalise(obj); p.id = data.id; p.avatar = data.avatar;
+      store.profiles[store.profiles.indexOf(data)] = p;
+    }
+    data = activeProfile(); selKey = keyOf(today()); weekStart = weekStartOf(today());
+    save(); closeOverlay(); toast('Backup restored ✔');
   };
   rd.readAsText(f);
 }
@@ -892,7 +1011,7 @@ setInterval(checkNewDay, 60 * 1000);
 
 render();
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, switchTo, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
