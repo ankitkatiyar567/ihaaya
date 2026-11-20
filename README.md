@@ -2,6 +2,8 @@
 
 *Shine a little brighter every day.*
 
+🔗 **Open the app: [ankitkatiyar567.github.io/ihaaya](https://ankitkatiyar567.github.io/ihaaya/)**
+
 <p align="center">
   <img src="screenshots/1-landing.png" width="200" alt="Logo and parent PIN" />
   <img src="screenshots/2-chart.png" width="200" alt="The day's picture tasks with 1-5 stars or crosses" />
