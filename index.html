@@ -273,6 +273,7 @@ button.pic{cursor:pointer}
 .cbtn{width:52px;height:52px;border-radius:16px;border:2px solid var(--line);background:var(--card);font-size:28px;font-weight:800;cursor:pointer;padding:0}
 .cbtn:active{transform:scale(.9)}
 .cval{min-width:40px;text-align:center;font-size:34px;font-weight:800}
+.cmark.minus{color:var(--no);font-weight:800;margin-left:6px;white-space:nowrap}
 .cmark{font-size:clamp(17px,5.2vw,26px);letter-spacing:2px;min-height:1.2em}
 .tname,.cap{display:none}
 body.words .tname{display:block;font-weight:800;font-size:15px}
@@ -449,7 +450,7 @@ const DEFAULT_TASKS = [
   { id:'tv',      h:15,  emoji:'📺', badge:'⏰', title:'TV time',           hint:'30 minutes at most, and switched it off without help', ask:'Did you watch TV for a short time, and switch it off yourself?', on:true },
   { id:'play',    h:48,  emoji:'🖍️', badge:'🧩', title:'Played alone', hint:'Craft, colouring, Lego or another game', ask:'Did you play by yourself? Colouring, crafts or Lego?', on:true },
   { id:'food',    h:115, emoji:'🍽️', badge:'😋', title:'Finished the food', hint:'Ate her meal and finished on time', ask:'Did you finish your food, on time?', on:true },
-  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + for each cry. No crying = 5 stars; each cry takes 2 stars away', ask:'How many times did you cry today?', on:true, count:true },
+  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + for each cry. Each cry takes one star away.', ask:'How many times did you cry today?', on:true, count:true },
   { id:'teeth',   h:185, emoji:'🪥', badge:'😁', title:'Brushed teeth',     hint:'Morning and bedtime', ask:'Did you brush your teeth, morning and night?', on:true },
   { id:'tidy',    h:28,  emoji:'🧸', badge:'🧺', title:'Tidied up',         hint:'Put the toys back after playing', ask:'Did you put your toys back after playing?', on:true },
   { id:'kind',    h:345, emoji:'🤗', badge:'💛', title:'Kind and helpful',  hint:'Helped, shared or said something nice', ask:'Were you kind and helpful today?', on:true },
@@ -493,8 +494,6 @@ const today = () => { const n = new Date(); return new Date(n.getFullYear(), n.g
 const fmtShort = d => d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
 const fmtLong = d => d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
 const okV = v => Number.isInteger(v) && v !== 0 && v >= -5 && v <= 5;
-// Score of one mark: ⭐5 = 100, ⭐1 = 60, ❌1 = 40, ❌5 = 0.
-const points = v => 50 + 10 * v;
 const hueOf = t => Number.isFinite(t.h) ? t.h : [...t.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 
 let storageOk = true;
@@ -538,6 +537,7 @@ function normalise(d) {
   s.tasks = tasks.map(t => {
     const def = DEFAULT_TASKS.find(x => x.id === t.id) || {};
     const o = Object.assign({ emoji:'⭐', badge:'', title:'Task', hint:'', ask:'', on:true }, def, t, { count: !!def.count });
+    if (def.count) o.hint = def.hint;  // the counter's rule text follows the app
     for (const k of ['emoji', 'badge', 'title', 'hint', 'ask']) o[k] = String(o[k] == null ? '' : o[k]).slice(0, k === 'emoji' || k === 'badge' ? 8 : 120);
     o.on = o.on !== false;
     if (o.photo && !PHOTO_RE.test(o.photo)) delete o.photo;
@@ -575,46 +575,41 @@ function weekStartOf(d) {
 }
 const enabledTasks = () => data.settings.tasks.filter(t => t.on);
 const findTask = id => data.settings.tasks.find(t => t.id === id);
-// Crying counter: 0 cries = ⭐5, 1 = ⭐3, 2 = ⭐1, 3 = ❌1, 4 = ❌3, 5 or more = ❌5 (each cry = 20 points).
-const cryMark = c => [5, 3, 1, -1, -3][c] || -5;
+// Counting: each picture gets 1-5 stars or 1-5 crosses. Stars add, crosses take away, and every cry on the
+// grown-ups' counter takes one star away. A day's total never goes below 0. The score is that total out of the
+// most the day could earn: 5 stars for each rated picture.
 const criesOf = rec => rec && Number.isInteger(rec.c) && rec.c > 0 ? rec.c : 0;
-function tracked(rec) { return !!rec && (criesOf(rec) > 0 || (!!rec.r && Object.keys(rec.r).some(id => okV(rec.r[id])))); }
+const ratable = () => enabledTasks().filter(t => !t.count);
+const cryCounterOn = () => enabledTasks().some(t => t.count);
 function val(t, rec) {
-  if (t.count) return tracked(rec) ? cryMark(criesOf(rec)) : 0;
+  if (t.count) return 0;
   const v = rec && rec.r ? rec.r[t.id] : 0; return okV(v) ? v : 0;
 }
 function dayStats(k) {
-  const rec = data.days[k]; let stars = 0, crosses = 0, rated = 0, p = 0;
-  for (const t of enabledTasks()) {
-    const v = val(t, rec); if (!v) continue;
-    rated++; p += points(v); if (v > 0) stars += v; else crosses -= v;
-  }
-  return { stars, crosses, rated, p };
+  const rec = data.days[k]; let stars = 0, crosses = 0, rated = 0;
+  for (const t of ratable()) { const v = val(t, rec); if (!v) continue; rated++; if (v > 0) stars += v; else crosses -= v; }
+  const cries = cryCounterOn() ? criesOf(rec) : 0, net = Math.max(0, stars - crosses - cries), max = 5 * rated;
+  return { stars, crosses, cries, rated, net, max, pct: max ? Math.round(net * 100 / max) : 0 };
 }
-function dayComplete(k) { const st = dayStats(k); return st.rated > 0 && st.rated === enabledTasks().length; }
+const goodDay = st => st.rated > 0 && st.net * 100 >= data.settings.goal * st.max;
+function dayComplete(k) { const n = ratable().length; return n > 0 && dayStats(k).rated === n; }
 function weekStats(ws) {
-  const per = {}; let stars = 0, crosses = 0, rated = 0, p = 0, cries = 0;
-  for (const t of enabledTasks()) per[t.id] = { stars:0, crosses:0, rated:0, p:0 };
+  const per = {}; let stars = 0, crosses = 0, cries = 0, rated = 0, net = 0, max = 0;
+  for (const t of ratable()) per[t.id] = { stars:0, crosses:0, rated:0 };
   for (let i = 0; i < 7; i++) {
-    const rec = data.days[keyOf(addDays(ws, i))]; if (!rec) continue;
-    cries += criesOf(rec);
-    for (const t of enabledTasks()) {
+    const k = keyOf(addDays(ws, i)), rec = data.days[k]; if (!rec) continue;
+    const d = dayStats(k);
+    stars += d.stars; crosses += d.crosses; cries += d.cries; rated += d.rated; net += d.net; max += d.max;
+    for (const t of ratable()) {
       const v = val(t, rec); if (!v) continue;
-      const q = per[t.id]; rated++; q.rated++; p += points(v); q.p += points(v);
-      if (v > 0) { stars += v; q.stars += v; } else { crosses -= v; q.crosses -= v; }
+      const q = per[t.id]; q.rated++; if (v > 0) q.stars += v; else q.crosses -= v;
     }
   }
-  return { stars, crosses, rated, p, per, cries, pct: rated ? Math.round(p / rated) : 0, win: rated > 0 && p >= data.settings.goal * rated };
+  return { stars, crosses, cries, rated, net, max, per, pct: max ? Math.round(net * 100 / max) : 0,
+    win: rated > 0 && net * 100 >= data.settings.goal * max };
 }
-function allStars() { let n = 0; for (const k in data.days) n += dayStats(k).stars; return n; }
+function allStars() { let n = 0; for (const k in data.days) n += dayStats(k).net; return n; }
 function levelOf(n) { let i = 0; while (i + 1 < LEVELS.length && n >= LEVELS[i + 1][0]) i++; return i; }
-function streak(t, k) {
-  let d = fromKey(k);
-  if (!val(t, data.days[k])) d = addDays(d, -1);
-  let n = 0;
-  for (let i = 0; i < 400 && val(t, data.days[keyOf(d)]) > 0; i++) { n++; d = addDays(d, -1); }
-  return n;
-}
 function getRec() { return data.days[selKey] || (data.days[selKey] = { r:{} }); }
 function tidyRec(k) {
   const r = data.days[k]; if (!r) return;
@@ -827,7 +822,7 @@ function showMenu() {
   const pf = store.prefs, days = pf.lastBackup ? Math.floor((Date.now() - pf.lastBackup) / 86400000) : -1;
   const ago = days < 0 ? 'never' : days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago';
   const kids = store.profiles.map(p => '<li class="kidli"><button type="button" class="kidrow' + (p === data ? ' on' : '') + '" data-kid="' + esc(p.id) + '">' +
-    '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>⭐ ' + statsOf(p).stars + ' this week' +
+    '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>⭐ ' + statsOf(p).net + ' this week' +
     (p === data ? ' · showing now' : '') + '</small></span></button>' +
     '<button type="button" class="kidact" data-edit="' + esc(p.id) + '" aria-label="Edit ' + esc(p.settings.name) + '" title="Edit name and picture">✏️</button>' +
     '<button type="button" class="kidact" data-del="' + esc(p.id) + '" aria-label="Remove ' + esc(p.settings.name) + '" title="Remove">🗑️</button></li>').join('');
@@ -983,15 +978,15 @@ function renderWeek() {
     b.className = 'day' + (k === selKey ? ' sel' : '') + (k === tk ? ' today' : '');
     b.disabled = d > t;
     b.innerHTML = '<span class="dn">' + esc(d.toLocaleDateString('en-GB', { weekday:'short' })) + '</span><span class="dd">' +
-      d.getDate() + '</span><span class="ds">' + (st.stars ? '⭐' + st.stars : '') + '</span>';
-    b.setAttribute('aria-label', fmtLong(d) + ': ' + st.stars + ' stars');
+      d.getDate() + '</span><span class="ds">' + (st.rated || st.cries ? '⭐' + st.net : '') + '</span>';
+    b.setAttribute('aria-label', fmtLong(d) + ': ' + st.net + ' stars');
     b.addEventListener('click', () => { selKey = k; render(); });
     box.appendChild(b);
   }
 }
 function renderProgress() {
   const st = weekStats(weekStart), g = data.settings.goal;
-  $('#wStars').textContent = st.stars;
+  $('#wStars').textContent = st.net;
   $('#wMeta').textContent = st.rated ? 'Score ' + st.pct + '% · goal ' + g + '%' : 'Goal: ' + g + '%';
   $('#fill').style.width = st.pct + '%';
   $('#goal').style.left = g + '%';
@@ -1000,24 +995,25 @@ function renderProgress() {
   $('#mover').textContent = st.win ? '🌟' : '⭐';
 }
 function renderDay() {
-  const d = fromKey(selKey), rec = data.days[selKey] || {}, st = dayStats(selKey), n = enabledTasks().length;
+  const d = fromKey(selKey), rec = data.days[selKey] || {}, st = dayStats(selKey), n = ratable().length;
   $('#dayName').textContent = fmtLong(d);
   $('#todayChip').hidden = selKey !== keyOf(today());
   const left = n - st.rated;
-  $('#daySum').innerHTML = '<span class="big">⭐ ' + st.stars + '</span><span class="big">❌ ' + st.crosses + '</span>' +
+  const sum = st.stars + ' ⭐' + (st.crosses ? ' − ' + st.crosses + ' ❌' : '') + (st.cries ? ' − ' + st.cries + ' 😢' : '');
+  $('#daySum').innerHTML = '<span class="big">⭐ ' + st.net + '</span>' +
+    (st.crosses || st.cries ? '<span class="left">' + sum + '</span>' : '') +
     '<span class="left">' + (left ? left + ' still to rate' : 'all rated ✔') + '</span>';
   const ul = $('#tasks'); ul.innerHTML = '';
   for (const t of enabledTasks()) {
-    const v = val(t, rec), sk = streak(t, selKey), li = document.createElement('li');
-    li.className = 'task' + (v > 0 ? ' got' : v < 0 ? ' miss' : '');
+    const v = val(t, rec), c = t.count ? criesOf(rec) : 0, li = document.createElement('li');
+    li.className = 'task' + (v > 0 ? ' got' : v < 0 || c ? ' miss' : '');
     li.dataset.id = t.id;
-    let h = picHtml(t, { speak:true, fire: sk >= 2 ? sk : 0 }) + '<div class="scale">';
+    let h = picHtml(t, { speak:true }) + '<div class="scale">';
     if (t.count) {
-      const c = criesOf(rec), m = cryMark(c);
       h += '<div class="cries"><button type="button" class="cbtn" data-cry="-1" aria-label="One cry less">−</button>' +
         '<span class="cval" aria-label="Cries today">' + c + '</span>' +
-        '<button type="button" class="cbtn" data-cry="1" aria-label="One more cry">+</button></div>' +
-        '<div class="cmark" aria-label="' + (m > 0 ? m + ' stars' : -m + ' crosses') + '">' + (m > 0 ? '⭐'.repeat(m) : '❌'.repeat(-m)) + '</div>';
+        '<button type="button" class="cbtn" data-cry="1" aria-label="One more cry">+</button>' +
+        (c ? '<span class="cmark minus" aria-label="Takes away ' + c + ' stars">−' + c + ' ⭐</span>' : '') + '</div>';
     } else h += rowHtml(t, v, 1) + rowHtml(t, v, -1);
     h += '<div class="tname">' + esc(t.title) + (t.hint ? '<small>' + esc(t.hint) + '</small>' : '') + '</div></div>';
     li.innerHTML = h;
@@ -1064,8 +1060,8 @@ function setVal(t, v, btn) {
   }
   if (!beforeDone && dayComplete(selKey)) {
     const st = dayStats(selKey);
-    if (st.p >= data.settings.goal * st.rated) { toast('What a day, ' + data.settings.name + '! ⭐ ' + st.stars); setTimeout(() => sfx.day(), 400); }
-    else toast('⭐ ' + st.stars + ' today. Tomorrow is a new adventure 🌈');
+    if (goodDay(st)) { toast('What a day, ' + data.settings.name + '! ⭐ ' + st.net); setTimeout(() => sfx.day(), 400); }
+    else toast('⭐ ' + st.net + ' today. Tomorrow is a new adventure 🌈');
   }
 }
 function setCry(delta) {
@@ -1073,7 +1069,7 @@ function setCry(delta) {
   const r = getRec(), c = Math.max(0, criesOf(r) + delta);
   if (c) r.c = c; else delete r.c;
   tidyRec(selKey); save(); render();
-  if (delta < 0 && c < 3) sfx.stars(1);
+  if (delta < 0) sfx.stars(1);
   if (!gameBefore && gameState().unlocked) gameUnlocked();
 }
 $('#note').addEventListener('input', e => {
@@ -1117,8 +1113,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#overl
 /* ---------- weekly report ---------- */
 function showReport() {
   const s = data.settings, name = esc(s.name), st = weekStats(weekStart), prev = weekStats(addDays(weekStart, -7));
-  const we = addDays(weekStart, 6), soFar = today() < we, tasks = enabledTasks();
-  const avg = t => st.per[t.id].p / st.per[t.id].rated;
+  const we = addDays(weekStart, 6), soFar = today() < we, tasks = ratable();
+  const avg = t => (st.per[t.id].stars - st.per[t.id].crosses) / st.per[t.id].rated;  // net stars per rating
   const great = tasks.filter(t => st.per[t.id].stars > 0).sort((a, b) => st.per[b.id].stars - st.per[a.id].stars).slice(0, 3);
   const weak = tasks.filter(t => st.per[t.id].rated > 0).sort((a, b) => avg(a) - avg(b));
   const happy = t => t.count && !t.photo ? Object.assign({}, t, { emoji:'😊', badge:'🌈' }) : t;
@@ -1126,11 +1122,12 @@ function showReport() {
   const bar = '<div class="track" aria-hidden="true"><div class="fill" style="width:' + st.pct + '%"></div>' +
     '<div class="goal" style="left:' + s.goal + '%"><span>🏁 ' + s.goal + '%</span></div>' +
     '<div class="mover" style="left:' + clamp(st.pct, 3, 97) + '%">' + (st.win ? '🌟' : '⭐') + '</div></div>' +
-    '<div class="pmeta">⭐ ' + st.stars + ' · ❌ ' + st.crosses + ' · score ' + st.pct + '% (goal ' + s.goal + '%)</div>';
+    '<div class="pmeta">' + st.stars + ' ⭐ − ' + st.crosses + ' ❌' + (st.cries ? ' − ' + st.cries + ' 😢' : '') + ' = ⭐ ' + st.net +
+    ' · score ' + st.pct + '% (goal ' + s.goal + '%)</div>';
   const greatHtml = great.length ? '<h3>You were great at</h3><div class="tiles">' + great.map(t => tile(t, '⭐ ' + st.per[t.id].stars, true)).join('') + '</div>' : '';
   let better = '';
   if (prev.rated && st.rated) {
-    if (st.stars > prev.stars) better = '<div class="better">📈 ' + (st.stars - prev.stars) + ' more stars than last week!</div>';
+    if (st.net > prev.net) better = '<div class="better">📈 ' + (st.net - prev.net) + ' more stars than last week!</div>';
     else if (st.pct > prev.pct) better = '<div class="better">📈 Better than last week: ' + prev.pct + '% → ' + st.pct + '%</div>';
   }
   if (prev.cries > 0 && st.cries < prev.cries) better += '<div class="better">🌈 Fewer tears than last week: 😢 ' + prev.cries + ' → ' + st.cries + '</div>';
@@ -1147,21 +1144,21 @@ function showReport() {
     html += '<div class="hero">🌱</div><h2>No stars yet this week</h2><p>Rate each picture during the week. The report fills up here.</p>';
   } else if (st.win) {
     mode = 'win';
-    const next = weak.filter(t => avg(t) < 80)[0];
+    const next = weak.filter(t => avg(t) < 4)[0];
     html += '<div class="hero"><span class="bounce">🏆</span></div><h2>Superstar week, ' + name + '!</h2>' +
-      '<p class="bigstars">⭐ ' + st.stars + '</p>' + bar +
+      '<p class="bigstars">⭐ ' + st.net + '</p>' + bar +
       (s.reward ? '<div class="reward">🎁 Your reward: <b>' + esc(s.reward) + '</b></div>' : '') +
       better + greatHtml +
       (next ? '<h3>Next superpower 💪</h3><div class="tiles">' + tile(next) + '</div>' : '') + momentsHtml;
   } else {
     mode = 'soft';
-    const steps = Math.max(1, Math.ceil((s.goal - st.p / st.rated) / 10));
+    const steps = Math.max(1, Math.ceil((s.goal * st.max / 100 - st.net) / st.rated));  // more stars needed per rating
     const tryMsg = steps === 1 ? 'Just <b>one more ⭐</b> on each picture next week and you reach the goal.'
       : steps === 2 ? 'Try for <b>two more ⭐</b> on each picture next week.'
       : 'A few more <b>⭐</b> every day, little by little.';
-    const practise = weak.filter(t => avg(t) < 60).slice(0, 2);
+    const practise = weak.filter(t => avg(t) < 5 * s.goal / 100).slice(0, 2);
     html += '<div class="hero"><span class="cryface">😢</span></div><h2>Not this time, ' + name + ', and that\'s okay!</h2>' +
-      '<p class="cheer">You still collected <b>⭐ ' + st.stars + '</b> this week. 🤗</p>' + bar +
+      '<p class="cheer">You still collected <b>⭐ ' + st.net + '</b> this week. 🤗</p>' + bar +
       '<p class="cheer">' + tryMsg + ' You can do it! 💪</p>' +
       better + greatHtml +
       (practise.length ? '<h3>Let\'s practise next week</h3><div class="tiles">' + practise.map(t => tile(t)).join('') + '</div>' : '') +
@@ -1171,10 +1168,10 @@ function showReport() {
   openOverlay(html);
   if (mode === 'win') {
     runningStars($('#fx')); confetti($('#fx'), 70); sfx.win();
-    setTimeout(() => sayEnglish('Superstar week, ' + s.name + '! You collected ' + st.stars + ' stars!'), 900);
+    setTimeout(() => sayEnglish('Superstar week, ' + s.name + '! You collected ' + st.net + ' stars!'), 900);
   } else if (mode === 'soft') {
     sfx.soft();
-    setTimeout(() => sayEnglish('Not this time, ' + s.name + ', and that is okay. You collected ' + st.stars + ' stars. You can do it next week!'), 900);
+    setTimeout(() => sayEnglish('Not this time, ' + s.name + ', and that is okay. You collected ' + st.net + ' stars. You can do it next week!'), 900);
   }
 }
 $('#reportBtn').addEventListener('click', showReport);
@@ -1191,10 +1188,9 @@ function showSettings() {
     '<p class="small">The week runs up to the report day. With Friday it is Saturday to Friday.</p>' +
     '<label class="field"><span>Goal for the week: <b id="sGoalV">' + s.goal + '%</b></span>' +
     '<input type="range" id="sGoal" min="30" max="90" step="5" value="' + s.goal + '"></label>' +
-    '<p class="small scoretbl">How the score works: each mark is worth ⭐⭐⭐⭐⭐ 100 · ⭐⭐⭐⭐ 90 · ⭐⭐⭐ 80 · ⭐⭐ 70 · ⭐ 60 · ' +
-    '❌ 40 · ❌❌ 30 · ❌❌❌ 20 · ❌❌❌❌ 10 · ❌❌❌❌❌ 0. The week\'s score is the average of all marks. ' +
-    'Pictures that are not rated do not count. The 😢 crying counter counts on every day with a mark: ' +
-    'no crying ⭐⭐⭐⭐⭐ · 1 cry ⭐⭐⭐ · 2 ⭐ · 3 ❌ · 4 ❌❌❌ · 5 or more ❌❌❌❌❌.</p>' +
+    '<p class="small scoretbl">How the score works: each picture gets 1 to 5 ⭐ or 1 to 5 ❌. Stars add, crosses take away, and every cry ' +
+    'on the 😢 counter takes one star away; a day never goes below 0. The score is the stars left out of the most possible ' +
+    '(5 for each rated picture): with the goal at 60%, that is 3 stars a picture on average. Pictures that are not rated do not count.</p>' +
     '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
     '<h3>🎮 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, the day\'s game opens for a few minutes, for that day only. ' +
@@ -1373,9 +1369,9 @@ const mmss = t => Math.floor(t / 60) + ':' + pad(Math.floor(t % 60));
 const BCOLORS = ['#ff5fa2', '#7c4dff', '#2ec4b6', '#ff8c42', '#4dabf7', '#51cf66', '#f06595'];
 // Open today when every picture is rated and the day reaches the goal; settings.gameMins a day.
 function gameState() {
-  const s = data.settings, tk = keyOf(today()), rec = data.days[tk], n = enabledTasks().length, st = dayStats(tk);
+  const s = data.settings, tk = keyOf(today()), rec = data.days[tk], n = ratable().length, st = dayStats(tk);
   const used = rec && Number.isFinite(rec.play) ? rec.play : 0, limit = s.gameMins * 60;
-  const done = n > 0 && st.rated === n, good = st.rated > 0 && st.p >= s.goal * st.rated;
+  const done = n > 0 && st.rated === n, good = goodDay(st);
   return { on: s.game, done, unlocked: s.game && done && good, left: Math.max(0, limit - used), limit, toRate: n - st.rated, game: todaysGame(data, tk) };
 }
 function renderGame() {

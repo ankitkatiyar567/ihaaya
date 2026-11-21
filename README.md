@@ -12,7 +12,7 @@
 </p>
 <p align="center"><sub>Logo and parent PIN · the day's pictures with ⭐ / ❌ · a winning Friday report · the day's game and tonight's story (demo data)</sub></p>
 
-A picture star chart for young children. Every evening she rates her own day: 1 to 5 stars, or 1 to 5 crosses, for each picture. Tap a picture to hear the question. Grown-ups tap + each time she cries. On Friday evening the weekly report shows running stars when the week's score reaches the goal (60%), and a gentle "not this time" with what to practise when it doesn't.
+A picture star chart for young children. Every evening she rates her own day: 1 to 5 stars, or 1 to 5 crosses, for each picture. Tap a picture to hear the question. Grown-ups tap + each time she cries. Stars add, crosses take away and every cry takes one star away (a day never goes below 0); the score is the stars left out of the most possible, 5 per rated picture. On Friday evening the weekly report shows running stars when the week's score reaches the goal (60%, about 3 stars a picture), and a gentle "not this time" with what to practise when it doesn't.
 
 The app opens on a logo screen that asks for the 4-digit parent PIN (the first time, you choose it). With more than one child it then asks who is rating today. After 5 minutes in the background it locks again. Use it as a phone app: iPhone Safari → Share → Add to Home Screen; Android Chrome → ⋮ → Install app. It opens full screen in portrait and works without internet (sw.js keeps a copy, network first).
 
