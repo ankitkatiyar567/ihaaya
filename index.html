@@ -139,6 +139,12 @@ h1 .name{color:var(--accent)}
 .tour-btns{display:flex;gap:8px;align-items:center}
 .tour-btns span{flex:1}
 .tour-btns .btn[hidden]{display:none}
+.tour-btns .btn{text-decoration:none}
+.helplist{padding-left:20px;margin:8px 0 16px;line-height:1.55;font-size:16px}
+.helpbtns .btn{text-decoration:none;color:inherit}
+.helpbtns .btn.primary{color:#fff}
+.menuacts a.btn{text-decoration:none;color:inherit}
+.helplink{display:block;margin:12px auto 0;font-size:15px;text-decoration:none}
 /* daily game */
 .gamecard{padding:10px}
 .gamebtn{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:18px;padding:12px 16px;text-align:left;background:var(--bg2);color:var(--ink)}
@@ -787,7 +793,8 @@ function pinPad(box, mode, onDone, firstPin, landing) {
     '<div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="pinmsg" role="alert"></div>' +
     '<div class="keypad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => '<button type="button" class="key" data-k="' + n + '">' + n + '</button>').join('') +
     '<span></span><button type="button" class="key" data-k="0">0</button><button type="button" class="key" data-k="back" aria-label="Delete">⌫</button></div>' +
-    (mode === 'unlock' ? '<button type="button" class="linkbtn pinforgot">Forgot the PIN?</button>' : '');
+    (mode === 'unlock' ? '<button type="button" class="linkbtn pinforgot">Forgot the PIN?</button>' : '') +
+    (landing ? '<a class="linkbtn helplink" href="help.html" target="_blank" rel="noopener">❓ How Ihaaya works</a>' : '');
   const q = sel => box.querySelector(sel);
   let pin = '', busy = false;
   const dots = () => q('.dots').querySelectorAll('i').forEach((d, i) => d.classList.toggle('f', i < pin.length));
@@ -855,6 +862,7 @@ function showMenu() {
     '<button type="button" class="btn" id="mAdd">＋ Add a child</button>' +
     '<button type="button" class="btn" id="mSettings">⚙️ Settings for ' + esc(data.avatar) + ' ' + esc(data.settings.name) + '</button>' +
     '<button type="button" class="btn" id="mWords">🔤 Words under the pictures: ' + (pf.words ? 'on' : 'off') + '</button>' +
+    '<a class="btn" href="help.html" target="_blank" rel="noopener">❓ Help: how everything works</a>' +
     '<button type="button" class="btn' + (days < 0 || days > 7 ? ' warnbtn' : '') + '" id="mBackup">💾 Download backup · last one ' + ago + '</button>' +
     (pf.pin ? '<button type="button" class="btn" id="mPin">🔢 Change the PIN</button><button type="button" class="btn" id="mPinOff">🔓 Turn the PIN off</button>'
             : '<button type="button" class="btn" id="mPin">🔢 Set a parent PIN</button>') +
@@ -1879,19 +1887,13 @@ function storyHeard(ss) { ss.done = true; if (!ss.heard.includes(ss.id)) ss.hear
 })();
 
 /* ---------- how to use: pointers on the main screen ---------- */
-const TOUR = [
-  { el: '#tasks .task:not(.count) .pic', t: '👆 Tap the picture', p: 'It reads the question aloud, so your child knows what to rate.' },
-  { el: '#tasks .task:not(.count) .row5.stars', t: '⭐ Went well? Tap 1 to 5 stars', p: 'More stars for a better job. Tap the same star again to clear it.' },
-  { el: '#tasks .task:not(.count) .row5.crosses', t: '❌ Not so well? Tap 1 to 5 crosses', p: 'Each cross takes one star away from the day.' },
-  { el: '#tasks .cries', t: '😢 Grown-ups: tap + for each cry', p: 'Each cry takes two stars away. Taking a cry back needs the parent PIN.' },
-  { el: '#daySum', t: "⭐ The day's stars", p: 'Stars minus crosses and cries. A day never goes below 0.' },
-  { el: '#days', t: '📅 The week', p: 'Tap a day to see or change it. Each day shows its stars.' },
-  { el: '#gameCard', t: '🎮 The daily game', p: 'When every picture is rated and the day reaches the goal, a short game opens.' },
-  { el: '#storyCard', t: "🌙 Tonight's story", p: 'A 7 to 10 minute story every night. Tap a theme picture, or 🎲 for another.' },
-  { el: '#reportBtn', t: '🎁 The weekly report', p: 'On Friday evening: running stars when the week reaches the goal.' },
-  { el: '#meBtn', t: '👪 Parent menu', p: 'Switch or add children, edit names, settings, backup and the PIN.' },
-  { el: '#helpBtn', t: '❓ Help', p: 'Tap here to see these pointers again.' },
-];
+const TOUR = [  // the basics only; help.html has the rest
+  { el: '#tasks .task:not(.count) .pic', t: '👆 Tap the picture', p: 'Hear the question.' },
+  { el: '#tasks .task:not(.count) .scale', t: '⭐ Stars or ❌ crosses', p: 'Went well: 1–5 stars. Not so well: 1–5 crosses.' },
+  { el: '#tasks .cries', t: '😢 + for each cry', p: 'Grown-ups tap it. Each cry takes 2 stars.' },
+  { el: '#meBtn', t: '👪 Parent menu', p: 'Children, settings, backup and the PIN.' },
+  { el: '#helpBtn', t: '❓ Help', p: 'This tour again, and the full help page.', help: true },
+]
 let tour = null;
 function startTour() {
   if (tour || !$('#landing').hidden || !$('#overlay').hidden || !$('#game').hidden) return;
@@ -1901,7 +1903,8 @@ function startTour() {
   box.className = 'tour';
   box.innerHTML = '<div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-live="polite"><div class="tour-n"></div><b class="tour-t"></b>' +
     '<p class="tour-p"></p><div class="tour-btns"><button type="button" class="btn" data-t="skip">Skip</button><span></span>' +
-    '<button type="button" class="btn" data-t="back">Back</button><button type="button" class="btn primary" data-t="next">Next</button></div></div>';
+    '<button type="button" class="btn" data-t="back">Back</button><a class="btn tour-help" href="help.html" target="_blank" rel="noopener" hidden>📖 Help</a>' +
+    '<button type="button" class="btn primary" data-t="next">Next</button></div></div>';
   document.body.appendChild(box);
   tour = { box, steps, i: 0 };
   box.addEventListener('click', e => {
@@ -1922,6 +1925,7 @@ function showStep(i) {
   q('.tour-n').textContent = (tour.i + 1) + ' / ' + tour.steps.length;
   q('.tour-t').textContent = x.t; q('.tour-p').textContent = x.p;
   q('[data-t="back"]').hidden = tour.i === 0;
+  q('.tour-help').hidden = !x.help; q('[data-t="skip"]').hidden = !!x.help;
   q('[data-t="next"]').textContent = tour.i + 1 < tour.steps.length ? 'Next' : 'Got it ✔';
   const el = document.querySelector(x.el);
   if (el) el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
@@ -1948,7 +1952,15 @@ function endTour() {
   window.removeEventListener('resize', placeStep); window.removeEventListener('scroll', placeStep);
   tour = null; store.prefs.toured = true; save();
 }
-$('#helpBtn').addEventListener('click', startTour);
+function showHelp() {
+  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button><h2>❓ How it works</h2>' +
+    '<ul class="helplist"><li>👆 Tap a picture to hear the question.</li><li>⭐ Went well: 1–5 stars. ❌ Not so well: 1–5 crosses.</li>' +
+    '<li>😢 Grown-ups tap + for each cry (−2 ⭐).</li><li>🎮 A good day opens a game. 🌙 A story every night.</li>' +
+    '<li>👪 The picture at the top right is the parent menu.</li></ul>' +
+    '<div class="btnrow helpbtns"><button type="button" class="btn primary" id="hTour">👀 Show me around</button><a class="btn" href="help.html" target="_blank" rel="noopener">📖 Full help page</a></div>', 'settings');
+  $('#hTour').addEventListener('click', () => { closeOverlay(); setTimeout(startTour, 250); });
+}
+$('#helpBtn').addEventListener('click', showHelp);
 $('#legendX').addEventListener('click', () => { store.prefs.legendOff = true; save(); $('#legend').hidden = true; });
 
 /* ---------- landing: logo, then the PIN, then who is rating, then the chart ---------- */

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff8ec">
+<title>Ihaaya · Help</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<style>
+:root{--bg:#fff8ec;--card:#ffffff;--ink:#2d2350;--muted:#6c6488;--line:#efe3cd;--accent:#7c4dff;--soft:#ffedd0}
+@media (prefers-color-scheme: dark){:root{--bg:#17142b;--card:#241f42;--ink:#f4efff;--muted:#b9b0d8;--line:#3a3362;--accent:#a98bff;--soft:#231e40}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.45;-webkit-text-size-adjust:100%;
+  font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Nunito","Segoe UI",system-ui,sans-serif}
+.wrap{max-width:680px;margin:0 auto;padding:max(18px, env(safe-area-inset-top)) 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.back{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:14px;background:var(--card);color:var(--ink);text-decoration:none;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+h1{font-size:28px;margin:14px 0 0}
+.tag{color:var(--accent);font-weight:700;margin:2px 0 16px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.toc a{padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--ink);text-decoration:none;font-size:14px;font-weight:600}
+section{background:var(--card);border-radius:20px;padding:14px 16px;margin-top:12px;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+h2{font-size:19px;margin:0 0 6px}
+ul,ol{margin:6px 0 0;padding-left:20px}
+li{margin:4px 0}
+p{margin:6px 0 0}
+.muted{color:var(--muted);font-size:14px}
+kbd{font-family:inherit;background:var(--soft);border-radius:6px;padding:1px 6px;font-weight:700}
+details{border-top:1px solid var(--line);padding:8px 0}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><a class="back" href="./">← Back to Ihaaya</a></div>
+  <h1>⭐ How Ihaaya works</h1>
+  <p class="tag">Shine a little brighter every day.</p>
+  <nav class="toc" aria-label="On this page">
+    <a href="#start">Start</a><a href="#daily">Every day</a><a href="#count">Stars</a><a href="#rewards">Game, story, report</a>
+    <a href="#parents">Parent menu</a><a href="#settings">Settings</a><a href="#data">Your data</a>
+  </nav>
+
+  <section id="start">
+    <h2>🚀 Start (2 minutes)</h2>
+    <ol>
+      <li>Add it to the phone as an app: iPhone Safari → Share → <b>Add to Home Screen</b>. Android Chrome → ⋮ → <b>Install app</b>.</li>
+      <li>Choose a 4‑digit <b>parent PIN</b> that only grown‑ups know.</li>
+      <li>Type your child's <b>name</b> and pick a picture. That's it.</li>
+    </ol>
+  </section>
+
+  <section id="daily">
+    <h2>🌙 Every day</h2>
+    <ul>
+      <li><b>👆 Tap a picture</b> to hear its question read aloud.</li>
+      <li>Your child answers: <b>1–5 ⭐</b> if it went well, <b>1–5 ❌</b> if not. Tap the same one again to clear it.</li>
+      <li>Grown‑ups tap <b>+ on 😢</b> each time they cry. Taking a cry back needs the PIN.</li>
+      <li>Add a <b>💌 lovely moment</b> if you like; it shows in the weekly report.</li>
+    </ul>
+  </section>
+
+  <section id="count">
+    <h2>⭐ How stars count</h2>
+    <ul>
+      <li>Stars add, crosses take away, each cry takes <b>2 stars</b> away. A day never goes below 0.</li>
+      <li>Score = stars ÷ the most possible (5 per rated picture). Goal <b>60%</b> ≈ 3 stars a picture.</li>
+      <li>Stars also grow levels: 🌱 → 🌷 → 🐣 → 🦋 → … → 👑.</li>
+    </ul>
+  </section>
+
+  <section id="rewards">
+    <h2>🎁 Game, story and report</h2>
+    <ul>
+      <li><b>🎮 Daily game:</b> opens when every picture is rated and the day reaches the goal. 3 minutes a day, one of six games.</li>
+      <li><b>🌙 Bedtime story:</b> every night, no stars needed. 7–10 minutes, never one already heard. Theme pictures or 🎲 pick another. Needs internet.</li>
+      <li><b>🎁 Weekly report:</b> on the report day (Friday): running stars when the week reaches the goal, gentle tips when not.</li>
+    </ul>
+  </section>
+
+  <section id="parents">
+    <h2>👪 Parent menu</h2>
+    <p>Tap the child's picture at the top right, then the PIN.</p>
+    <ul>
+      <li>Switch child · <b>＋ Add a child</b> · <b>✏️</b> edit name and picture · <b>🗑️</b> remove a child</li>
+      <li>⚙️ Settings · 🔤 words under pictures · 💾 backup · 🔢 change or turn off the PIN · 🔒 lock</li>
+    </ul>
+  </section>
+
+  <section id="settings">
+    <h2>⚙️ Settings</h2>
+    <p class="muted">For the child shown now, except "Sounds and words" (for this phone).</p>
+    <details><summary>Name, picture, report day, goal, reward</summary>
+      <p>The weekly report day (the week ends on it), the goal % (default 60%), and a reward shown when the goal is reached.</p></details>
+    <details><summary>🎮 Daily game</summary>
+      <p>On or off, and 2, 3 or 5 minutes a day.</p></details>
+    <details><summary>🌙 Bedtime story</summary>
+      <p>On or off. "Forget the stories heard" lets old stories come again.</p></details>
+    <details><summary>🖼️ Pictures (tasks)</summary>
+      <p>Tick the tasks to use, change the emoji, add a 📷 photo (her own toothbrush, her bed), edit the question that is read aloud, or add your own task.</p></details>
+    <details><summary>🔊 Sounds and words</summary>
+      <p>Happy sounds, reading questions aloud, the voice language (English, Hindi, Finnish…), and words under the pictures.</p></details>
+    <details><summary>💾 Backup and reset</summary>
+      <p>Download a backup now and then; restore it on another phone to move the stars. "Clear stars" starts a child's chart fresh; "Remove" deletes the child.</p></details>
+  </section>
+
+  <section id="data">
+    <h2>🔒 Your data and the PIN</h2>
+    <ul>
+      <li>Stars, notes and photos stay <b>on this phone only</b>; nothing is sent anywhere. Each phone keeps its own, so use one phone or move them with a backup.</li>
+      <li>The PIN keeps little fingers out of the parent menu. Forgot it? Tap <b>Forgot the PIN?</b> and type <kbd>RESET</kbd>: the PIN turns off and the stars stay.</li>
+      <li>Stories are free recordings from LibriVox.org, played from the Internet Archive.</li>
+    </ul>
+  </section>
+
+  <p class="muted" style="text-align:center;margin-top:18px"><a class="back" href="./">← Back to Ihaaya</a></p>
+</main>
+</body>
+</html>
