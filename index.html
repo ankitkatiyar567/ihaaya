@@ -122,6 +122,23 @@ h1 .name{color:var(--accent)}
 .whobtn .av{font-size:60px;line-height:1}
 .whobtn b{font-size:19px}
 .whobtn:active{transform:scale(.95)}
+/* how to use */
+.hbtns{display:flex;gap:8px;align-items:center;flex:none}
+.helpbtn{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--shadow);font-size:20px;cursor:pointer;padding:0}
+.legend{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 12px;border-radius:14px;background:var(--bg2);color:var(--muted);font-size:13px;font-weight:600}
+.legend span{flex:1}
+.legendx{border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px}
+.tour{position:fixed;inset:0;z-index:300}
+.tour-spot{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(20,10,40,.62);border:3px solid #ffe066;transition:left .3s,top .3s,width .3s,height .3s;pointer-events:none}
+.tour-tip{position:fixed;background:var(--card);color:var(--ink);border-radius:18px;padding:14px 16px 12px;box-shadow:0 14px 40px rgba(0,0,0,.35);transition:top .3s,left .3s}
+.tour-tip::before{content:'';position:absolute;top:-8px;left:var(--ax,40px);width:16px;height:16px;background:var(--card);transform:translateX(-50%) rotate(45deg);border-radius:3px}
+.tour-tip.up::before{top:auto;bottom:-8px}
+.tour-n{font-size:12px;color:var(--muted);font-weight:700}
+.tour-t{display:block;font-size:17px;margin-top:2px}
+.tour-p{margin:6px 0 12px;color:var(--muted);font-size:14px;line-height:1.35}
+.tour-btns{display:flex;gap:8px;align-items:center}
+.tour-btns span{flex:1}
+.tour-btns .btn[hidden]{display:none}
 /* daily game */
 .gamecard{padding:10px}
 .gamebtn{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:18px;padding:12px 16px;text-align:left;background:var(--bg2);color:var(--ink)}
@@ -386,7 +403,10 @@ body{overscroll-behavior-y:none}
       <h1><span class="name" id="name"></span>'s Star Chart ⭐</h1>
       <div class="level" id="level"></div>
     </div>
+    <div class="hbtns">
+    <button class="helpbtn" id="helpBtn" type="button" aria-label="How to use" title="How to use">❓</button>
     <button class="me" id="meBtn" type="button" aria-label="Parent menu" title="Parent menu"><span id="meAv">🦄</span><span class="lock" id="meLock" aria-hidden="true">🔒</span></button>
+    </div>
   </header>
 
   <div class="warn" id="warn" hidden>This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
@@ -415,6 +435,8 @@ body{overscroll-behavior-y:none}
       <h2><span id="dayName"></span><span class="chip" id="todayChip" hidden>Today</span></h2>
       <div class="daysum" id="daySum"></div>
     </div>
+    <div class="legend" id="legend" hidden><span>👆 picture = hear it · ⭐ went well · ❌ not so well · 😢 cry = −2 ⭐</span>
+      <button type="button" class="legendx" id="legendX" aria-label="Hide this line">✕</button></div>
     <ul class="tasks" id="tasks"></ul>
     <div class="notewrap">
       <label for="note">💌 A lovely moment today (optional)</label>
@@ -450,7 +472,7 @@ const DEFAULT_TASKS = [
   { id:'tv',      h:15,  emoji:'📺', badge:'⏰', title:'TV time',           hint:'30 minutes at most, and switched it off without help', ask:'Did you watch TV for a short time, and switch it off yourself?', on:true },
   { id:'play',    h:48,  emoji:'🖍️', badge:'🧩', title:'Played alone', hint:'Craft, colouring, Lego or another game', ask:'Did you play by yourself? Colouring, crafts or Lego?', on:true },
   { id:'food',    h:115, emoji:'🍽️', badge:'😋', title:'Finished the food', hint:'Ate her meal and finished on time', ask:'Did you finish your food, on time?', on:true },
-  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + for each cry. Each cry takes one star away.', ask:'How many times did you cry today?', on:true, count:true },
+  { id:'cries',   h:205, emoji:'😢', badge:'💧', title:'Crying counter',    hint:'Grown-ups tap + for each cry. Each cry takes two stars away.', ask:'How many times did you cry today?', on:true, count:true },
   { id:'teeth',   h:185, emoji:'🪥', badge:'😁', title:'Brushed teeth',     hint:'Morning and bedtime', ask:'Did you brush your teeth, morning and night?', on:true },
   { id:'tidy',    h:28,  emoji:'🧸', badge:'🧺', title:'Tidied up',         hint:'Put the toys back after playing', ask:'Did you put your toys back after playing?', on:true },
   { id:'kind',    h:345, emoji:'🤗', badge:'💛', title:'Kind and helpful',  hint:'Helped, shared or said something nice', ask:'Were you kind and helpful today?', on:true },
@@ -465,7 +487,7 @@ const DEFAULT_TASKS = [
 ];
 const DEFAULTS = { name:'', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{}, storyOn:true };
 // Sounds, voice and words belong to the device, so they are the same for every child.
-const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0 };
+const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0, toured:false, legendOff:false };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
 const VOICES = [['en-GB','English (UK)'],['en-US','English (US)'],['en-IN','English (India)'],['hi-IN','हिन्दी (Hindi)'],['fi-FI','Suomi (Finnish)']];
 const LEVELS = [[0,'🌱','Little Seed'],[40,'🌷','Tulip'],[100,'🐣','Chick'],[180,'🦋','Butterfly'],[280,'🐬','Dolphin'],
@@ -514,7 +536,7 @@ function prefsFrom(o) {
     ? { salt: p.pin.salt.slice(0, 64), hash: p.pin.hash.slice(0, 128) } : null;
   return { sound: p.sound !== false, speak: p.speak !== false, words: p.words === true,
     voice: VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB', pin, pinOff: !pin && p.pinOff === true,
-    lastBackup: Number.isFinite(+p.lastBackup) ? +p.lastBackup : 0 };
+    lastBackup: Number.isFinite(+p.lastBackup) ? +p.lastBackup : 0, toured: p.toured === true, legendOff: p.legendOff === true };
 }
 function normaliseStore(o) {
   if (o && Array.isArray(o.profiles) && o.profiles.length) {
@@ -576,8 +598,9 @@ function weekStartOf(d) {
 const enabledTasks = () => data.settings.tasks.filter(t => t.on);
 const findTask = id => data.settings.tasks.find(t => t.id === id);
 // Counting: each picture gets 1-5 stars or 1-5 crosses. Stars add, crosses take away, and every cry on the
-// grown-ups' counter takes one star away. A day's total never goes below 0. The score is that total out of the
+// grown-ups' counter takes two stars away (CRY_COST). A day's total never goes below 0. The score is that total out of the
 // most the day could earn: 5 stars for each rated picture.
+const CRY_COST = 2;
 const criesOf = rec => rec && Number.isInteger(rec.c) && rec.c > 0 ? rec.c : 0;
 const ratable = () => enabledTasks().filter(t => !t.count);
 const cryCounterOn = () => enabledTasks().some(t => t.count);
@@ -588,7 +611,7 @@ function val(t, rec) {
 function dayStats(k) {
   const rec = data.days[k]; let stars = 0, crosses = 0, rated = 0;
   for (const t of ratable()) { const v = val(t, rec); if (!v) continue; rated++; if (v > 0) stars += v; else crosses -= v; }
-  const cries = cryCounterOn() ? criesOf(rec) : 0, net = Math.max(0, stars - crosses - cries), max = 5 * rated;
+  const cries = cryCounterOn() ? criesOf(rec) : 0, net = Math.max(0, stars - crosses - CRY_COST * cries), max = 5 * rated;
   return { stars, crosses, cries, rated, net, max, pct: max ? Math.round(net * 100 / max) : 0 };
 }
 const goodDay = st => st.rated > 0 && st.net * 100 >= data.settings.goal * st.max;
@@ -999,7 +1022,7 @@ function renderDay() {
   $('#dayName').textContent = fmtLong(d);
   $('#todayChip').hidden = selKey !== keyOf(today());
   const left = n - st.rated;
-  const sum = st.stars + ' ⭐' + (st.crosses ? ' − ' + st.crosses + ' ❌' : '') + (st.cries ? ' − ' + st.cries + ' 😢' : '');
+  const sum = st.stars + ' ⭐' + (st.crosses ? ' − ' + st.crosses + ' ❌' : '') + (st.cries ? ' − ' + CRY_COST * st.cries + ' (😢×' + st.cries + ')' : '');
   $('#daySum').innerHTML = '<span class="big">⭐ ' + st.net + '</span>' +
     (st.crosses || st.cries ? '<span class="left">' + sum + '</span>' : '') +
     '<span class="left">' + (left ? left + ' still to rate' : 'all rated ✔') + '</span>';
@@ -1013,13 +1036,14 @@ function renderDay() {
       h += '<div class="cries"><button type="button" class="cbtn" data-cry="-1" aria-label="One cry less">−</button>' +
         '<span class="cval" aria-label="Cries today">' + c + '</span>' +
         '<button type="button" class="cbtn" data-cry="1" aria-label="One more cry">+</button>' +
-        (c ? '<span class="cmark minus" aria-label="Takes away ' + c + ' stars">−' + c + ' ⭐</span>' : '') + '</div>';
+        (c ? '<span class="cmark minus" aria-label="Takes away ' + CRY_COST * c + ' stars">−' + CRY_COST * c + ' ⭐</span>' : '') + '</div>';
     } else h += rowHtml(t, v, 1) + rowHtml(t, v, -1);
     h += '<div class="tname">' + esc(t.title) + (t.hint ? '<small>' + esc(t.hint) + '</small>' : '') + '</div></div>';
     li.innerHTML = h;
     ul.appendChild(li);
   }
   justPopped = null;
+  $('#legend').hidden = store.prefs.legendOff;
   const note = $('#note');
   if (document.activeElement !== note) note.value = rec.note || '';
 }
@@ -1122,7 +1146,7 @@ function showReport() {
   const bar = '<div class="track" aria-hidden="true"><div class="fill" style="width:' + st.pct + '%"></div>' +
     '<div class="goal" style="left:' + s.goal + '%"><span>🏁 ' + s.goal + '%</span></div>' +
     '<div class="mover" style="left:' + clamp(st.pct, 3, 97) + '%">' + (st.win ? '🌟' : '⭐') + '</div></div>' +
-    '<div class="pmeta">' + st.stars + ' ⭐ − ' + st.crosses + ' ❌' + (st.cries ? ' − ' + st.cries + ' 😢' : '') + ' = ⭐ ' + st.net +
+    '<div class="pmeta">' + st.stars + ' ⭐ − ' + st.crosses + ' ❌' + (st.cries ? ' − ' + CRY_COST * st.cries + ' (😢×' + st.cries + ')' : '') + ' = ⭐ ' + st.net +
     ' · score ' + st.pct + '% (goal ' + s.goal + '%)</div>';
   const greatHtml = great.length ? '<h3>You were great at</h3><div class="tiles">' + great.map(t => tile(t, '⭐ ' + st.per[t.id].stars, true)).join('') + '</div>' : '';
   let better = '';
@@ -1189,7 +1213,7 @@ function showSettings() {
     '<label class="field"><span>Goal for the week: <b id="sGoalV">' + s.goal + '%</b></span>' +
     '<input type="range" id="sGoal" min="30" max="90" step="5" value="' + s.goal + '"></label>' +
     '<p class="small scoretbl">How the score works: each picture gets 1 to 5 ⭐ or 1 to 5 ❌. Stars add, crosses take away, and every cry ' +
-    'on the 😢 counter takes one star away; a day never goes below 0. The score is the stars left out of the most possible ' +
+    'on the 😢 counter takes two stars away; a day never goes below 0. The score is the stars left out of the most possible ' +
     '(5 for each rated picture): with the goal at 60%, that is 3 stars a picture on average. Pictures that are not rated do not count.</p>' +
     '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
     '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
@@ -1854,6 +1878,79 @@ function storyHeard(ss) { ss.done = true; if (!ss.heard.includes(ss.id)) ss.hear
   a.addEventListener('error', () => { if (storyPlaying && a.src) storyFailed(); });
 })();
 
+/* ---------- how to use: pointers on the main screen ---------- */
+const TOUR = [
+  { el: '#tasks .task:not(.count) .pic', t: '👆 Tap the picture', p: 'It reads the question aloud, so your child knows what to rate.' },
+  { el: '#tasks .task:not(.count) .row5.stars', t: '⭐ Went well? Tap 1 to 5 stars', p: 'More stars for a better job. Tap the same star again to clear it.' },
+  { el: '#tasks .task:not(.count) .row5.crosses', t: '❌ Not so well? Tap 1 to 5 crosses', p: 'Each cross takes one star away from the day.' },
+  { el: '#tasks .cries', t: '😢 Grown-ups: tap + for each cry', p: 'Each cry takes two stars away. Taking a cry back needs the parent PIN.' },
+  { el: '#daySum', t: "⭐ The day's stars", p: 'Stars minus crosses and cries. A day never goes below 0.' },
+  { el: '#days', t: '📅 The week', p: 'Tap a day to see or change it. Each day shows its stars.' },
+  { el: '#gameCard', t: '🎮 The daily game', p: 'When every picture is rated and the day reaches the goal, a short game opens.' },
+  { el: '#storyCard', t: "🌙 Tonight's story", p: 'A 7 to 10 minute story every night. Tap a theme picture, or 🎲 for another.' },
+  { el: '#reportBtn', t: '🎁 The weekly report', p: 'On Friday evening: running stars when the week reaches the goal.' },
+  { el: '#meBtn', t: '👪 Parent menu', p: 'Switch or add children, edit names, settings, backup and the PIN.' },
+  { el: '#helpBtn', t: '❓ Help', p: 'Tap here to see these pointers again.' },
+];
+let tour = null;
+function startTour() {
+  if (tour || !$('#landing').hidden || !$('#overlay').hidden || !$('#game').hidden) return;
+  const steps = TOUR.filter(x => { const e = document.querySelector(x.el); return e && !e.closest('[hidden]') && e.getClientRects().length; });
+  if (!steps.length) return;
+  const box = document.createElement('div');
+  box.className = 'tour';
+  box.innerHTML = '<div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-live="polite"><div class="tour-n"></div><b class="tour-t"></b>' +
+    '<p class="tour-p"></p><div class="tour-btns"><button type="button" class="btn" data-t="skip">Skip</button><span></span>' +
+    '<button type="button" class="btn" data-t="back">Back</button><button type="button" class="btn primary" data-t="next">Next</button></div></div>';
+  document.body.appendChild(box);
+  tour = { box, steps, i: 0 };
+  box.addEventListener('click', e => {
+    const b = e.target.closest('[data-t]'); if (!b) return;
+    if (b.dataset.t === 'skip') endTour();
+    else if (b.dataset.t === 'back') showStep(tour.i - 1);
+    else if (tour.i + 1 < tour.steps.length) showStep(tour.i + 1);
+    else endTour();
+  });
+  window.addEventListener('resize', placeStep);
+  window.addEventListener('scroll', placeStep, { passive: true });
+  showStep(0);
+}
+function showStep(i) {
+  if (!tour) return;
+  tour.i = Math.max(0, Math.min(i, tour.steps.length - 1));
+  const x = tour.steps[tour.i], q = c => tour.box.querySelector(c);
+  q('.tour-n').textContent = (tour.i + 1) + ' / ' + tour.steps.length;
+  q('.tour-t').textContent = x.t; q('.tour-p').textContent = x.p;
+  q('[data-t="back"]').hidden = tour.i === 0;
+  q('[data-t="next"]').textContent = tour.i + 1 < tour.steps.length ? 'Next' : 'Got it ✔';
+  const el = document.querySelector(x.el);
+  if (el) el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  placeStep(); setTimeout(placeStep, 420); setTimeout(placeStep, 950);  // again once a long scroll has finished
+}
+function placeStep() {
+  if (!tour) return;
+  const el = document.querySelector(tour.steps[tour.i].el); if (!el) return;
+  const r = el.getBoundingClientRect(), pad = 8, gap = 14, spot = tour.box.querySelector('.tour-spot'), tip = tour.box.querySelector('.tour-tip');
+  const sl = Math.max(3, r.left - pad), st = Math.max(3, r.top - pad);  // keep the ring inside the screen
+  Object.assign(spot.style, { left: sl + 'px', top: st + 'px', width: (Math.min(window.innerWidth - 3, r.right + pad) - sl) + 'px', height: (r.bottom + pad - st) + 'px' });
+  const vw = window.innerWidth, vh = window.innerHeight, tw = Math.min(320, vw - 24);
+  tip.style.width = tw + 'px';
+  const th = tip.offsetHeight, below = r.bottom + pad + gap + th < vh - 8 || r.top - pad - gap - th < 8;
+  const top = below ? Math.min(vh - th - 8, r.bottom + pad + gap) : r.top - pad - gap - th;
+  const left = Math.min(vw - tw - 12, Math.max(12, r.left + r.width / 2 - tw / 2));
+  tip.style.top = top + 'px'; tip.style.left = left + 'px';
+  tip.classList.toggle('up', !below);
+  tip.style.setProperty('--ax', Math.min(tw - 22, Math.max(22, r.left + r.width / 2 - left)) + 'px');
+}
+function endTour() {
+  if (!tour) return;
+  tour.box.remove();
+  window.removeEventListener('resize', placeStep); window.removeEventListener('scroll', placeStep);
+  tour = null; store.prefs.toured = true; save();
+}
+$('#helpBtn').addEventListener('click', startTour);
+$('#legendX').addEventListener('click', () => { store.prefs.legendOff = true; save(); $('#legend').hidden = true; });
+
 /* ---------- landing: logo, then the PIN, then who is rating, then the chart ---------- */
 let hiddenAt = 0;
 function showLanding() {
@@ -1880,7 +1977,10 @@ function enterApp() {
     if (b.dataset.kid !== data.id) switchTo(b.dataset.kid); else sayEnglish('Hello ' + data.settings.name + '!');
   });
 }
-function hideLanding() { $('#landing').hidden = true; document.body.style.overflow = ''; render(); }
+function hideLanding() {
+  $('#landing').hidden = true; document.body.style.overflow = ''; render();
+  if (!store.prefs.toured) setTimeout(startTour, 700);
+}
 
 /* ---------- day change while the page stays open ---------- */
 function checkNewDay() {
@@ -1905,7 +2005,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   navigator.serviceWorker.register('sw.js').catch(() => { /* the page works without it */ });
 }
 // For checking the page headlessly.
-window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playStory, tonight, chooseStory, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, startTour, get tour() { return tour; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playStory, tonight, chooseStory, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>
