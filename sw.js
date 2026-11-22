@@ -1,8 +1,8 @@
 // Ihaaya: keeps a copy of the app so the phone app opens without internet.
 // Network first (so a new version shows at once), the copy only when the network fails or is slow.
 // The children's stars are not here: they stay in the browser's own storage.
-const CACHE = 'ihaaya-v5';
-const FILES = ['./', './index.html', './manifest.webmanifest', './logo.svg', './icon-180.png', './icon-192.png', './icon-512.png', './stories.json', './help.html'];
+const CACHE = 'ihaaya-v6';
+const FILES = ['./', './index.html', './manifest.webmanifest', './logo.svg', './icon-180.png', './icon-192.png', './icon-512.png', './stories.json', './stories-fi.json', './help.html'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });

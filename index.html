@@ -114,6 +114,10 @@ h1 .name{color:var(--accent)}
 @keyframes twinkle{50%{transform:scale(.45);opacity:.55}}
 .ltitle{font-size:38px;margin:16px 0 0;line-height:1.1;letter-spacing:.5px}
 .ltag{margin:4px 0 6px;font-size:17px;font-weight:600;color:var(--muted)}
+.langsw{display:inline-flex;gap:2px;padding:3px;margin:4px auto 0;border-radius:999px;background:var(--card);box-shadow:var(--shadow)}
+.langsw button{border:0;background:none;border-radius:999px;padding:7px 16px;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer;min-height:36px}
+.langsw button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.sheet .langsw{margin:0;align-self:flex-start;background:var(--bg)}
 .landpad{margin-top:10px}
 .landpad h2{font-size:21px;margin:10px 0 2px}
 .landpad .reportbtn{max-width:320px;margin:24px auto 0}
@@ -355,7 +359,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;margin-top:18px}
 @keyframes fall{to{transform:translateY(calc(100vh + 60px)) rotate(760deg)}}
 .spark{position:fixed;z-index:60;pointer-events:none;font-size:18px;transform:translate(-50%,-50%);animation:spark .75s ease-out forwards}
 @keyframes spark{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.4);opacity:0}}
-.toast{position:fixed;left:50%;bottom:22px;z-index:200;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:18px;padding:13px 18px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
+.toast{position:fixed;left:50%;bottom:22px;width:max-content;z-index:200;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);border-radius:18px;padding:13px 18px;font-weight:800;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 /* settings */
 .field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
@@ -397,32 +401,33 @@ body{overscroll-behavior-y:none}
 <body>
 <div class="landing" id="landing">
   <div class="landin">
-    <div class="logo" id="landLogo" role="img" aria-label="Ihaaya logo"></div>
+    <div class="logo" id="landLogo" role="img" aria-label="Ihaaya logo" data-i18n-aria="logoAria"></div>
     <h1 class="ltitle">Ihaaya</h1>
-    <p class="ltag">Shine a little brighter every day.</p>
+    <p class="ltag" data-i18n="tagline">Shine a little brighter every day.</p>
+    <div class="langsw" id="langSw" role="group" aria-label="Language · Kieli"></div>
     <div class="landpad" id="landPad"></div>
   </div>
 </div>
 <div class="wrap">
   <header>
     <div>
-      <h1><span class="name" id="name"></span>'s Star Chart ⭐</h1>
+      <h1 id="title"><span class="name" id="name"></span>'s Star Chart ⭐</h1>
       <div class="level" id="level"></div>
     </div>
     <div class="hbtns">
-    <button class="helpbtn" id="helpBtn" type="button" aria-label="How to use" title="How to use">❓</button>
-    <button class="me" id="meBtn" type="button" aria-label="Parent menu" title="Parent menu"><span id="meAv">🦄</span><span class="lock" id="meLock" aria-hidden="true">🔒</span></button>
+    <button class="helpbtn" id="helpBtn" type="button" aria-label="How to use" title="How to use" data-i18n-aria="howToUse" data-i18n-title="howToUse">❓</button>
+    <button class="me" id="meBtn" type="button" aria-label="Parent menu" title="Parent menu" data-i18n-title="parentMenu"><span id="meAv">🦄</span><span class="lock" id="meLock" aria-hidden="true">🔒</span></button>
     </div>
   </header>
 
-  <div class="warn" id="warn" hidden>This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
+  <div class="warn" id="warn" hidden data-i18n="warn">This browser isn't saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.</div>
   <div class="banner" id="banner" hidden></div>
 
-  <section class="card" aria-label="Week">
+  <section class="card" aria-label="Week" data-i18n-aria="weekAria">
     <div class="weeknav">
-      <button class="navbtn" id="prevWeek" type="button" aria-label="Previous week">‹</button>
-      <div class="weektitle"><b id="weekLabel"></b><small id="weekHint"></small> <button class="linkbtn" id="todayBtn" type="button" hidden>Back to today</button></div>
-      <button class="navbtn" id="nextWeek" type="button" aria-label="Next week">›</button>
+      <button class="navbtn" id="prevWeek" type="button" aria-label="Previous week" data-i18n-aria="prevWeek">‹</button>
+      <div class="weektitle"><b id="weekLabel"></b><small id="weekHint"></small> <button class="linkbtn" id="todayBtn" type="button" hidden data-i18n="backToToday">Back to today</button></div>
+      <button class="navbtn" id="nextWeek" type="button" aria-label="Next week" data-i18n-aria="nextWeek">›</button>
     </div>
     <div class="days" id="days"></div>
     <div class="ptop">
@@ -436,26 +441,26 @@ body{overscroll-behavior-y:none}
     </div>
   </section>
 
-  <section class="card" aria-label="Day">
+  <section class="card" aria-label="Day" data-i18n-aria="dayAria">
     <div class="dayhead">
-      <h2><span id="dayName"></span><span class="chip" id="todayChip" hidden>Today</span></h2>
+      <h2><span id="dayName"></span><span class="chip" id="todayChip" hidden data-i18n="todayChip">Today</span></h2>
       <div class="daysum" id="daySum"></div>
     </div>
-    <div class="legend" id="legend" hidden><span>👆 picture = hear it · ⭐ went well · ❌ not so well · 😢 cry = −2 ⭐</span>
-      <button type="button" class="legendx" id="legendX" aria-label="Hide this line">✕</button></div>
+    <div class="legend" id="legend" hidden><span data-i18n="legend">👆 picture = hear it · ⭐ went well · ❌ not so well · 😢 cry = −2 ⭐</span>
+      <button type="button" class="legendx" id="legendX" aria-label="Hide this line" data-i18n-aria="hideLine">✕</button></div>
     <ul class="tasks" id="tasks"></ul>
     <div class="notewrap">
-      <label for="note">💌 A lovely moment today (optional)</label>
-      <textarea class="note" id="note" maxlength="300" placeholder="Shared crayons with a cousin…"></textarea>
+      <label for="note" data-i18n="noteLabel">💌 A lovely moment today (optional)</label>
+      <textarea class="note" id="note" maxlength="300" placeholder="Shared crayons with a cousin…" data-i18n-ph="notePh"></textarea>
     </div>
   </section>
 
-  <section class="card gamecard" id="gameCard" aria-label="Daily game" hidden></section>
+  <section class="card gamecard" id="gameCard" aria-label="Daily game" data-i18n-aria="gameAria" hidden></section>
 
-  <section class="card storycard" id="storyCard" aria-label="Bedtime story" hidden></section>
+  <section class="card storycard" id="storyCard" aria-label="Bedtime story" data-i18n-aria="storyAria" hidden></section>
 
-  <button class="reportbtn" id="reportBtn" type="button">🎁 Weekly report</button>
-  <footer>Bedtime stories: free public-domain recordings from LibriVox.org, read by volunteers. Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
+  <button class="reportbtn" id="reportBtn" type="button" data-i18n="weeklyReport">🎁 Weekly report</button>
+  <footer data-i18n="footer">Bedtime stories: free public-domain recordings from LibriVox.org, read by volunteers. Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).</footer>
 </div>
 
 <div class="overlay" id="overlay" hidden>
@@ -493,7 +498,8 @@ const DEFAULT_TASKS = [
 ];
 const DEFAULTS = { name:'', goal:60, reportDay:5, reward:'', game:true, gameMins:3, gameBest:{}, storyOn:true };
 // Sounds, voice and words belong to the device, so they are the same for every child.
-const PREF_DEFAULTS = { sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0, toured:false, legendOff:false };
+// lang: the app language, 'en' or 'fi' (null until chosen: then it follows the phone's language).
+const PREF_DEFAULTS = { lang:null, sound:true, speak:true, voice:'en-GB', words:false, pin:null, pinOff:false, lastBackup:0, toured:false, legendOff:false };
 const AVATARS = ['🦄','🐱','🐶','🦁','🐼','🐰','🦊','🐯','🐸','🐵','🦖','🐬','🐝','🦋','🚀','⚽','🌸','🍓'];
 const VOICES = [['en-GB','English (UK)'],['en-US','English (US)'],['en-IN','English (India)'],['hi-IN','हिन्दी (Hindi)'],['fi-FI','Suomi (Finnish)']];
 const LEVELS = [[0,'🌱','Little Seed'],[40,'🌷','Tulip'],[100,'🐣','Chick'],[180,'🦋','Butterfly'],[280,'🐬','Dolphin'],
@@ -510,6 +516,300 @@ const STAR_SVG = '<svg viewBox="0 0 100 120" aria-hidden="true">' +
 const LOGO_SVG = '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient><linearGradient id="lgGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe066"/><stop offset="1" stop-color="#ffb800"/></linearGradient></defs><rect class="lg-bg" width="120" height="120" rx="28" fill="url(#lgBg)"/><rect class="lg-bar" style="--i:0" x="15" y="86" width="9" height="14" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:1" x="28.5" y="80" width="9" height="20" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:2" x="42" y="83" width="9" height="17" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:3" x="55.5" y="75" width="9" height="25" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:4" x="69" y="70" width="9" height="30" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:5" x="82.5" y="64" width="9" height="36" rx="4.5" fill="#fff" fill-opacity=".92"/><rect class="lg-bar" style="--i:6" x="96" y="56" width="9" height="44" rx="4.5" fill="url(#lgGold)"/><path class="lg-spark" fill="#fff" d="M24 19 Q24 26 31 26 Q24 26 24 33 Q24 26 17 26 Q24 26 24 19 Z"/><path class="lg-spark" fill="#fff" d="M98 15 Q98 20 103 20 Q98 20 98 25 Q98 20 93 20 Q98 20 98 15 Z"/><path class="lg-spark" fill="#fff" d="M16 46.5 Q16 50 19.5 50 Q16 50 16 53.5 Q16 50 12.5 50 Q16 50 16 46.5 Z"/><g class="lg-pop"><g class="lg-float"><path d="M60 11 L66.76 28.7 L85.68 29.66 L70.94 41.55 L75.87 59.84 L60 49.5 L44.13 59.84 L49.06 41.55 L34.32 29.66 L53.24 28.7 Z" fill="url(#lgGold)" stroke="#e39b00" stroke-width="2.5" stroke-linejoin="round"/><circle cx="55" cy="35" r="2.6" fill="#3b2a00"/><circle cx="65" cy="35" r="2.6" fill="#3b2a00"/><circle cx="52" cy="41.5" r="2.2" fill="#ff8fa3" opacity=".75"/><circle cx="68" cy="41.5" r="2.2" fill="#ff8fa3" opacity=".75"/><path d="M55 41.5 Q60 46.5 65 41.5" fill="none" stroke="#3b2a00" stroke-width="2.4" stroke-linecap="round"/></g></g></svg>';
 const PHOTO_RE = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
 
+/* ---------- words: English and Finnish ---------- */
+// T(key, vars) picks the text in the app language; {name} in the text is replaced from vars.
+// A value can be a function of vars (for plurals). Vars that go into HTML must be escaped by the caller.
+const LANGS = ['en', 'fi'];
+const defaultLang = () => /^fi\b/i.test((navigator.language || '') + '') ? 'fi' : 'en';
+// Finnish text for the default pictures; the English text is DEFAULT_TASKS itself.
+const TASKS_FI = {
+  sleep:   { title:'Nukkui hyvin', hint:'Meni nätisti nukkumaan ja nukkui koko yön', ask:'Nukuitko hyvin viime yönä?' },
+  rest:    { title:'Päivälepo', hint:'Nukkui päiväunet tai lepäsi noin tunnin', ask:'Lepäsitkö tänään?' },
+  tv:      { title:'Ruutuaika', hint:'Enintään 30 minuuttia ja sulki sen itse', ask:'Katsoitko telkkaria vain vähän aikaa? Suljitko sen itse?' },
+  play:    { title:'Leikki itsekseen', hint:'Askartelu, värittäminen, Legot tai muu leikki', ask:'Leikitkö itseksesi? Väritystä, askartelua tai Legoja?' },
+  food:    { title:'Söi ruoan', hint:'Söi aterian loppuun ajoissa', ask:'Söitkö ruoan loppuun ajoissa?' },
+  cries:   { title:'Itkulaskuri', hint:'Aikuinen napauttaa + jokaisesta itkusta. Jokainen itku vie kaksi tähteä.', ask:'Montako kertaa itkit tänään?' },
+  teeth:   { title:'Pesi hampaat', hint:'Aamulla ja illalla', ask:'Pesitkö hampaat aamulla ja illalla?' },
+  tidy:    { title:'Siivosi lelut', hint:'Laittoi lelut paikoilleen leikin jälkeen', ask:'Laitoitko lelut paikoilleen leikin jälkeen?' },
+  kind:    { title:'Kiltti ja avulias', hint:'Auttoi, jakoi tai sanoi jotain kivaa', ask:'Olitko tänään kiltti ja avulias?' },
+  dress:   { title:'Pukeutui', hint:'Puki vaatteet päälle (vähän apua saa olla)', ask:'Puitko vaatteet itse?' },
+  listen:  { title:'Kuunteli heti', hint:'Teki pyydetyn ilman muistuttelua', ask:'Kuuntelitko heti ensimmäisellä kerralla?' },
+  manners: { title:'Taikasanat', hint:'Sanoi kiitos ja pyysi kauniisti', ask:'Sanoitko kiitos ja pyysitkö kauniisti?' },
+  brave:   { title:'Kokeili uutta', hint:'Uusi ruoka, uusi leikki tai jotain rohkeaa', ask:'Kokeilitko tänään jotain uutta?' },
+  book:    { title:'Satuhetki', hint:'Katseli kirjaa tai kuunteli sadun', ask:'Luitko kirjaa tai kuuntelitko sadun?' },
+  outside: { title:'Leikki ulkona', hint:'Raitista ilmaa ja juoksentelua', ask:'Leikitkö tänään ulkona?' },
+  hands:   { title:'Pesi kädet', hint:'Ennen ruokaa ja vessan jälkeen', ask:'Pesitkö kädet ennen ruokaa?' },
+  calm:    { title:'Rauhallinen päivä', hint:'Kertoi sanoin, kun harmitti (oma arvio)', ask:'Olitko tänään rauhallinen? Kerroitko sanoin, kun harmitti?' },
+};
+const I18N = {
+  en: {
+    tagline:'Shine a little brighter every day.', logoAria:'Ihaaya logo', language:'Language',
+    close:'Close', save:'Save', saved:'Saved ✔', add:'Add', done:'Done', ok:'OK', name:'Name', theirPicture:'Their picture', del:'Delete', remove:'Remove',
+    // landing and PIN
+    pinTitleLanding:'Parent PIN, please', pinTitleUnlock:'🔒 Parents only', pinTitleSet:'Choose a 4-digit parent PIN', pinTitleConfirm:'Type the PIN again',
+    pinSubUnlock:'Type the parent PIN.', pinSubSet:'It opens the app and the parent menu, so little fingers stay out.',
+    keyBack:'Delete', pinForgot:'Forgot the PIN?', howItWorksLink:'❓ How Ihaaya works',
+    pinWait: v => 'Too many tries. Wait ' + v.n + (v.n === 1 ? ' second.' : ' seconds.'), pinDiffer:'The two PINs were different. Try again.', pinSet:'Parent PIN set 🔒',
+    pinWrong:'Not the right PIN.', pinResetPrompt:'Forgot the parent PIN? Type RESET to turn the PIN off. The stars are kept.', pinOffToast:'PIN turned off',
+    resetWord:'RESET',
+    start:'Start ⭐', nameStepTitle:'Who is this chart for?', nameStepSub:'Their name and picture. You can change them later in the parent menu.',
+    childNameAria:'Child\'s name', whoRating:'Who is rating today?', hello:'Hello {name}!',
+    // main screen
+    howToUse:'How to use', parentMenu:'Parent menu', parentMenuShowing:'Parent menu (showing {name})',
+    warn:'This browser isn\'t saving the stars (private window?). Open the page in a normal window, or download a backup in ⚙️ Settings.',
+    weekAria:'Week', dayAria:'Day', gameAria:'Daily game', storyAria:'Bedtime story', prevWeek:'Previous week', nextWeek:'Next week', backToToday:'Back to today',
+    todayChip:'Today', legend:'👆 picture = hear it · ⭐ went well · ❌ not so well · 😢 cry = −2 ⭐', hideLine:'Hide this line',
+    noteLabel:'💌 A lovely moment today (optional)', notePh:'Shared crayons with a cousin…', weeklyReport:'🎁 Weekly report',
+    footer:'Bedtime stories: free public-domain recordings from LibriVox.org, read by volunteers. Tap a picture to hear the question. Grown-ups: the picture at the top right opens the parent menu (switch child, add a child, settings, backup).',
+    chartTitle:'{name}\'s Star Chart ⭐', levelNext: v => ' · ' + v.n + ' more to ' + v.icon, levelTop:' · top level!',
+    levels: LEVELS.map(l => l[2]), wd: WEEKDAYS, wdOn: WEEKDAYS, wdEve: WEEKDAYS.map(d => d + ' evening'),
+    weekHint:'This week · report on {day}', dayStarsAria: v => v.date + ': ' + v.n + (v.n === 1 ? ' star' : ' stars'),
+    scoreMeta:'Score {pct}% · goal {goal}%', goalMeta:'Goal: {goal}%', stillToRate:'{n} still to rate', allRated:'all rated ✔',
+    banner:'🎉 It\'s {day}: time for {name}\'s weekly report!',
+    picAria:'{title}: tap to hear the question', fireTitle:'{n} days in a row',
+    starsAria:'Stars: {title}', crossesAria:'Crosses: {title}', nStars: v => v.n + (v.n === 1 ? ' star' : ' stars'), nCrosses: v => v.n + (v.n === 1 ? ' cross' : ' crosses'),
+    languageP:'The words in the app, for all children. The voice changes with it.',
+    cryLess:'One cry less', cryMore:'One more cry', criesToday:'Cries today', cryTakes: v => 'Takes away ' + v.n + ' stars',
+    newLevel:'New level: {icon} {level}! Well done, {name}!', whatADay:'What a day, {name}! ⭐ {n}', dayOk:'⭐ {n} today. Tomorrow is a new adventure 🌈',
+    // parent menu, children
+    parents:'👪 Parents', children:'Children', kidWeek:'⭐ {n} this week', showingNow:' · showing now', editKid:'Edit {name}', editKidTitle:'Edit name and picture',
+    removeKidAria:'Remove {name}', addKid:'＋ Add a child', settingsFor:'⚙️ Settings for {kid}', wordsBtn: v => '🔤 Words under the pictures: ' + (v.on ? 'on' : 'off'),
+    helpBtn:'❓ Help: how everything works', backupBtn:'💾 Download backup · last one {ago}', agoNever:'never', agoToday:'today', agoYesterday:'yesterday', agoDays:'{n} days ago',
+    changePin:'🔢 Change the PIN', pinOffBtn:'🔓 Turn the PIN off', setPin:'🔢 Set a parent PIN', lockClose:'🔒 Lock and close',
+    pinOffConfirm:'Turn the parent PIN off? Then anyone can switch child and open the settings.',
+    editChild:'Edit child', removeNamed:'🗑️ Remove {name}', thisChild:'this child',
+    removeConfirm:'Remove {name} and all of their stars, notes and photos from this phone? Download a backup first if you want to keep them.',
+    removedToast:'{name} removed', addChild:'Add a child', copyFrom:'Start with {name}\'s pictures, goal and report day (not the photos)',
+    eachChild:'Each child has their own pictures, goal, reward, stars and Friday report.', addedKid:'{av} {name} added',
+    // weekly report
+    soFar:' · so far', noStars:'No stars yet this week', noStarsP:'Rate each picture during the week. The report fills up here.',
+    winTitle:'Superstar week, {name}!', reward:'🎁 Your reward: <b>{reward}</b>', greatAt:'You were great at', nextPower:'Next superpower 💪',
+    softTitle:'Not this time, {name}, and that\'s okay!', stillCollected:'You still collected <b>⭐ {n}</b> this week. 🤗',
+    try1:'Just <b>one more ⭐</b> on each picture next week and you reach the goal.', try2:'Try for <b>two more ⭐</b> on each picture next week.',
+    tryN:'A few more <b>⭐</b> every day, little by little.', canDo:'You can do it! 💪', practise:'Let\'s practise next week',
+    moreStars: v => '📈 ' + v.n + (v.n === 1 ? ' more star' : ' more stars') + ' than last week!', betterPct:'📈 Better than last week: {a}% → {b}%', fewerTears:'🌈 Fewer tears than last week: 😢 {a} → {b}',
+    moments:'💌 Lovely moments', repScore:' · score {pct}% (goal {goal}%)', yay:'Yay! 🎉',
+    sayWin: v => 'Superstar week, ' + v.name + '! You collected ' + v.n + (v.n === 1 ? ' star!' : ' stars!'),
+    saySoft: v => 'Not this time, ' + v.name + ', and that is okay. You collected ' + v.n + (v.n === 1 ? ' star' : ' stars') + '. You can do it next week!',
+    // settings
+    childName:'Child\'s name', reportDay:'Report day', reportDayP:'The week runs up to the report day. With Friday it is Saturday to Friday.',
+    goalWeek:'Goal for the week:', scoreHow:'How the score works: each picture gets 1 to 5 ⭐ or 1 to 5 ❌. Stars add, crosses take away, and every cry ' +
+      'on the 😢 counter takes two stars away; a day never goes below 0. The score is the stars left out of the most possible ' +
+      '(5 for each rated picture): with the goal at 60%, that is 3 stars a picture on average. Pictures that are not rated do not count.',
+    rewardLabel:'This week\'s reward (optional, shown when the goal is reached)', rewardPh:'Park trip, pancakes, she picks the Friday film…',
+    gameH:'🎮 Daily game', gameP:'When every picture is rated and the day reaches the goal, the day\'s game opens for a few minutes, for that day only. ' +
+      'There are six games (balloon pop, memory match, star catcher, peek-a-boo, counting, tic-tac-toe): one a day, in a mixed order, each once every six days.',
+    gameOn:'Daily game on', minutesDay:'Minutes a day', nMinutes:'{n} minutes',
+    storyH:'🌙 Bedtime story', storyP:'One complete 7–10 minute story a day, picked at random, never one already heard. ' +
+      'Tap a theme picture to pick a story from that theme, or 🎲 for another one. From LibriVox.org: free public-domain recordings read ' +
+      'by volunteers, played from the Internet Archive (it needs the internet).',
+    storyOn:'Bedtime story on', storyForget:'Forget the stories heard ({n})', storyForgetConfirm:'Forget which stories {name} has heard? They can then be picked again.',
+    storyForgotToast:'All stories can come again 🌙',
+    soundsH:'Sounds and words', soundsP:'These are for this phone or computer, for all children.', happySounds:'Happy sounds',
+    readAloud:'Read the question aloud when a picture is tapped', voiceLang:'Voice language', voices:{}, testVoice:'🔊 Test the voice',
+    otherLangP:'For another language, also type the questions below in that language.', showWords:'Show words under the pictures (also in the parent menu)',
+    picturesH:'{name}\'s pictures', picturesP:'Tick the ones to use. Change the big and small picture (any emoji), ' +
+      'or add a 📷 photo of the child\'s own things: bed, toothbrush, plate. What to say is read aloud when the picture is tapped.',
+    bigPic:'Big picture', smallPic:'Small picture', newTask:'New task', newTaskPh:'New task, e.g. Piano practice', whatToSay:'What to say',
+    whatToSayPh:'What to say, e.g. Did you practise the piano?', addPic:'＋ Add picture', addedTask:'Added: {title}',
+    usePic:'Use this picture', taskNameAria:'Name (for grown-ups)', photoBtn:'📷 Photo', removePhoto:'Remove photo', whatToSayTapPh:'What to say when it is tapped',
+    taskFallback:'Task', deleteTask:'Delete "{title}"? Its stars stop counting.',
+    photoFull:'That photo could not be saved: the browser storage is full.', notPicture:'That file is not a picture this browser can open.',
+    backupH:'Backup', backupP:'The stars live in this browser only (each phone or computer has its own). ' +
+      'A backup holds all children. Download one now and then; restore it on another device to move the stars there.',
+    downloadBackup:'⬇️ Download backup', restoreBackup:'⬆️ Restore backup', clearStars:'Clear {name}\'s stars',
+    clearConfirm:'Delete all of {name}\'s stars and notes? The pictures and settings stay. Download a backup first if you want to keep them.',
+    freshStart:'Fresh start for {name} 🌱', notBackup:'That file is not a star chart backup.',
+    replaceAll:'Replace all children and stars in this browser with the backup ({n} children)?',
+    replaceOne:'Replace {name}\'s stars and pictures with this backup ({n} days)?', restored:'Backup restored ✔',
+    // daily game
+    tomorrowGame:'Tomorrow: {icon} {game}', play:'Play!', leftToday:'{game} · {t} left today', playedToday:'Played today', tomorrow:'Tomorrow!',
+    moreStarsOpen:'More stars open the game. {next}', toRate:'{n} still to rate', thenOpens:'Then, with enough stars, {game} opens',
+    gameOpen:'{icon} {game} is open! Well done, {name}!', sayGameOpen:'Well done! You opened {game}!', stopGame:'Stop the game',
+    newRecord:'🏆 New record!', timeUp:'Time is up. See you tomorrow! 🌙', leftLater:'{t} left for later today',
+    sayTimeUp:'Time is up!', sayScored: v => 'You scored ' + v.n + '!', sayRecord:'A new record!', sayTomorrow:'See you tomorrow!',
+    game_balloons:'Balloon pop', game_memory:'Memory match', game_catch:'Star catcher', game_peek:'Peek-a-boo', game_count:'Counting', game_ttt:'Tic-tac-toe',
+    say_balloons:'Pop the balloons!', say_memory:'Find the pairs!', say_catch:'Move the basket and catch the stars!', say_peek:'Tap the animals when they peek out!',
+    say_count:'Let us count!', say_ttt:'Tic-tac-toe with Teddy! Make three in a row!',
+    card:'Card', hole:'Hole', square:'Square {n}', vs:'vs', sayWin3:'You win!', sayDraw:'A draw!', sayTeddy:'Teddy wins. Try again!',
+    howMany:'How many {what}?', sayYes:'Yes! {n}!', tryAgain:'Try again!',
+    cw: { apple:'apples', star:'stars', fish:'fish', balloon:'balloons', ladybird:'ladybirds', flower:'flowers', strawberry:'strawberries', car:'cars', chick:'chicks', cookie:'cookies' },
+    // bedtime story (the card only; the stories themselves come from stories.json)
+    tonightStory:'Tonight\'s story', loadingStories:'Loading the stories…', storyNeedsNet:'The stories need the internet the first time. Try again later.',
+    anotherStory:'🎲 Another', storyHeard:' · ✅ heard', pause:'Pause', playStory:'Play the story', pickTheme:'Pick a theme', storyAbout:'A story about {theme}',
+    lastNight:'⏮ Last night\'s story', heardOf:'{n} of {m} heard', lastNightShort:' · last night\'s story', storyFailed:'The story could not start. Is the internet on?',
+    storyEnd:'🌙 The end. Sweet dreams!', storyAlbum:'Ihaaya bedtime stories', storyMin:'{n} min',
+    // theme names as stories.json has them; another language shows its own name only while the catalog's name is this one
+    themes:{ animals:'Animals', fairy:'Fairy tales & magic', royal:'Princes & princesses', toys:'Toys & dolls', nature:'Farm & nature',
+      night:'Moon & stars', fables:'Fables', world:'Tales from far away' },
+    // tour and help sheet
+    tour1t:'👆 Tap the picture', tour1p:'Hear the question.', tour2t:'⭐ Stars or ❌ crosses', tour2p:'Went well: 1–5 stars. Not so well: 1–5 crosses.',
+    tour3t:'😢 + for each cry', tour3p:'Grown-ups tap it. Each cry takes 2 stars.', tour4t:'👪 Parent menu', tour4p:'Children, settings, backup and the PIN.',
+    tour5t:'❓ Help', tour5p:'This tour again, and the full help page.', skip:'Skip', back:'Back', next:'Next', gotIt:'Got it ✔', helpShort:'📖 Help',
+    helpTitle:'❓ How it works', help1:'👆 Tap a picture to hear the question.', help2:'⭐ Went well: 1–5 stars. ❌ Not so well: 1–5 crosses.',
+    help3:'😢 Grown-ups tap + for each cry (−2 ⭐).', help4:'🎮 A good day opens a game. 🌙 A story every night.', help5:'👪 The picture at the top right is the parent menu.',
+    showAround:'👀 Show me around', fullHelp:'📖 Full help page',
+  },
+  fi: {
+    tagline:'Loista vähän kirkkaammin joka päivä.', logoAria:'Ihaaya-logo', language:'Kieli',
+    close:'Sulje', save:'Tallenna', saved:'Tallennettu ✔', add:'Lisää', done:'Valmis', ok:'OK', name:'Nimi', theirPicture:'Lapsen kuva', del:'Poista', remove:'Poista',
+    // aloitus ja PIN-koodi
+    pinTitleLanding:'Vanhemman PIN-koodi', pinTitleUnlock:'🔒 Vain aikuisille', pinTitleSet:'Valitse 4-numeroinen PIN-koodi', pinTitleConfirm:'Anna PIN-koodi uudelleen',
+    pinSubUnlock:'Anna vanhemman PIN-koodi.', pinSubSet:'Sillä avataan sovellus ja vanhempien valikko. Näin pienet sormet pysyvät poissa.',
+    keyBack:'Pyyhi', pinForgot:'Unohtuiko PIN-koodi?', howItWorksLink:'❓ Näin Ihaaya toimii',
+    pinWait: v => 'Liian monta yritystä. Odota ' + v.n + (v.n === 1 ? ' sekunti.' : ' sekuntia.'), pinDiffer:'PIN-koodit eivät olleet samat. Yritä uudelleen.', pinSet:'PIN-koodi on asetettu 🔒',
+    pinWrong:'Väärä PIN-koodi.', pinResetPrompt:'Unohtuiko PIN-koodi? Kirjoita NOLLAA, niin PIN-koodi poistuu käytöstä. Tähdet säilyvät.', pinOffToast:'PIN-koodi on pois käytöstä',
+    resetWord:'NOLLAA',
+    start:'Aloitetaan ⭐', nameStepTitle:'Kenen tähtitaulu tämä on?', nameStepSub:'Lapsen nimi ja kuva. Voit muuttaa niitä myöhemmin vanhempien valikosta.',
+    childNameAria:'Lapsen nimi', whoRating:'Kenen päivää arvioidaan?', hello:'Hei {name}!',
+    // pääsivu
+    howToUse:'Käyttöohje', parentMenu:'Vanhempien valikko', parentMenuShowing:'Vanhempien valikko (näkyvissä: {name})',
+    warn:'Tämä selain ei tallenna tähtiä (yksityinen ikkuna?). Avaa sivu tavallisessa ikkunassa tai lataa varmuuskopio kohdasta ⚙️ Asetukset.',
+    weekAria:'Viikko', dayAria:'Päivä', gameAria:'Päivän peli', storyAria:'Iltasatu', prevWeek:'Edellinen viikko', nextWeek:'Seuraava viikko', backToToday:'Takaisin tähän päivään',
+    todayChip:'Tänään', legend:'👆 kuva = kuuntele · ⭐ meni hyvin · ❌ ei niin hyvin · 😢 itku = −2 ⭐', hideLine:'Piilota tämä rivi',
+    noteLabel:'💌 Päivän ihana hetki (vapaaehtoinen)', notePh:'Jakoi värikynät serkun kanssa…', weeklyReport:'🎁 Viikkoraportti',
+    footer:'Iltasadut: vapaaehtoisten lukemia, vapaasti käytettäviä äänitteitä LibriVox.orgista. Napauta kuvaa, niin kuulet kysymyksen. Aikuisille: oikean yläkulman kuva avaa vanhempien valikon (lapsen vaihto, uusi lapsi, asetukset, varmuuskopio).',
+    chartTitle:'{name} · tähtitaulu ⭐', levelNext: v => ' · vielä ' + v.n + ' tasoon ' + v.icon, levelTop:' · huipputaso!',
+    levels:['Pieni siemen', 'Tulppaani', 'Tipu', 'Perhonen', 'Delfiini', 'Yksisarvinen', 'Raketti', 'Sateenkaari', 'Tähtikuningatar', 'Loistava tähti'],
+    wd:['sunnuntai', 'maanantai', 'tiistai', 'keskiviikko', 'torstai', 'perjantai', 'lauantai'],
+    wdOn:['sunnuntaina', 'maanantaina', 'tiistaina', 'keskiviikkona', 'torstaina', 'perjantaina', 'lauantaina'],
+    wdEve:['sunnuntai-ilta', 'maanantai-ilta', 'tiistai-ilta', 'keskiviikkoilta', 'torstai-ilta', 'perjantai-ilta', 'lauantai-ilta'],
+    weekHint:'Tämä viikko · raportti {day}', dayStarsAria: v => v.date + ': ' + v.n + (v.n === 1 ? ' tähti' : ' tähteä'),
+    scoreMeta:'Tulos {pct}% · tavoite {goal}%', goalMeta:'Tavoite: {goal}%', stillToRate:'{n} vielä arvioimatta', allRated:'kaikki arvioitu ✔',
+    banner:'🎉 On {day}: viikkoraportin aika, {name}!',
+    picAria:'{title}: napauta, niin kuulet kysymyksen', fireTitle:'{n} päivää putkeen',
+    starsAria:'Tähdet: {title}', crossesAria:'Ristit: {title}', nStars: v => v.n + (v.n === 1 ? ' tähti' : ' tähteä'), nCrosses: v => v.n + (v.n === 1 ? ' risti' : ' ristiä'),
+    languageP:'Sovelluksen kieli, kaikille lapsille. Puheääni vaihtuu samalla.',
+    cryLess:'Yksi itku vähemmän', cryMore:'Yksi itku lisää', criesToday:'Itkuja tänään', cryTakes: v => 'Vie ' + v.n + ' tähteä',
+    newLevel:'Uusi taso: {icon} {level}! Hienoa, {name}!', whatADay:'Mikä päivä, {name}! ⭐ {n}', dayOk:'⭐ {n} tänään. Huomenna on uusi seikkailu 🌈',
+    // vanhempien valikko, lapset
+    parents:'👪 Vanhemmille', children:'Lapset', kidWeek:'⭐ {n} tällä viikolla', showingNow:' · näkyvissä nyt', editKid:'Muokkaa: {name}', editKidTitle:'Muokkaa nimeä ja kuvaa',
+    removeKidAria:'Poista {name}', addKid:'＋ Lisää lapsi', settingsFor:'⚙️ Asetukset: {kid}', wordsBtn: v => '🔤 Sanat kuvien alla: ' + (v.on ? 'päällä' : 'pois'),
+    helpBtn:'❓ Ohje: näin kaikki toimii', backupBtn:'💾 Lataa varmuuskopio · edellinen: {ago}', agoNever:'ei vielä', agoToday:'tänään', agoYesterday:'eilen', agoDays:'{n} päivää sitten',
+    changePin:'🔢 Vaihda PIN-koodi', pinOffBtn:'🔓 Poista PIN-koodi käytöstä', setPin:'🔢 Aseta PIN-koodi', lockClose:'🔒 Lukitse ja sulje',
+    pinOffConfirm:'Poistetaanko PIN-koodi käytöstä? Silloin kuka tahansa voi vaihtaa lasta ja avata asetukset.',
+    editChild:'Muokkaa lasta', removeNamed:'🗑️ Poista {name}', thisChild:'tämä lapsi',
+    removeConfirm:'Poistetaanko {name} ja kaikki hänen tähtensä, muistiinpanonsa ja valokuvansa tästä puhelimesta? Lataa ensin varmuuskopio, jos haluat säilyttää ne.',
+    removedToast:'{name} poistettu', addChild:'Lisää lapsi', copyFrom:'Samat kuvat, tavoite ja raporttipäivä kuin lapsella {name} (ilman valokuvia)',
+    eachChild:'Jokaisella lapsella on omat kuvat, tavoite, palkinto, tähdet ja viikkoraportti.', addedKid:'{av} {name} lisätty',
+    // viikkoraportti
+    soFar:' · tähän asti', noStars:'Ei vielä tähtiä tällä viikolla', noStarsP:'Arvioi kuvat viikon mittaan. Raportti täyttyy tänne.',
+    winTitle:'Supertähtiviikko, {name}!', reward:'🎁 Palkintosi: <b>{reward}</b>', greatAt:'Näissä olit tosi hyvä', nextPower:'Seuraava supervoima 💪',
+    softTitle:'Ei tällä kertaa, {name}, eikä se haittaa!', stillCollected:'Keräsit silti <b>⭐ {n}</b> tällä viikolla. 🤗',
+    try1:'Vain <b>yksi ⭐ lisää</b> joka kuvaan ensi viikolla, niin tavoite täyttyy.', try2:'Yritä saada <b>kaksi ⭐ lisää</b> joka kuvaan ensi viikolla.',
+    tryN:'Vähän enemmän <b>⭐</b> joka päivä, pikkuhiljaa.', canDo:'Sinä pystyt siihen! 💪', practise:'Harjoitellaan ensi viikolla',
+    moreStars: v => '📈 ' + v.n + (v.n === 1 ? ' tähti' : ' tähteä') + ' enemmän kuin viime viikolla!', betterPct:'📈 Parempi kuin viime viikolla: {a}% → {b}%',
+    fewerTears:'🌈 Vähemmän itkua kuin viime viikolla: 😢 {a} → {b}',
+    moments:'💌 Ihania hetkiä', repScore:' · tulos {pct}% (tavoite {goal}%)', yay:'Jee! 🎉',
+    sayWin: v => 'Supertähtiviikko, ' + v.name + '! Keräsit ' + v.n + (v.n === 1 ? ' tähden!' : ' tähteä!'),
+    saySoft: v => 'Ei tällä kertaa, ' + v.name + ', eikä se haittaa. Keräsit ' + v.n + (v.n === 1 ? ' tähden' : ' tähteä') + '. Ensi viikolla onnistut!',
+    // asetukset
+    childName:'Lapsen nimi', reportDay:'Raporttipäivä', reportDayP:'Viikko päättyy raporttipäivään. Jos se on perjantai, viikko on lauantaista perjantaihin.',
+    goalWeek:'Viikon tavoite:', scoreHow:'Näin tulos lasketaan: jokainen kuva saa 1–5 ⭐ tai 1–5 ❌. Tähdet lisäävät, ristit vähentävät, ja jokainen ' +
+      '😢-laskurin itku vie kaksi tähteä; päivä ei mene koskaan alle nollan. Tulos on jäljelle jääneet tähdet suhteessa suurimpaan mahdolliseen ' +
+      '(5 jokaisesta arvioidusta kuvasta): kun tavoite on 60%, se on keskimäärin 3 tähteä kuvaa kohden. Arvioimattomia kuvia ei lasketa.',
+    rewardLabel:'Viikon palkinto (vapaaehtoinen, näkyy kun tavoite täyttyy)', rewardPh:'Puistoretki, letut, hän saa valita perjantain elokuvan…',
+    gameH:'🎮 Päivän peli', gameP:'Kun kaikki kuvat on arvioitu ja päivä yltää tavoitteeseen, päivän peli aukeaa muutamaksi minuutiksi, vain sinä päivänä. ' +
+      'Pelejä on kuusi (ilmapallot, muistipeli, tähtien nappaus, kukkuu, laskupeli, ristinolla): yksi päivässä, vaihtuvassa järjestyksessä, kukin kerran kuudessa päivässä.',
+    gameOn:'Päivän peli käytössä', minutesDay:'Minuuttia päivässä', nMinutes:'{n} minuuttia',
+    storyH:'🌙 Iltasatu', storyP:'Joka ilta yksi satu, oikean ihmisen lukemana. Suomeksi vapaasti käytettäviä lastensatuja on vasta neljä: ' +
+      'H. C. Andersenin satuja LibriVox.orgin vapaaehtoisten lukemina. Kun kaikki on kuultu, ne alkavat alusta, ja 🎲 vaihtaa toiseen. ' +
+      'Englanninkielisiä satuja on 353 (kieli: English). Sadut soivat Internet Archivesta, joten tarvitaan internet.',
+    storyOn:'Iltasatu käytössä', storyForget:'Unohda kuullut sadut ({n})', storyForgetConfirm:'Unohdetaanko, mitkä sadut {name} on kuullut? Ne voivat sitten tulla uudelleen.',
+    storyForgotToast:'Kaikki sadut voivat tulla taas 🌙',
+    soundsH:'Äänet ja sanat', soundsP:'Nämä koskevat tätä puhelinta tai tietokonetta ja kaikkia lapsia.', happySounds:'Iloiset äänet',
+    readAloud:'Lue kysymys ääneen, kun kuvaa napautetaan', voiceLang:'Puheäänen kieli', testVoice:'🔊 Kokeile ääntä',
+    voices:{ 'en-GB':'Englanti (UK)', 'en-US':'Englanti (USA)', 'en-IN':'Englanti (Intia)', 'hi-IN':'हिन्दी (hindi)', 'fi-FI':'Suomi' },
+    otherLangP:'Jos valitset muun puheäänen, kirjoita myös omat kysymyksesi alle sillä kielellä.', showWords:'Näytä sanat kuvien alla (myös vanhempien valikossa)',
+    picturesH:'Kuvat: {name}', picturesP:'Valitse käytettävät kuvat. Vaihda iso ja pieni kuva (mikä tahansa emoji) ' +
+      'tai lisää 📷 valokuva lapsen omista tavaroista: sänky, hammasharja, lautanen. Kysymys luetaan ääneen, kun kuvaa napautetaan.',
+    bigPic:'Iso kuva', smallPic:'Pieni kuva', newTask:'Uusi tehtävä', newTaskPh:'Uusi tehtävä, esim. Pianoharjoitus', whatToSay:'Kysymys',
+    whatToSayPh:'Kysymys, esim. Harjoittelitko pianoa?', addPic:'＋ Lisää kuva', addedTask:'Lisätty: {title}',
+    usePic:'Käytä tätä kuvaa', taskNameAria:'Nimi (aikuisille)', photoBtn:'📷 Valokuva', removePhoto:'Poista valokuva', whatToSayTapPh:'Kysymys, joka luetaan ääneen',
+    taskFallback:'Tehtävä', deleteTask:'Poistetaanko ”{title}”? Sen tähtiä ei enää lasketa.',
+    photoFull:'Valokuvaa ei voitu tallentaa: selaimen tallennustila on täynnä.', notPicture:'Tämä selain ei osaa avata tiedostoa kuvana.',
+    backupH:'Varmuuskopio', backupP:'Tähdet ovat vain tässä selaimessa (jokaisella puhelimella ja tietokoneella on omansa). ' +
+      'Varmuuskopiossa ovat kaikki lapset. Lataa se aina välillä; palauta se toisella laitteella, niin tähdet siirtyvät sinne.',
+    downloadBackup:'⬇️ Lataa varmuuskopio', restoreBackup:'⬆️ Palauta varmuuskopio', clearStars:'Tyhjennä tähdet: {name}',
+    clearConfirm:'Poistetaanko kaikki tähdet ja muistiinpanot ({name})? Kuvat ja asetukset säilyvät. Lataa ensin varmuuskopio, jos haluat säilyttää ne.',
+    freshStart:'Uusi alku: {name} 🌱', notBackup:'Tiedosto ei ole tähtitaulun varmuuskopio.',
+    replaceAll:'Korvataanko kaikki tämän selaimen lapset ja tähdet varmuuskopiolla ({n} lasta)?',
+    replaceOne:'Korvataanko tähdet ja kuvat ({name}) tällä varmuuskopiolla ({n} päivää)?', restored:'Varmuuskopio palautettu ✔',
+    // päivän peli
+    tomorrowGame:'Huomenna: {icon} {game}', play:'Pelaa!', leftToday:'{game} · tänään {t} jäljellä', playedToday:'Pelattu tänään', tomorrow:'Huomenna!',
+    moreStarsOpen:'Peli aukeaa, kun tähtiä on enemmän. {next}', toRate:'{n} vielä arvioimatta', thenOpens:'Sitten, kun tähtiä on tarpeeksi, peli aukeaa: {game}',
+    gameOpen:'Peli aukesi: {icon} {game}! Hienoa, {name}!', sayGameOpen:'Hienoa! Peli aukesi: {game}!', stopGame:'Lopeta peli',
+    newRecord:'🏆 Uusi ennätys!', timeUp:'Aika loppui. Nähdään huomenna! 🌙', leftLater:'Tänään vielä {t} jäljellä',
+    sayTimeUp:'Aika loppui!', sayScored: v => 'Sait ' + v.n + (v.n === 1 ? ' pisteen!' : ' pistettä!'), sayRecord:'Uusi ennätys!', sayTomorrow:'Nähdään huomenna!',
+    game_balloons:'Ilmapallot', game_memory:'Muistipeli', game_catch:'Tähtien nappaus', game_peek:'Kukkuu', game_count:'Laskupeli', game_ttt:'Ristinolla',
+    say_balloons:'Poksauta ilmapallot!', say_memory:'Etsi parit!', say_catch:'Liikuta koria ja nappaa tähdet!', say_peek:'Napauta eläimiä, kun ne kurkistavat!',
+    say_count:'Lasketaan yhdessä!', say_ttt:'Pelataan ristinollaa Nallen kanssa! Tee kolme riviin!',
+    card:'Kortti', hole:'Kolo', square:'Ruutu {n}', vs:'vs', sayWin3:'Sinä voitit!', sayDraw:'Tasapeli!', sayTeddy:'Nalle voitti. Yritetään uudestaan!',
+    howMany:'Montako {what}?', sayYes:'Oikein! {n}!', tryAgain:'Yritä vielä!',
+    cw: { apple:'omenaa', star:'tähteä', fish:'kalaa', balloon:'ilmapalloa', ladybird:'leppäkerttua', flower:'kukkaa', strawberry:'mansikkaa', car:'autoa', chick:'tipua', cookie:'keksiä' },
+    // iltasatu (vain kortin tekstit; sadut tulevat stories.json-tiedostosta)
+    tonightStory:'Illan satu', loadingStories:'Ladataan satuja…', storyNeedsNet:'Sadut tarvitsevat internetin ensimmäisellä kerralla. Yritä myöhemmin uudelleen.',
+    anotherStory:'🎲 Toinen satu', storyHeard:' · ✅ kuultu', pause:'Tauko', playStory:'Kuuntele satu', pickTheme:'Valitse aihe', storyAbout:'Aihe: {theme}',
+    lastNight:'⏮ Eilisillan satu', heardOf:'{n} / {m} kuultu', lastNightShort:' · eilisillan satu', storyFailed:'Satu ei käynnistynyt. Onko internet päällä?',
+    storyEnd:'🌙 Satu loppui. Kauniita unia!', storyAlbum:'Ihaayan iltasadut', storyMin:'{n} min',
+    themes:{ animals:'Eläimet', fairy:'Sadut ja taikuus', royal:'Prinssit ja prinsessat', toys:'Lelut ja nuket', nature:'Maatila ja luonto',
+      night:'Kuu ja tähdet', fables:'Faabelit', world:'Tarinoita kaukaa' },
+    // esittely ja ohje
+    tour1t:'👆 Napauta kuvaa', tour1p:'Kuulet kysymyksen.', tour2t:'⭐ Tähdet tai ❌ ristit', tour2p:'Meni hyvin: 1–5 tähteä. Ei niin hyvin: 1–5 ristiä.',
+    tour3t:'😢 + jokaisesta itkusta', tour3p:'Aikuinen napauttaa. Jokainen itku vie 2 tähteä.', tour4t:'👪 Vanhempien valikko', tour4p:'Lapset, asetukset, varmuuskopio ja PIN-koodi.',
+    tour5t:'❓ Ohje', tour5p:'Tämä esittely uudelleen ja koko ohjesivu.', skip:'Ohita', back:'Takaisin', next:'Seuraava', gotIt:'Selvä ✔', helpShort:'📖 Ohje',
+    helpTitle:'❓ Näin se toimii', help1:'👆 Napauta kuvaa, niin kuulet kysymyksen.', help2:'⭐ Meni hyvin: 1–5 tähteä. ❌ Ei niin hyvin: 1–5 ristiä.',
+    help3:'😢 Aikuinen napauttaa + jokaisesta itkusta (−2 ⭐).', help4:'🎮 Hyvä päivä avaa pelin. 🌙 Satu joka ilta.', help5:'👪 Oikean yläkulman kuva avaa vanhempien valikon.',
+    showAround:'👀 Näytä, miten toimii', fullHelp:'📖 Koko ohjesivu',
+  },
+};
+const lang = () => store.prefs.lang;
+const locale = () => lang() === 'fi' ? 'fi-FI' : 'en-GB';
+function T(key, vars) {
+  const d = I18N[lang()] || I18N.en, v = key in d ? d[key] : I18N.en[key];
+  if (v === undefined) return key;
+  if (typeof v === 'function') return v(vars || {});
+  if (typeof v !== 'string' || !vars) return v;
+  return v.replace(/\{(\w+)\}/g, (m, k) => k in vars ? vars[k] : m);
+}
+const ucfirst = s => s.charAt(0).toUpperCase() + s.slice(1);
+const levelName = i => T('levels')[i];
+const helpHref = () => 'help.html?lang=' + lang();
+const closeBtn = () => '<button type="button" class="iconbtn close" data-close aria-label="' + esc(T('close')) + '">✕</button>';
+// A default picture's text follows the app language while it still equals the English or Finnish default;
+// a parent's own text stays as they typed it. Stored data is never rewritten.
+function tx(t, f) {
+  const v = t[f], def = DEFAULT_TASKS.find(x => x.id === t.id), fi = TASKS_FI[t.id];
+  if (!def || !(v === def[f] || (fi && v === fi[f]))) return v;
+  return lang() === 'fi' && fi ? fi[f] : def[f];
+}
+const gameName = g => T('game_' + g.id);
+// A story theme's name: the catalog's own, translated only while it is still the English name that stories.json has.
+const themeName = (k, label) => label === I18N.en.themes[k] ? T('themes')[k] || label : label;
+const langSwitchHtml = () => LANGS.map(l => '<button type="button" lang="' + l + '" data-lang="' + l + '" aria-pressed="' + (lang() === l) + '">' +
+  (l === 'fi' ? 'Suomi' : 'English') + '</button>').join('');
+// Choosing a language also picks a voice for it: Finnish gets the Finnish voice; English keeps an English voice.
+function setLang(l) {
+  if (!LANGS.includes(l)) return;
+  const pf = store.prefs; pf.lang = l;
+  if (l === 'fi') pf.voice = 'fi-FI'; else if (!pf.voice.startsWith('en')) pf.voice = 'en-GB';
+  save(); applyStatic(); render();
+}
+function applyStatic() {
+  document.documentElement.lang = lang();
+  document.querySelectorAll('[data-i18n]').forEach(e => { e.textContent = T(e.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(e => e.setAttribute('aria-label', T(e.dataset.i18nAria)));
+  document.querySelectorAll('[data-i18n-title]').forEach(e => e.setAttribute('title', T(e.dataset.i18nTitle)));
+  document.querySelectorAll('[data-i18n-ph]').forEach(e => e.setAttribute('placeholder', T(e.dataset.i18nPh)));
+  $('#langSw').innerHTML = langSwitchHtml();
+}
+let landRefresh = null;  // draws the landing's current step again after a language change
+function chooseLang(l) {
+  if (l === lang()) return;
+  setLang(l);
+  if (!$('#landing').hidden && landRefresh) landRefresh();
+}
+
 const reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -519,8 +819,8 @@ const keyOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.g
 const fromKey = k => { const p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
 const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const today = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
-const fmtShort = d => d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
-const fmtLong = d => d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+const fmtShort = d => d.toLocaleDateString(locale(), { weekday:'short', day:'numeric', month:'short' });
+const fmtLong = d => ucfirst(d.toLocaleDateString(locale(), { weekday:'long', day:'numeric', month:'long' }));
 const okV = v => Number.isInteger(v) && v !== 0 && v >= -5 && v <= 5;
 const hueOf = t => Number.isFinite(t.h) ? t.h : [...t.id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 
@@ -537,11 +837,17 @@ function readKey(k) {
   try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { storageOk = false; return null; }
 }
 function prefsFrom(o) {
-  const p = Object.assign({}, PREF_DEFAULTS, o && typeof o === 'object' ? o : {});
+  const raw = o && typeof o === 'object' ? o : {}, p = Object.assign({}, PREF_DEFAULTS, raw);
   const pin = p.pin && typeof p.pin.salt === 'string' && typeof p.pin.hash === 'string'
     ? { salt: p.pin.salt.slice(0, 64), hash: p.pin.hash.slice(0, 128) } : null;
-  return { sound: p.sound !== false, speak: p.speak !== false, words: p.words === true,
-    voice: VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB', pin, pinOff: !pin && p.pinOff === true,
+  // No language saved: data from before the choice existed was English, so it stays English unless its voice was
+  // Finnish; a new install follows the phone's language and, on a Finnish phone, gets the Finnish voice too.
+  const saved = raw.voice !== undefined;
+  const lang = LANGS.includes(p.lang) ? p.lang : saved ? (String(raw.voice).startsWith('fi') ? 'fi' : 'en') : defaultLang();
+  let voice = VOICES.some(v => v[0] === p.voice) ? p.voice : 'en-GB';
+  if (lang === 'fi' && !LANGS.includes(raw.lang) && !saved) voice = 'fi-FI';
+  return { lang, sound: p.sound !== false, speak: p.speak !== false, words: p.words === true,
+    voice, pin, pinOff: !pin && p.pinOff === true,
     lastBackup: Number.isFinite(+p.lastBackup) ? +p.lastBackup : 0, toured: p.toured === true, legendOff: p.legendOff === true };
 }
 function normaliseStore(o) {
@@ -580,18 +886,23 @@ function normalise(d) {
   const gb = s.gameBest; s.gameBest = {};
   if (gb && typeof gb === 'object') { for (const id of ['balloons', 'memory', 'catch', 'peek', 'count', 'ttt']) if (+gb[id] > 0) s.gameBest[id] = Math.round(+gb[id]); }
   else if (+gb > 0) s.gameBest.balloons = Math.round(+gb);  // the first version had one game
-  // Bedtime story: day/id = today's pick (a stable key of its first file), theme, prev = the last day's pick,
-  // tr/t = where it stopped, done = heard today, heard = keys of every story heard (never picked again).
-  const so = s.story && typeof s.story === 'object' ? s.story : {}, str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
-  s.story = { day: str(so.day, 10), id: str(so.id, 16), theme: str(so.theme, 12) || 'any', prev: str(so.prev, 16),
-    tr: Math.max(0, Math.floor(+so.tr) || 0), t: Math.max(0, +so.t || 0), done: so.done === true,
-    heard: Array.isArray(so.heard) ? so.heard.filter(k => typeof k === 'string').map(k => k.slice(0, 16)).slice(-5000) : [] };
+  s.story = storyFrom(s.story); s.storyFi = storyFrom(s.storyFi);  // English and Finnish stories: one state each
   s.storyOn = s.storyOn !== false;
   for (const k of Object.keys(PREF_DEFAULTS)) delete s[k];
   const days = d.days && typeof d.days === 'object' ? d.days : {};
   return { id: typeof d.id === 'string' && d.id ? d.id.slice(0, 40) : newId(),
     avatar: typeof d.avatar === 'string' && d.avatar ? d.avatar.slice(0, 8) : AVATARS[0], settings:s, days };
 }
+// Bedtime story state: day/id = today's pick (a stable key of its first file), theme, prev = the last day's pick,
+// tr/t = where it stopped, done = heard today, heard = keys of every story heard (not picked again until all are).
+function storyFrom(o) {
+  const so = o && typeof o === 'object' ? o : {}, str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+  return { day: str(so.day, 10), id: str(so.id, 16), theme: str(so.theme, 12) || 'any', prev: str(so.prev, 16),
+    tr: Math.max(0, Math.floor(+so.tr) || 0), t: Math.max(0, +so.t || 0), done: so.done === true,
+    heard: Array.isArray(so.heard) ? so.heard.filter(k => typeof k === 'string').map(k => k.slice(0, 16)).slice(-5000) : [] };
+}
+// The stories follow the app language: English from stories.json, Finnish from stories-fi.json.
+const storyOf = settings => lang() === 'fi' ? settings.storyFi : settings.story;
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); storageOk = true; } catch (e) { storageOk = false; }
   $('#warn').hidden = storageOk;
@@ -677,19 +988,30 @@ const sfx = {
     } catch (e) { /* no sound, no problem */ }
   },
 };
-function say(text) {
+// Phones offer several voices per language. Take the most natural one (Premium, Natural, Neural, then Enhanced or
+// Google), never Apple's novelty voices (Eddy, Grandma, Zarvox...), which sound robotic.
+const NOVELTY_VOICE = /\b(albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley|fred|junior|ralph|kathy)\b/i;
+function bestVoice(want) {
+  const w = want.toLowerCase(), norm = x => String(x.lang || '').replace('_', '-').toLowerCase();
+  const rank = x => (norm(x) === w ? 4 : 0) + (x.default ? .5 : 0) +
+    (/premium|natural|neural/i.test(x.name + ' ' + x.voiceURI) ? 3 : /enhanced|google/i.test(x.name + ' ' + x.voiceURI) ? 2 : 0);
+  return speechSynthesis.getVoices().filter(x => norm(x).startsWith(w.slice(0, 2)) && !NOVELTY_VOICE.test(x.name))
+    .sort((a, b) => rank(b) - rank(a))[0] || null;
+}
+// queue: wait for what is being said instead of cutting it off.
+function say(text, queue) {
   if (!store.prefs.speak || !text || !('speechSynthesis' in window)) return;
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text), lang = store.prefs.voice;
-    u.lang = lang; u.rate = .9; u.pitch = 1.1;
-    const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.replace('_', '-').toLowerCase() === lang.toLowerCase()) ||
-      speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
+    if (!queue) speechSynthesis.cancel();
+    const want = store.prefs.voice, u = new SpeechSynthesisUtterance(text), v = bestVoice(want);  // choosing a language sets it
+    u.lang = want; u.rate = .9; u.pitch = 1.1;
     if (v) u.voice = v;
     speechSynthesis.speak(u);
   } catch (e) { /* no voice, no problem */ }
 }
-const sayEnglish = text => { if (store.prefs.voice.startsWith('en')) say(text); };
+// The app's own spoken lines (cheers, games, the report) are in the app language: say them only when the voice speaks it.
+const voiceFitsLang = () => store.prefs.voice.slice(0, 2).toLowerCase() === lang();
+const sayInLang = (text, queue) => { if (voiceFitsLang()) say(text, queue); };
 if ('speechSynthesis' in window) { try { speechSynthesis.getVoices(); } catch (e) { /* ignore */ } }
 
 /* ---------- little effects ---------- */
@@ -744,18 +1066,18 @@ function picHtml(t, o) {
     : '<span class="m">' + esc(t.emoji) + '</span>' + (t.badge ? '<span class="b">' + esc(t.badge) + '</span>' : '');
   const style = '--h:' + hueOf(t) + (o.size ? ';--pic:' + o.size + 'px' : '');
   const extra = (o.speak && store.prefs.speak ? '<span class="spk" aria-hidden="true">🔊</span>' : '') +
-    (o.fire ? '<span class="fire" title="' + o.fire + ' days in a row">🔥' + o.fire + '</span>' : '');
+    (o.fire ? '<span class="fire" title="' + esc(T('fireTitle', { n: o.fire })) + '">🔥' + o.fire + '</span>' : '');
   return o.speak
-    ? '<button type="button" class="pic" style="' + style + '" aria-label="' + esc(t.title) + ': tap to hear the question">' + inner + extra + '</button>'
-    : '<div class="pic" style="' + style + '" role="img" aria-label="' + esc(t.title) + '">' + inner + extra + '</div>';
+    ? '<button type="button" class="pic" style="' + style + '" aria-label="' + esc(T('picAria', { title: tx(t, 'title') })) + '">' + inner + extra + '</button>'
+    : '<div class="pic" style="' + style + '" role="img" aria-label="' + esc(tx(t, 'title')) + '">' + inner + extra + '</div>';
 }
 function rowHtml(t, v, sign) {
-  const filled = sign > 0 ? Math.max(0, v) : Math.max(0, -v), sym = sign > 0 ? '⭐' : '❌', word = sign > 0 ? 'star' : 'cross';
-  let h = '<div class="row5 ' + (sign > 0 ? 'stars' : 'crosses') + '" role="group" aria-label="' + (sign > 0 ? 'Stars' : 'Crosses') + ': ' + esc(t.title) + '">';
+  const filled = sign > 0 ? Math.max(0, v) : Math.max(0, -v), sym = sign > 0 ? '⭐' : '❌';
+  let h = '<div class="row5 ' + (sign > 0 ? 'stars' : 'crosses') + '" role="group" aria-label="' + esc(T(sign > 0 ? 'starsAria' : 'crossesAria', { title: tx(t, 'title') })) + '">';
   for (let i = 1; i <= 5; i++) {
     const on = i <= filled, pop = on && sign > 0 && justPopped === t.id;
     h += '<button type="button" class="sb' + (on ? ' on' : '') + (pop ? ' pop' : '') + '" style="--i:' + (i - 1) + '" data-v="' + (sign * i) +
-      '" aria-pressed="' + (filled === i) + '" aria-label="' + i + ' ' + word + (i > 1 ? (sign > 0 ? 's' : 'es') : '') + '"><span>' + sym + '</span></button>';
+      '" aria-pressed="' + (filled === i) + '" aria-label="' + esc(T(sign > 0 ? 'nStars' : 'nCrosses', { n: i })) + '"><span>' + sym + '</span></button>';
   }
   return h + '</div>';
 }
@@ -782,24 +1104,37 @@ function withParent(fn) {
 }
 function openParentMenu() { if (store.prefs.pin) withParent(showMenu); else if (store.prefs.pinOff) showMenu(); else showPinPad('set', showMenu); }
 function showPinPad(mode, onDone) {
-  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button><div id="padBox"></div>');
+  openOverlay(closeBtn() + '<div id="padBox"></div>');
   pinPad($('#padBox'), mode, onDone);
 }
-// landing = true: the PIN opens the app only; the parent menu still asks for it.
-function pinPad(box, mode, onDone, firstPin, landing) {
-  const title = { unlock: landing ? 'Parent PIN, please' : '🔒 Parents only', set:'Choose a 4-digit parent PIN', confirm:'Type the PIN again' }[mode];
-  const sub = { unlock: landing ? '' : 'Type the parent PIN.', set:'It opens the app and the parent menu, so little fingers stay out.', confirm:'' }[mode];
-  box.innerHTML = '<h2>' + title + '</h2>' + (sub ? '<p class="small">' + sub + '</p>' : '') +
+// landing = true: the PIN opens the app only; the parent menu still asks for it. startMsg: a message key to show at once.
+function pinPad(box, mode, onDone, firstPin, landing, startMsg) {
+  box.innerHTML = '<h2></h2><p class="small"></p>' +
     '<div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="pinmsg" role="alert"></div>' +
     '<div class="keypad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => '<button type="button" class="key" data-k="' + n + '">' + n + '</button>').join('') +
-    '<span></span><button type="button" class="key" data-k="0">0</button><button type="button" class="key" data-k="back" aria-label="Delete">⌫</button></div>' +
-    (mode === 'unlock' ? '<button type="button" class="linkbtn pinforgot">Forgot the PIN?</button>' : '') +
-    (landing ? '<a class="linkbtn helplink" href="help.html" target="_blank" rel="noopener">❓ How Ihaaya works</a>' : '');
+    '<span></span><button type="button" class="key" data-k="0">0</button><button type="button" class="key" data-k="back">⌫</button></div>' +
+    (mode === 'unlock' ? '<button type="button" class="linkbtn pinforgot"></button>' : '') +
+    (landing ? '<a class="linkbtn helplink" target="_blank" rel="noopener"></a>' : '');
   const q = sel => box.querySelector(sel);
-  let pin = '', busy = false;
+  let pin = '', busy = false, msgKey = startMsg || '';
   const dots = () => q('.dots').querySelectorAll('i').forEach((d, i) => d.classList.toggle('f', i < pin.length));
-  const msg = t => { q('.pinmsg').textContent = t || ''; };
-  const waitMsg = () => msg('Too many tries. Wait ' + Math.ceil((pinWaitUntil - Date.now()) / 1000) + ' seconds.');
+  const showMsg = () => {
+    q('.pinmsg').textContent = msgKey === 'pinWait' ? T('pinWait', { n: Math.max(1, Math.ceil((pinWaitUntil - Date.now()) / 1000)) }) : msgKey ? T(msgKey) : '';
+  };
+  const msg = k => { msgKey = k || ''; showMsg(); };
+  const waitMsg = () => msg('pinWait');
+  // All the words of the pad; again after a language change, and the digits typed so far stay.
+  const words = () => {
+    const sub = { unlock: landing ? '' : 'pinSubUnlock', set:'pinSubSet', confirm:'' }[mode], p = q('p.small');
+    q('h2').textContent = T({ unlock: landing ? 'pinTitleLanding' : 'pinTitleUnlock', set:'pinTitleSet', confirm:'pinTitleConfirm' }[mode]);
+    p.textContent = sub ? T(sub) : ''; p.hidden = !sub;
+    q('[data-k="back"]').setAttribute('aria-label', T('keyBack'));
+    if (q('.pinforgot')) q('.pinforgot').textContent = T('pinForgot');
+    if (q('.helplink')) { q('.helplink').textContent = T('howItWorksLink'); q('.helplink').href = helpHref(); }
+    showMsg();
+  };
+  words();
+  if (landing) landRefresh = words;
   if (mode === 'unlock' && Date.now() < pinWaitUntil) waitMsg();
   q('.keypad').addEventListener('click', async e => {
     const k = e.target.closest('[data-k]'); if (!k || busy) return;
@@ -811,11 +1146,11 @@ function pinPad(box, mode, onDone, firstPin, landing) {
     if (mode === 'set') { pinPad(box, 'confirm', onDone, pin, landing); return; }
     busy = true;
     if (mode === 'confirm') {
-      if (pin !== firstPin) { pinPad(box, 'set', onDone, null, landing); box.querySelector('.pinmsg').textContent = 'The two PINs were different. Try again.'; return; }
+      if (pin !== firstPin) { pinPad(box, 'set', onDone, null, landing, 'pinDiffer'); return; }
       const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, '0')).join('');
       store.prefs.pin = { salt, hash: await hashPin(pin, salt) }; store.prefs.pinOff = false; save();
       if (!landing) { unlockedUntil = Date.now() + UNLOCK_MS; closeOverlay(); }
-      toast('Parent PIN set 🔒');
+      toast(T('pinSet'));
       if (onDone) onDone();
       return;
     }
@@ -829,13 +1164,13 @@ function pinPad(box, mode, onDone, firstPin, landing) {
     }
     pinFails++; pin = ''; dots();
     const d = q('.dots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
-    if (pinFails >= 5) { pinFails = 0; pinWaitUntil = Date.now() + 30000; waitMsg(); } else msg('Not the right PIN.');
+    if (pinFails >= 5) { pinFails = 0; pinWaitUntil = Date.now() + 30000; waitMsg(); } else msg('pinWrong');
   });
   const fg = q('.pinforgot');
   if (fg) fg.addEventListener('click', () => {
-    const v = prompt('Forgot the parent PIN? Type RESET to turn the PIN off. The stars are kept.');
-    if (!v || v.trim().toUpperCase() !== 'RESET') return;
-    store.prefs.pin = null; store.prefs.pinOff = true; save(); toast('PIN turned off');
+    const v = prompt(T('pinResetPrompt')), w = v ? v.trim().toUpperCase() : '';
+    if (w !== 'RESET' && w !== T('resetWord')) return;  // the English word always works too
+    store.prefs.pin = null; store.prefs.pinOff = true; save(); toast(T('pinOffToast'));
     if (landing) { if (onDone) onDone(); } else closeOverlay();
   });
 }
@@ -850,23 +1185,23 @@ function statsOf(p) { const keep = data; data = p; try { return weekStats(weekSt
 function showMenu() {
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ignore */ }
   const pf = store.prefs, days = pf.lastBackup ? Math.floor((Date.now() - pf.lastBackup) / 86400000) : -1;
-  const ago = days < 0 ? 'never' : days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago';
+  const ago = days < 0 ? T('agoNever') : days === 0 ? T('agoToday') : days === 1 ? T('agoYesterday') : T('agoDays', { n: days });
   const kids = store.profiles.map(p => '<li class="kidli"><button type="button" class="kidrow' + (p === data ? ' on' : '') + '" data-kid="' + esc(p.id) + '">' +
-    '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>⭐ ' + statsOf(p).net + ' this week' +
-    (p === data ? ' · showing now' : '') + '</small></span></button>' +
-    '<button type="button" class="kidact" data-edit="' + esc(p.id) + '" aria-label="Edit ' + esc(p.settings.name) + '" title="Edit name and picture">✏️</button>' +
-    '<button type="button" class="kidact" data-del="' + esc(p.id) + '" aria-label="Remove ' + esc(p.settings.name) + '" title="Remove">🗑️</button></li>').join('');
-  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
-    '<h2>👪 Parents</h2><h3>Children</h3><ul class="kidlist">' + kids + '</ul>' +
+    '<span class="av">' + esc(p.avatar) + '</span><span><b>' + esc(p.settings.name) + '</b><small>' + esc(T('kidWeek', { n: statsOf(p).net })) +
+    (p === data ? esc(T('showingNow')) : '') + '</small></span></button>' +
+    '<button type="button" class="kidact" data-edit="' + esc(p.id) + '" aria-label="' + esc(T('editKid', { name: p.settings.name })) + '" title="' + esc(T('editKidTitle')) + '">✏️</button>' +
+    '<button type="button" class="kidact" data-del="' + esc(p.id) + '" aria-label="' + esc(T('removeKidAria', { name: p.settings.name })) + '" title="' + esc(T('remove')) + '">🗑️</button></li>').join('');
+  openOverlay(closeBtn() +
+    '<h2>' + esc(T('parents')) + '</h2><h3>' + esc(T('children')) + '</h3><ul class="kidlist">' + kids + '</ul>' +
     '<div class="menuacts">' +
-    '<button type="button" class="btn" id="mAdd">＋ Add a child</button>' +
-    '<button type="button" class="btn" id="mSettings">⚙️ Settings for ' + esc(data.avatar) + ' ' + esc(data.settings.name) + '</button>' +
-    '<button type="button" class="btn" id="mWords">🔤 Words under the pictures: ' + (pf.words ? 'on' : 'off') + '</button>' +
-    '<a class="btn" href="help.html" target="_blank" rel="noopener">❓ Help: how everything works</a>' +
-    '<button type="button" class="btn' + (days < 0 || days > 7 ? ' warnbtn' : '') + '" id="mBackup">💾 Download backup · last one ' + ago + '</button>' +
-    (pf.pin ? '<button type="button" class="btn" id="mPin">🔢 Change the PIN</button><button type="button" class="btn" id="mPinOff">🔓 Turn the PIN off</button>'
-            : '<button type="button" class="btn" id="mPin">🔢 Set a parent PIN</button>') +
-    '<button type="button" class="btn primary" id="mLock">' + (pf.pin ? '🔒 Lock and close' : 'Close') + '</button></div>', 'settings');
+    '<button type="button" class="btn" id="mAdd">' + esc(T('addKid')) + '</button>' +
+    '<button type="button" class="btn" id="mSettings">' + esc(T('settingsFor', { kid: data.avatar + ' ' + data.settings.name })) + '</button>' +
+    '<button type="button" class="btn" id="mWords">' + esc(T('wordsBtn', { on: pf.words })) + '</button>' +
+    '<a class="btn" href="' + helpHref() + '" target="_blank" rel="noopener">' + esc(T('helpBtn')) + '</a>' +
+    '<button type="button" class="btn' + (days < 0 || days > 7 ? ' warnbtn' : '') + '" id="mBackup">' + esc(T('backupBtn', { ago })) + '</button>' +
+    (pf.pin ? '<button type="button" class="btn" id="mPin">' + esc(T('changePin')) + '</button><button type="button" class="btn" id="mPinOff">' + esc(T('pinOffBtn')) + '</button>'
+            : '<button type="button" class="btn" id="mPin">' + esc(T('setPin')) + '</button>') +
+    '<button type="button" class="btn primary" id="mLock">' + esc(pf.pin ? T('lockClose') : T('close')) + '</button></div>', 'settings');
   $('#sheet .kidlist').addEventListener('click', e => {
     const ed = e.target.closest('[data-edit]'); if (ed) { showEditKid(ed.dataset.edit); return; }
     const del = e.target.closest('[data-del]'); if (del) { removeKid(del.dataset.del); return; }
@@ -875,13 +1210,13 @@ function showMenu() {
   });
   $('#mAdd').addEventListener('click', showAddKid);
   $('#mSettings').addEventListener('click', showSettings);
-  $('#mWords').addEventListener('click', e => { pf.words = !pf.words; save(); renderHeader(); e.currentTarget.textContent = '🔤 Words under the pictures: ' + (pf.words ? 'on' : 'off'); });
+  $('#mWords').addEventListener('click', e => { pf.words = !pf.words; save(); renderHeader(); e.currentTarget.textContent = T('wordsBtn', { on: pf.words }); });
   $('#mBackup').addEventListener('click', () => { exportData(); showMenu(); });
   $('#mPin').addEventListener('click', () => showPinPad('set', showMenu));
   const off = $('#mPinOff');
   if (off) off.addEventListener('click', () => {
-    if (!confirm('Turn the parent PIN off? Then anyone can switch child and open the settings.')) return;
-    pf.pin = null; pf.pinOff = true; save(); showMenu(); toast('PIN turned off');
+    if (!confirm(T('pinOffConfirm'))) return;
+    pf.pin = null; pf.pinOff = true; save(); showMenu(); toast(T('pinOffToast'));
   });
   $('#mLock').addEventListener('click', () => { unlockedUntil = 0; closeOverlay(); });
 }
@@ -890,11 +1225,11 @@ function showMenu() {
 function showEditKid(id) {
   const p = store.profiles.find(x => x.id === id); if (!p) return;
   let av = p.avatar;
-  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button><h2>Edit child</h2>' +
-    '<label class="field"><span>Name</span><input id="eName" maxlength="30" autocomplete="off" value="' + esc(p.settings.name) + '"></label>' +
-    '<div class="field"><span>Their picture</span><div class="avatars" id="eAv">' + avatarButtons(av) + '</div></div>' +
-    '<div class="btnrow"><button type="button" class="btn danger" id="eRemove">🗑️ Remove ' + esc(p.settings.name) + '</button></div>' +
-    '<button type="button" class="reportbtn" id="eSave">Save</button>', 'settings');
+  openOverlay(closeBtn() + '<h2>' + esc(T('editChild')) + '</h2>' +
+    '<label class="field"><span>' + esc(T('name')) + '</span><input id="eName" maxlength="30" autocomplete="off" value="' + esc(p.settings.name) + '"></label>' +
+    '<div class="field"><span>' + esc(T('theirPicture')) + '</span><div class="avatars" id="eAv">' + avatarButtons(av) + '</div></div>' +
+    '<div class="btnrow"><button type="button" class="btn danger" id="eRemove">' + esc(T('removeNamed', { name: p.settings.name })) + '</button></div>' +
+    '<button type="button" class="reportbtn" id="eSave">' + esc(T('save')) + '</button>', 'settings');
   $('#eAv').addEventListener('click', e => {
     const b = e.target.closest('[data-av]'); if (!b) return;
     av = b.dataset.av; $('#eAv').innerHTML = avatarButtons(av);
@@ -902,7 +1237,7 @@ function showEditKid(id) {
   $('#eSave').addEventListener('click', () => {
     const v = $('#eName').value.trim().slice(0, 30);
     if (!v) { $('#eName').focus(); return; }
-    p.settings.name = v; p.avatar = av; save(); render(); showMenu(); toast('Saved ✔');
+    p.settings.name = v; p.avatar = av; save(); render(); showMenu(); toast(T('saved'));
   });
   $('#eRemove').addEventListener('click', () => removeKid(id));
 }
@@ -910,14 +1245,14 @@ function showEditKid(id) {
 // and the app asks for the name.
 function removeKid(id) {
   const p = store.profiles.find(x => x.id === id); if (!p) return;
-  const name = p.settings.name || 'this child';
-  if (!confirm('Remove ' + name + ' and all of their stars, notes and photos from this phone? Download a backup first if you want to keep them.')) return;
+  const name = p.settings.name || T('thisChild');
+  if (!confirm(T('removeConfirm', { name }))) return;
   if (p === data) stopStory();
   store.profiles = store.profiles.filter(x => x !== p);
   if (!store.profiles.length) store.profiles.push(normalise({ id: newId(), avatar: AVATARS[0], settings: {}, days: {} }));
   if (!store.profiles.some(x => x.id === store.active)) store.active = store.profiles[0].id;
   data = activeProfile(); selKey = keyOf(today()); weekStart = weekStartOf(today()); todayKeySeen = selKey;
-  save(); closeOverlay(); toast(name.charAt(0).toUpperCase() + name.slice(1) + ' removed');
+  save(); closeOverlay(); toast(T('removedToast', { name: ucfirst(name) }));
   if (!data.settings.name) showNameStep(true);
 }
 // A child without a name (a new install, or after the only child was removed): ask for the name and picture.
@@ -925,26 +1260,31 @@ function showNameStep(direct) {
   const p = store.profiles.find(x => !x.settings.name) || data, box = $('#landPad');
   let av = p.avatar;
   if (direct) { $('#landLogo').innerHTML = LOGO_SVG; $('#landing').hidden = false; document.body.style.overflow = 'hidden'; }
-  box.innerHTML = '<h2>Who is this chart for?</h2><p class="small">Their name and picture. You can change them later in the parent menu.</p>' +
-    '<input id="nsName" class="nsname" maxlength="30" autocomplete="off" placeholder="Name" aria-label="Child\'s name">' +
-    '<div class="avatars nsav" id="nsAv">' + avatarButtons(av) + '</div>' +
-    '<button type="button" class="reportbtn" id="nsGo">Start ⭐</button>';
-  $('#nsAv').addEventListener('click', e => {
-    const b = e.target.closest('[data-av]'); if (!b) return;
-    av = b.dataset.av; $('#nsAv').innerHTML = avatarButtons(av);
-  });
-  $('#nsGo').addEventListener('click', () => {
-    const v = $('#nsName').value.trim().slice(0, 30);
-    if (!v) { $('#nsName').focus(); return; }
-    p.settings.name = v; p.avatar = av; save(); enterApp();
-  });
+  const draw = typed => {
+    box.innerHTML = '<h2>' + esc(T('nameStepTitle')) + '</h2><p class="small">' + esc(T('nameStepSub')) + '</p>' +
+      '<input id="nsName" class="nsname" maxlength="30" autocomplete="off" placeholder="' + esc(T('name')) + '" aria-label="' + esc(T('childNameAria')) + '">' +
+      '<div class="avatars nsav" id="nsAv">' + avatarButtons(av) + '</div>' +
+      '<button type="button" class="reportbtn" id="nsGo">' + esc(T('start')) + '</button>';
+    $('#nsName').value = typed;
+    $('#nsAv').addEventListener('click', e => {
+      const b = e.target.closest('[data-av]'); if (!b) return;
+      av = b.dataset.av; $('#nsAv').innerHTML = avatarButtons(av);
+    });
+    $('#nsGo').addEventListener('click', () => {
+      const v = $('#nsName').value.trim().slice(0, 30);
+      if (!v) { $('#nsName').focus(); return; }
+      p.settings.name = v; p.avatar = av; save(); enterApp();
+    });
+  };
+  draw('');
+  landRefresh = () => draw($('#nsName') ? $('#nsName').value : '');  // a new language keeps the name typed so far
 }
 const avatarButtons = sel => AVATARS.map(a => '<button type="button" class="avbtn' + (a === sel ? ' on' : '') +
   '" data-av="' + a + '" aria-label="' + a + '" aria-pressed="' + (a === sel) + '">' + a + '</button>').join('');
 function renderKids() {
   $('#meAv').textContent = data.avatar;
   $('#meLock').textContent = !store.prefs.pin ? '⚙️' : isUnlocked() ? '🔓' : '🔒';
-  $('#meBtn').setAttribute('aria-label', 'Parent menu (showing ' + data.settings.name + ')');
+  $('#meBtn').setAttribute('aria-label', T('parentMenuShowing', { name: data.settings.name }));
 }
 function switchTo(id) {
   if (id === data.id) return;
@@ -952,18 +1292,17 @@ function switchTo(id) {
   store.active = id; data = activeProfile();
   selKey = keyOf(today()); weekStart = weekStartOf(today()); todayKeySeen = selKey;
   save(); render();
-  sayEnglish('Hello ' + data.settings.name + '!');
+  sayInLang(T('hello', { name: data.settings.name }));
 }
 function showAddKid() {
   const taken = new Set(store.profiles.map(p => p.avatar)), first = AVATARS.find(a => !taken.has(a)) || AVATARS[0];
-  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
-    '<h2>Add a child</h2>' +
-    '<label class="field"><span>Name</span><input id="kName" maxlength="30" autocomplete="off"></label>' +
-    '<div class="field"><span>Their picture</span><div class="avatars" id="kAv">' + avatarButtons(first) + '</div></div>' +
-    '<label class="field check"><input type="checkbox" id="kCopy"><span>Start with ' + esc(data.settings.name) +
-    '\'s pictures, goal and report day (not the photos)</span></label>' +
-    '<p class="small">Each child has their own pictures, goal, reward, stars and Friday report.</p>' +
-    '<button type="button" class="reportbtn" id="kAdd">Add</button>', 'settings');
+  openOverlay(closeBtn() +
+    '<h2>' + esc(T('addChild')) + '</h2>' +
+    '<label class="field"><span>' + esc(T('name')) + '</span><input id="kName" maxlength="30" autocomplete="off"></label>' +
+    '<div class="field"><span>' + esc(T('theirPicture')) + '</span><div class="avatars" id="kAv">' + avatarButtons(first) + '</div></div>' +
+    '<label class="field check"><input type="checkbox" id="kCopy"><span>' + esc(T('copyFrom', { name: data.settings.name })) + '</span></label>' +
+    '<p class="small">' + esc(T('eachChild')) + '</p>' +
+    '<button type="button" class="reportbtn" id="kAdd">' + esc(T('add')) + '</button>', 'settings');
   let av = first;
   $('#kAv').addEventListener('click', e => {
     const b = e.target.closest('[data-av]'); if (!b) return;
@@ -976,11 +1315,11 @@ function showAddKid() {
     if ($('#kCopy').checked) {
       settings = JSON.parse(JSON.stringify(data.settings));
       settings.tasks.forEach(t => delete t.photo);
-      settings.name = name; settings.reward = ''; settings.gameBest = {}; settings.story = {};
+      settings.name = name; settings.reward = ''; settings.gameBest = {}; settings.story = {}; settings.storyFi = {};
     }
     const p = normalise({ id: newId(), avatar: av, settings, days: {} });
     store.profiles.push(p);
-    closeOverlay(); switchTo(p.id); toast(av + ' ' + name + ' added');
+    closeOverlay(); switchTo(p.id); toast(T('addedKid', { av, name }));
   });
   setTimeout(() => $('#kName') && $('#kName').focus(), 50);
 }
@@ -991,15 +1330,16 @@ function render() { renderKids(); renderHeader(); renderWeek(); renderProgress()
 function renderHeader() {
   const s = data.settings, n = allStars(), li = levelOf(n), L = LEVELS[li], next = LEVELS[li + 1];
   document.body.classList.toggle('words', store.prefs.words);
-  $('#name').textContent = s.name;
+  const parts = T('chartTitle').split('{name}');  // the name keeps its colour wherever the language puts it
+  $('#title').innerHTML = esc(parts[0]) + '<span class="name" id="name">' + esc(s.name) + '</span>' + esc(parts.slice(1).join(''));
   document.title = 'Ihaaya';
-  $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(L[2]) + '</b> · 🌟 ' + n +
-    (next ? ' · ' + (next[0] - n) + ' more to ' + next[1] : ' · top level!');
+  $('#level').innerHTML = '<b>' + L[1] + ' ' + esc(levelName(li)) + '</b> · 🌟 ' + n +
+    esc(next ? T('levelNext', { n: next[0] - n, icon: next[1] }) : T('levelTop'));
 }
 function renderWeek() {
   const t = today(), tk = keyOf(t), we = addDays(weekStart, 6), isNow = keyOf(weekStart) === keyOf(weekStartOf(t));
   $('#weekLabel').textContent = fmtShort(weekStart) + ' – ' + fmtShort(we);
-  $('#weekHint').textContent = isNow ? 'This week · report on ' + WEEKDAYS[data.settings.reportDay] : '';
+  $('#weekHint').textContent = isNow ? T('weekHint', { day: T('wdOn')[data.settings.reportDay] }) : '';
   $('#todayBtn').hidden = isNow && selKey === tk;
   $('#nextWeek').disabled = addDays(weekStart, 7) > t;
   const box = $('#days'); box.innerHTML = '';
@@ -1008,9 +1348,9 @@ function renderWeek() {
     b.type = 'button';
     b.className = 'day' + (k === selKey ? ' sel' : '') + (k === tk ? ' today' : '');
     b.disabled = d > t;
-    b.innerHTML = '<span class="dn">' + esc(d.toLocaleDateString('en-GB', { weekday:'short' })) + '</span><span class="dd">' +
+    b.innerHTML = '<span class="dn">' + esc(d.toLocaleDateString(locale(), { weekday:'short' })) + '</span><span class="dd">' +
       d.getDate() + '</span><span class="ds">' + (st.rated || st.cries ? '⭐' + st.net : '') + '</span>';
-    b.setAttribute('aria-label', fmtLong(d) + ': ' + st.net + ' stars');
+    b.setAttribute('aria-label', T('dayStarsAria', { date: fmtLong(d), n: st.net }));
     b.addEventListener('click', () => { selKey = k; render(); });
     box.appendChild(b);
   }
@@ -1018,7 +1358,7 @@ function renderWeek() {
 function renderProgress() {
   const st = weekStats(weekStart), g = data.settings.goal;
   $('#wStars').textContent = st.net;
-  $('#wMeta').textContent = st.rated ? 'Score ' + st.pct + '% · goal ' + g + '%' : 'Goal: ' + g + '%';
+  $('#wMeta').textContent = st.rated ? T('scoreMeta', { pct: st.pct, goal: g }) : T('goalMeta', { goal: g });
   $('#fill').style.width = st.pct + '%';
   $('#goal').style.left = g + '%';
   $('#goalLbl').textContent = '🏁 ' + g + '%';
@@ -1033,7 +1373,7 @@ function renderDay() {
   const sum = st.stars + ' ⭐' + (st.crosses ? ' − ' + st.crosses + ' ❌' : '') + (st.cries ? ' − ' + CRY_COST * st.cries + ' (😢×' + st.cries + ')' : '');
   $('#daySum').innerHTML = '<span class="big">⭐ ' + st.net + '</span>' +
     (st.crosses || st.cries ? '<span class="left">' + sum + '</span>' : '') +
-    '<span class="left">' + (left ? left + ' still to rate' : 'all rated ✔') + '</span>';
+    '<span class="left">' + esc(left ? T('stillToRate', { n: left }) : T('allRated')) + '</span>';
   const ul = $('#tasks'); ul.innerHTML = '';
   for (const t of enabledTasks()) {
     const v = val(t, rec), c = t.count ? criesOf(rec) : 0, li = document.createElement('li');
@@ -1041,12 +1381,13 @@ function renderDay() {
     li.dataset.id = t.id;
     let h = picHtml(t, { speak:true }) + '<div class="scale">';
     if (t.count) {
-      h += '<div class="cries"><button type="button" class="cbtn" data-cry="-1" aria-label="One cry less">−</button>' +
-        '<span class="cval" aria-label="Cries today">' + c + '</span>' +
-        '<button type="button" class="cbtn" data-cry="1" aria-label="One more cry">+</button>' +
-        (c ? '<span class="cmark minus" aria-label="Takes away ' + CRY_COST * c + ' stars">−' + CRY_COST * c + ' ⭐</span>' : '') + '</div>';
+      h += '<div class="cries"><button type="button" class="cbtn" data-cry="-1" aria-label="' + esc(T('cryLess')) + '">−</button>' +
+        '<span class="cval" aria-label="' + esc(T('criesToday')) + '">' + c + '</span>' +
+        '<button type="button" class="cbtn" data-cry="1" aria-label="' + esc(T('cryMore')) + '">+</button>' +
+        (c ? '<span class="cmark minus" aria-label="' + esc(T('cryTakes', { n: CRY_COST * c })) + '">−' + CRY_COST * c + ' ⭐</span>' : '') + '</div>';
     } else h += rowHtml(t, v, 1) + rowHtml(t, v, -1);
-    h += '<div class="tname">' + esc(t.title) + (t.hint ? '<small>' + esc(t.hint) + '</small>' : '') + '</div></div>';
+    const hint = tx(t, 'hint');
+    h += '<div class="tname">' + esc(tx(t, 'title')) + (hint ? '<small>' + esc(hint) + '</small>' : '') + '</div></div>';
     li.innerHTML = h;
     ul.appendChild(li);
   }
@@ -1060,7 +1401,7 @@ function renderBanner() {
   const show = now.getDay() === s.reportDay && now.getHours() >= 16 && keyOf(weekStart) === keyOf(weekStartOf(today()));
   const b = $('#banner');
   b.hidden = !show;
-  if (show) b.textContent = '🎉 It\'s ' + WEEKDAYS[s.reportDay] + ' evening: time for ' + s.name + '\'s weekly report!';
+  if (show) b.textContent = T('banner', { day: T('wdEve')[s.reportDay], name: s.name });
   $('#reportBtn').classList.toggle('pulse', show && !reduced);
 }
 
@@ -1073,7 +1414,7 @@ $('#tasks').addEventListener('click', e => {
   const cb = e.target.closest('[data-cry]');
   if (cb) { const d = +cb.dataset.cry; if (d < 0) withParent(() => setCry(d)); else setCry(d); return; }
   const pic = e.target.closest('.pic');
-  if (pic) { say(t.ask || t.title); pic.classList.remove('say'); void pic.offsetWidth; pic.classList.add('say'); }
+  if (pic) { say(tx(t, 'ask') || tx(t, 'title')); pic.classList.remove('say'); void pic.offsetWidth; pic.classList.add('say'); }
 });
 function setVal(t, v, btn) {
   const rect = btn.getBoundingClientRect(), beforeDone = dayComplete(selKey), beforeLevel = levelOf(allStars());
@@ -1087,13 +1428,13 @@ function setVal(t, v, btn) {
   if (!gameBefore && gameState().unlocked) { gameUnlocked(); return; }
   const lv = levelOf(allStars());
   if (lv > beforeLevel) {
-    toast('New level: ' + LEVELS[lv][1] + ' ' + LEVELS[lv][2] + '! Well done, ' + data.settings.name + '!');
+    toast(T('newLevel', { icon: LEVELS[lv][1], level: levelName(lv), name: data.settings.name }));
     setTimeout(() => sfx.day(), 400); return;
   }
   if (!beforeDone && dayComplete(selKey)) {
     const st = dayStats(selKey);
-    if (goodDay(st)) { toast('What a day, ' + data.settings.name + '! ⭐ ' + st.net); setTimeout(() => sfx.day(), 400); }
-    else toast('⭐ ' + st.net + ' today. Tomorrow is a new adventure 🌈');
+    if (goodDay(st)) { toast(T('whatADay', { name: data.settings.name, n: st.net })); setTimeout(() => sfx.day(), 400); }
+    else toast(T('dayOk', { n: st.net }));
   }
 }
 function setCry(delta) {
@@ -1150,114 +1491,107 @@ function showReport() {
   const great = tasks.filter(t => st.per[t.id].stars > 0).sort((a, b) => st.per[b.id].stars - st.per[a.id].stars).slice(0, 3);
   const weak = tasks.filter(t => st.per[t.id].rated > 0).sort((a, b) => avg(a) - avg(b));
   const happy = t => t.count && !t.photo ? Object.assign({}, t, { emoji:'😊', badge:'🌈' }) : t;
-  const tile = (t, label, good) => '<div class="tile">' + picHtml(good ? happy(t) : t) + (label ? '<b>' + label + '</b>' : '') + '<span class="cap">' + esc(t.title) + '</span></div>';
+  const tile = (t, label, good) => '<div class="tile">' + picHtml(good ? happy(t) : t) + (label ? '<b>' + label + '</b>' : '') + '<span class="cap">' + esc(tx(t, 'title')) + '</span></div>';
   const bar = '<div class="track" aria-hidden="true"><div class="fill" style="width:' + st.pct + '%"></div>' +
     '<div class="goal" style="left:' + s.goal + '%"><span>🏁 ' + s.goal + '%</span></div>' +
     '<div class="mover" style="left:' + clamp(st.pct, 3, 97) + '%">' + (st.win ? '🌟' : '⭐') + '</div></div>' +
     '<div class="pmeta">' + st.stars + ' ⭐ − ' + st.crosses + ' ❌' + (st.cries ? ' − ' + CRY_COST * st.cries + ' (😢×' + st.cries + ')' : '') + ' = ⭐ ' + st.net +
-    ' · score ' + st.pct + '% (goal ' + s.goal + '%)</div>';
-  const greatHtml = great.length ? '<h3>You were great at</h3><div class="tiles">' + great.map(t => tile(t, '⭐ ' + st.per[t.id].stars, true)).join('') + '</div>' : '';
+    esc(T('repScore', { pct: st.pct, goal: s.goal })) + '</div>';
+  const greatHtml = great.length ? '<h3>' + esc(T('greatAt')) + '</h3><div class="tiles">' + great.map(t => tile(t, '⭐ ' + st.per[t.id].stars, true)).join('') + '</div>' : '';
   let better = '';
   if (prev.rated && st.rated) {
-    if (st.net > prev.net) better = '<div class="better">📈 ' + (st.net - prev.net) + ' more stars than last week!</div>';
-    else if (st.pct > prev.pct) better = '<div class="better">📈 Better than last week: ' + prev.pct + '% → ' + st.pct + '%</div>';
+    if (st.net > prev.net) better = '<div class="better">' + esc(T('moreStars', { n: st.net - prev.net })) + '</div>';
+    else if (st.pct > prev.pct) better = '<div class="better">' + esc(T('betterPct', { a: prev.pct, b: st.pct })) + '</div>';
   }
-  if (prev.cries > 0 && st.cries < prev.cries) better += '<div class="better">🌈 Fewer tears than last week: 😢 ' + prev.cries + ' → ' + st.cries + '</div>';
+  if (prev.cries > 0 && st.cries < prev.cries) better += '<div class="better">' + esc(T('fewerTears', { a: prev.cries, b: st.cries })) + '</div>';
   const moments = [];
   for (let i = 0; i < 7; i++) {
     const d = addDays(weekStart, i), r = data.days[keyOf(d)];
     if (r && r.note) moments.push('<li><i>' + esc(fmtLong(d)) + '</i>' + esc(r.note) + '</li>');
   }
-  const momentsHtml = moments.length ? '<h3>💌 Lovely moments</h3><ul class="moments">' + moments.join('') + '</ul>' : '';
-  let html = '<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
-    '<div class="repweek">' + esc(fmtShort(weekStart)) + ' – ' + esc(fmtShort(we)) + (soFar ? ' · so far' : '') + '</div>';
+  const momentsHtml = moments.length ? '<h3>' + esc(T('moments')) + '</h3><ul class="moments">' + moments.join('') + '</ul>' : '';
+  let html = closeBtn() +
+    '<div class="repweek">' + esc(fmtShort(weekStart)) + ' – ' + esc(fmtShort(we)) + (soFar ? esc(T('soFar')) : '') + '</div>';
   let mode = 'none';
   if (!st.rated) {
-    html += '<div class="hero">🌱</div><h2>No stars yet this week</h2><p>Rate each picture during the week. The report fills up here.</p>';
+    html += '<div class="hero">🌱</div><h2>' + esc(T('noStars')) + '</h2><p>' + esc(T('noStarsP')) + '</p>';
   } else if (st.win) {
     mode = 'win';
     const next = weak.filter(t => avg(t) < 4)[0];
-    html += '<div class="hero"><span class="bounce">🏆</span></div><h2>Superstar week, ' + name + '!</h2>' +
+    html += '<div class="hero"><span class="bounce">🏆</span></div><h2>' + T('winTitle', { name }) + '</h2>' +
       '<p class="bigstars">⭐ ' + st.net + '</p>' + bar +
-      (s.reward ? '<div class="reward">🎁 Your reward: <b>' + esc(s.reward) + '</b></div>' : '') +
+      (s.reward ? '<div class="reward">' + T('reward', { reward: esc(s.reward) }) + '</div>' : '') +
       better + greatHtml +
-      (next ? '<h3>Next superpower 💪</h3><div class="tiles">' + tile(next) + '</div>' : '') + momentsHtml;
+      (next ? '<h3>' + esc(T('nextPower')) + '</h3><div class="tiles">' + tile(next) + '</div>' : '') + momentsHtml;
   } else {
     mode = 'soft';
     const steps = Math.max(1, Math.ceil((s.goal * st.max / 100 - st.net) / st.rated));  // more stars needed per rating
-    const tryMsg = steps === 1 ? 'Just <b>one more ⭐</b> on each picture next week and you reach the goal.'
-      : steps === 2 ? 'Try for <b>two more ⭐</b> on each picture next week.'
-      : 'A few more <b>⭐</b> every day, little by little.';
+    const tryMsg = T(steps === 1 ? 'try1' : steps === 2 ? 'try2' : 'tryN');
     const practise = weak.filter(t => avg(t) < 5 * s.goal / 100).slice(0, 2);
-    html += '<div class="hero"><span class="cryface">😢</span></div><h2>Not this time, ' + name + ', and that\'s okay!</h2>' +
-      '<p class="cheer">You still collected <b>⭐ ' + st.net + '</b> this week. 🤗</p>' + bar +
-      '<p class="cheer">' + tryMsg + ' You can do it! 💪</p>' +
+    html += '<div class="hero"><span class="cryface">😢</span></div><h2>' + esc(T('softTitle', { name: s.name })) + '</h2>' +
+      '<p class="cheer">' + T('stillCollected', { n: st.net }) + '</p>' + bar +
+      '<p class="cheer">' + tryMsg + ' ' + esc(T('canDo')) + '</p>' +
       better + greatHtml +
-      (practise.length ? '<h3>Let\'s practise next week</h3><div class="tiles">' + practise.map(t => tile(t)).join('') + '</div>' : '') +
+      (practise.length ? '<h3>' + esc(T('practise')) + '</h3><div class="tiles">' + practise.map(t => tile(t)).join('') + '</div>' : '') +
       momentsHtml;
   }
-  html += '<button type="button" class="reportbtn" data-close>' + (mode === 'win' ? 'Yay! 🎉' : 'Close') + '</button>';
+  html += '<button type="button" class="reportbtn" data-close>' + esc(mode === 'win' ? T('yay') : T('close')) + '</button>';
   openOverlay(html);
   if (mode === 'win') {
     runningStars($('#fx')); confetti($('#fx'), 70); sfx.win();
-    setTimeout(() => sayEnglish('Superstar week, ' + s.name + '! You collected ' + st.net + ' stars!'), 900);
+    setTimeout(() => sayInLang(T('sayWin', { name: s.name, n: st.net })), 900);
   } else if (mode === 'soft') {
     sfx.soft();
-    setTimeout(() => sayEnglish('Not this time, ' + s.name + ', and that is okay. You collected ' + st.net + ' stars. You can do it next week!'), 900);
+    setTimeout(() => sayInLang(T('saySoft', { name: s.name, n: st.net })), 900);
   }
 }
 $('#reportBtn').addEventListener('click', showReport);
 
 /* ---------- settings ---------- */
 function showSettings() {
-  const s = data.settings, pf = store.prefs;
-  const html = '<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button>' +
-    '<h2>⚙️ Settings for <span id="sTitle">' + esc(data.avatar) + ' ' + esc(s.name) + '</span></h2>' +
-    '<label class="field"><span>Child\'s name</span><input id="sName" maxlength="30" value="' + esc(s.name) + '"></label>' +
-    '<div class="field"><span>Their picture</span><div class="avatars" id="sAv">' + avatarButtons(data.avatar) + '</div></div>' +
-    '<label class="field"><span>Report day</span><select id="sDay">' + WEEKDAYS.map((n, i) =>
-      '<option value="' + i + '"' + (i === s.reportDay ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label>' +
-    '<p class="small">The week runs up to the report day. With Friday it is Saturday to Friday.</p>' +
-    '<label class="field"><span>Goal for the week: <b id="sGoalV">' + s.goal + '%</b></span>' +
+  const s = data.settings, pf = store.prefs, e = k => esc(T(k));
+  const html = closeBtn() +
+    '<h2>' + esc(T('settingsFor', { kid: '\u0000' })).replace('\u0000', '<span id="sTitle">' + esc(data.avatar) + ' ' + esc(s.name) + '</span>') + '</h2>' +
+    '<label class="field"><span>' + e('childName') + '</span><input id="sName" maxlength="30" value="' + esc(s.name) + '"></label>' +
+    '<div class="field"><span>' + e('theirPicture') + '</span><div class="avatars" id="sAv">' + avatarButtons(data.avatar) + '</div></div>' +
+    '<label class="field"><span>' + e('reportDay') + '</span><select id="sDay">' + T('wd').map((n, i) =>
+      '<option value="' + i + '"' + (i === s.reportDay ? ' selected' : '') + '>' + esc(ucfirst(n)) + '</option>').join('') + '</select></label>' +
+    '<p class="small">' + e('reportDayP') + '</p>' +
+    '<label class="field"><span>' + e('goalWeek') + ' <b id="sGoalV">' + s.goal + '%</b></span>' +
     '<input type="range" id="sGoal" min="30" max="90" step="5" value="' + s.goal + '"></label>' +
-    '<p class="small scoretbl">How the score works: each picture gets 1 to 5 ⭐ or 1 to 5 ❌. Stars add, crosses take away, and every cry ' +
-    'on the 😢 counter takes two stars away; a day never goes below 0. The score is the stars left out of the most possible ' +
-    '(5 for each rated picture): with the goal at 60%, that is 3 stars a picture on average. Pictures that are not rated do not count.</p>' +
-    '<label class="field"><span>This week\'s reward (optional, shown when the goal is reached)</span>' +
-    '<input id="sReward" maxlength="80" placeholder="Park trip, pancakes, she picks the Friday film…" value="' + esc(s.reward) + '"></label>' +
-    '<h3>🎮 Daily game</h3><p class="small">When every picture is rated and the day reaches the goal, the day\'s game opens for a few minutes, for that day only. ' +
-    'There are six games (balloon pop, memory match, star catcher, peek-a-boo, counting, tic-tac-toe): one a day, in a mixed order, each once every six days.</p>' +
-    '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>Daily game on</span></label>' +
-    '<label class="field"><span>Minutes a day</span><select id="sGameMins">' + [2, 3, 5].map(m =>
-      '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + m + ' minutes</option>').join('') + '</select></label>' +
-    '<h3>🌙 Bedtime story</h3><p class="small">One complete 7–10 minute story a day, picked at random, never one already heard. ' +
-    'Tap a theme picture to pick a story from that theme, or 🎲 for another one. From LibriVox.org: free public-domain recordings read ' +
-    'by volunteers, played from the Internet Archive (it needs the internet).</p>' +
-    '<label class="field check"><input type="checkbox" id="sStory"' + (s.storyOn ? ' checked' : '') + '><span>Bedtime story on</span></label>' +
-    '<div class="btnrow"><button type="button" class="btn" id="sStoryReset">Forget the stories heard (' + s.story.heard.length + ')</button></div>' +
-    '<h3>Sounds and words</h3><p class="small">These are for this phone or computer, for all children.</p>' +
-    '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>Happy sounds</span></label>' +
-    '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>Read the question aloud when a picture is tapped</span></label>' +
-    '<label class="field"><span>Voice language</span><select id="sVoice">' + VOICES.map(v =>
-      '<option value="' + v[0] + '"' + (v[0] === pf.voice ? ' selected' : '') + '>' + v[1] + '</option>').join('') + '</select></label>' +
-    '<div class="btnrow"><button type="button" class="btn" id="sTest">🔊 Test the voice</button></div>' +
-    '<p class="small">For another language, also type the questions below in that language.</p>' +
-    '<label class="field check"><input type="checkbox" id="sWords"' + (pf.words ? ' checked' : '') + '><span>Show words under the pictures (also in the parent menu)</span></label>' +
-    '<h3>' + esc(s.name) + '\'s pictures</h3><p class="small">Tick the ones to use. Change the big and small picture (any emoji), ' +
-    'or add a 📷 photo of the child\'s own things: bed, toothbrush, plate. What to say is read aloud when the picture is tapped.</p>' +
+    '<p class="small scoretbl">' + e('scoreHow') + '</p>' +
+    '<label class="field"><span>' + e('rewardLabel') + '</span>' +
+    '<input id="sReward" maxlength="80" placeholder="' + e('rewardPh') + '" value="' + esc(s.reward) + '"></label>' +
+    '<h3>' + e('gameH') + '</h3><p class="small">' + e('gameP') + '</p>' +
+    '<label class="field check"><input type="checkbox" id="sGame"' + (s.game ? ' checked' : '') + '><span>' + e('gameOn') + '</span></label>' +
+    '<label class="field"><span>' + e('minutesDay') + '</span><select id="sGameMins">' + [2, 3, 5].map(m =>
+      '<option value="' + m + '"' + (m === s.gameMins ? ' selected' : '') + '>' + esc(T('nMinutes', { n: m })) + '</option>').join('') + '</select></label>' +
+    '<h3>' + e('storyH') + '</h3><p class="small">' + e('storyP') + '</p>' +
+    '<label class="field check"><input type="checkbox" id="sStory"' + (s.storyOn ? ' checked' : '') + '><span>' + e('storyOn') + '</span></label>' +
+    '<div class="btnrow"><button type="button" class="btn" id="sStoryReset">' + esc(T('storyForget', { n: storyOf(s).heard.length })) + '</button></div>' +
+    '<h3>' + e('soundsH') + '</h3><p class="small">' + e('soundsP') + '</p>' +
+    '<div class="field"><span id="sLangL">' + e('language') + '</span><div class="langsw" id="sLang" role="group" aria-labelledby="sLangL">' + langSwitchHtml() + '</div>' +
+    '<p class="small">' + e('languageP') + '</p></div>' +
+    '<label class="field check"><input type="checkbox" id="sSound"' + (pf.sound ? ' checked' : '') + '><span>' + e('happySounds') + '</span></label>' +
+    '<label class="field check"><input type="checkbox" id="sSpeak"' + (pf.speak ? ' checked' : '') + '><span>' + e('readAloud') + '</span></label>' +
+    '<label class="field"><span>' + e('voiceLang') + '</span><select id="sVoice">' + VOICES.map(v =>
+      '<option value="' + v[0] + '"' + (v[0] === pf.voice ? ' selected' : '') + '>' + esc(T('voices')[v[0]] || v[1]) + '</option>').join('') + '</select></label>' +
+    '<div class="btnrow"><button type="button" class="btn" id="sTest">' + e('testVoice') + '</button></div>' +
+    '<p class="small">' + e('otherLangP') + '</p>' +
+    '<label class="field check"><input type="checkbox" id="sWords"' + (pf.words ? ' checked' : '') + '><span>' + e('showWords') + '</span></label>' +
+    '<h3>' + esc(T('picturesH', { name: s.name })) + '</h3><p class="small">' + e('picturesP') + '</p>' +
     '<ul class="setlist" id="sTasks"></ul>' +
-    '<div class="addtask"><input class="e" id="nEmoji" maxlength="8" value="🎹" aria-label="Big picture">' +
-    '<input class="e" id="nBadge" maxlength="8" value="🎵" aria-label="Small picture">' +
-    '<input id="nTitle" maxlength="40" placeholder="New task, e.g. Piano practice" aria-label="New task">' +
-    '<input class="full" id="nAsk" maxlength="120" placeholder="What to say, e.g. Did you practise the piano?" aria-label="What to say">' +
-    '<button type="button" class="btn primary full" id="nAdd">＋ Add picture</button></div>' +
-    '<h3>Backup</h3><p class="small">The stars live in this browser only (each phone or computer has its own). ' +
-    'A backup holds all children. Download one now and then; restore it on another device to move the stars there.</p>' +
-    '<div class="btnrow"><button type="button" class="btn" id="bExport">⬇️ Download backup</button>' +
-    '<label class="btn" tabindex="0">⬆️ Restore backup<input type="file" id="bImport" accept="application/json,.json" hidden></label>' +
-    '<button type="button" class="btn danger" id="bReset">Clear ' + esc(s.name) + '\'s stars</button>' +
-    '<button type="button" class="btn danger" id="bRemove">🗑️ Remove ' + esc(s.name) + '</button></div>' +
-    '<button type="button" class="reportbtn" data-close>Done</button>';
+    '<div class="addtask"><input class="e" id="nEmoji" maxlength="8" value="🎹" aria-label="' + e('bigPic') + '">' +
+    '<input class="e" id="nBadge" maxlength="8" value="🎵" aria-label="' + e('smallPic') + '">' +
+    '<input id="nTitle" maxlength="40" placeholder="' + e('newTaskPh') + '" aria-label="' + e('newTask') + '">' +
+    '<input class="full" id="nAsk" maxlength="120" placeholder="' + e('whatToSayPh') + '" aria-label="' + e('whatToSay') + '">' +
+    '<button type="button" class="btn primary full" id="nAdd">' + e('addPic') + '</button></div>' +
+    '<h3>' + e('backupH') + '</h3><p class="small">' + e('backupP') + '</p>' +
+    '<div class="btnrow"><button type="button" class="btn" id="bExport">' + e('downloadBackup') + '</button>' +
+    '<label class="btn" tabindex="0">' + e('restoreBackup') + '<input type="file" id="bImport" accept="application/json,.json" hidden></label>' +
+    '<button type="button" class="btn danger" id="bReset">' + esc(T('clearStars', { name: s.name })) + '</button>' +
+    '<button type="button" class="btn danger" id="bRemove">' + esc(T('removeNamed', { name: s.name })) + '</button></div>' +
+    '<button type="button" class="reportbtn" data-close>' + e('done') + '</button>';
   openOverlay(html, 'settings');
   renderTaskSettings();
   $('#sName').addEventListener('input', e => {
@@ -1276,16 +1610,25 @@ function showSettings() {
   $('#sGameMins').addEventListener('change', e => { s.gameMins = +e.target.value; save(); });
   $('#sStory').addEventListener('change', e => { s.storyOn = e.target.checked; save(); });
   $('#sStoryReset').addEventListener('click', e => {
-    if (!confirm('Forget which stories ' + s.name + ' has heard? They can then be picked again.')) return;
-    s.story.heard = []; save(); e.currentTarget.textContent = 'Forget the stories heard (0)'; toast('All stories can come again 🌙');
+    if (!confirm(T('storyForgetConfirm', { name: s.name }))) return;
+    storyOf(s).heard = []; save(); e.currentTarget.textContent = T('storyForget', { n: 0 }); toast(T('storyForgotToast'));
+  });
+  // A new language redraws the whole sheet in it, at the same place.
+  $('#sLang').addEventListener('click', e => {
+    const b = e.target.closest('[data-lang]'); if (!b || b.dataset.lang === lang()) return;
+    const top = $('#sheet').scrollTop;
+    chooseLang(b.dataset.lang); showSettings();
+    $('#sheet').scrollTop = top;
+    const nb = $('#sLang [data-lang="' + lang() + '"]'); if (nb) nb.focus({ preventScroll: true });
   });
   $('#sSound').addEventListener('change', e => { pf.sound = e.target.checked; save(); if (pf.sound) sfx.stars(3); });
   $('#sSpeak').addEventListener('change', e => { pf.speak = e.target.checked; save(); renderTaskSettings(); });
   $('#sVoice').addEventListener('change', e => { pf.voice = e.target.value; save(); });
   $('#sTest').addEventListener('click', () => {
-    const first = enabledTasks()[0];
+    const first = enabledTasks()[0], ask = first ? tx(first, 'ask') || tx(first, 'title') : '';
     const was = pf.speak; pf.speak = true;
-    say(pf.voice.startsWith('en') ? 'Hello ' + s.name + '! ' + (first ? first.ask : '') : (first ? first.ask || first.title : s.name));
+    // In the app's language the voice also says hello; another voice reads the question as it is written.
+    say(voiceFitsLang() ? T('hello', { name: s.name }) + ' ' + ask : ask || s.name);
     pf.speak = was;
   });
   $('#sWords').addEventListener('change', e => { pf.words = e.target.checked; save(); renderHeader(); });
@@ -1295,36 +1638,37 @@ function showSettings() {
     s.tasks.push({ id:'c-' + Date.now().toString(36), emoji:$('#nEmoji').value.trim() || '⭐', badge:$('#nBadge').value.trim(),
       title, hint:'', ask:$('#nAsk').value.trim() || title, on:true });
     $('#nTitle').value = ''; $('#nAsk').value = '';
-    save(); renderTaskSettings(); toast('Added: ' + title);
+    save(); renderTaskSettings(); toast(T('addedTask', { title }));
   });
   $('#bExport').addEventListener('click', exportData);
   $('#bImport').addEventListener('change', importData);
   $('#bReset').addEventListener('click', () => {
-    if (!confirm('Delete all of ' + s.name + '\'s stars and notes? The pictures and settings stay. Download a backup first if you want to keep them.')) return;
-    data.days = {}; save(); closeOverlay(); toast('Fresh start for ' + s.name + ' 🌱');
+    if (!confirm(T('clearConfirm', { name: s.name }))) return;
+    data.days = {}; save(); closeOverlay(); toast(T('freshStart', { name: s.name }));
   });
   $('#bRemove').addEventListener('click', () => removeKid(data.id));
 }
+// The editor shows a default picture's text in the app language (tx); only what a parent types is stored.
 function renderTaskSettings() {
   const ul = $('#sTasks'), s = data.settings; if (!ul) return;
   ul.innerHTML = '';
   s.tasks.forEach((t, i) => {
     const li = document.createElement('li');
     li.className = t.on ? '' : 'off';
-    li.innerHTML = '<input type="checkbox" data-f="on" aria-label="Use this picture"' + (t.on ? ' checked' : '') + '>' +
+    li.innerHTML = '<input type="checkbox" data-f="on" aria-label="' + esc(T('usePic')) + '"' + (t.on ? ' checked' : '') + '>' +
       picHtml(t) +
-      '<input data-f="title" maxlength="40" aria-label="Name (for grown-ups)" value="' + esc(t.title) + '">' +
-      (t.id.startsWith('c-') ? '<button type="button" class="del" data-a="del" aria-label="Delete">🗑️</button>' : '<span></span>') +
-      '<div class="picrow full"><input data-f="emoji" maxlength="8" aria-label="Big picture" value="' + esc(t.emoji) + '">' +
-      '<input data-f="badge" maxlength="8" aria-label="Small picture" value="' + esc(t.badge) + '">' +
-      '<label class="btn">📷 Photo<input type="file" accept="image/*" data-a="photo" hidden></label>' +
-      (t.photo ? '<button type="button" class="btn" data-a="nophoto">Remove photo</button>' : '') + '</div>' +
-      '<input class="full" data-f="ask" maxlength="120" aria-label="What to say" placeholder="What to say when it is tapped" value="' + esc(t.ask) + '">';
+      '<input data-f="title" maxlength="40" aria-label="' + esc(T('taskNameAria')) + '" value="' + esc(tx(t, 'title')) + '">' +
+      (t.id.startsWith('c-') ? '<button type="button" class="del" data-a="del" aria-label="' + esc(T('del')) + '">🗑️</button>' : '<span></span>') +
+      '<div class="picrow full"><input data-f="emoji" maxlength="8" aria-label="' + esc(T('bigPic')) + '" value="' + esc(t.emoji) + '">' +
+      '<input data-f="badge" maxlength="8" aria-label="' + esc(T('smallPic')) + '" value="' + esc(t.badge) + '">' +
+      '<label class="btn">' + esc(T('photoBtn')) + '<input type="file" accept="image/*" data-a="photo" hidden></label>' +
+      (t.photo ? '<button type="button" class="btn" data-a="nophoto">' + esc(T('removePhoto')) + '</button>' : '') + '</div>' +
+      '<input class="full" data-f="ask" maxlength="120" aria-label="' + esc(T('whatToSay')) + '" placeholder="' + esc(T('whatToSayTapPh')) + '" value="' + esc(tx(t, 'ask')) + '">';
     li.addEventListener('input', e => {
       const f = e.target.dataset.f; if (!f || f === 'on') return;
       t[f] = e.target.value.trim();
       if (f === 'emoji' && !t.emoji) t.emoji = '⭐';
-      if (f === 'title' && !t.title) t.title = 'Task';
+      if (f === 'title' && !t.title) t.title = T('taskFallback');
       save();
       if (f === 'emoji' || f === 'badge') li.querySelector('.pic').outerHTML = picHtml(t);
     });
@@ -1337,7 +1681,7 @@ function renderTaskSettings() {
       const a = e.target.closest('[data-a]'); if (!a) return;
       if (a.dataset.a === 'nophoto') { delete t.photo; save(); renderTaskSettings(); }
       if (a.dataset.a === 'del') {
-        if (!confirm('Delete "' + t.title + '"? Its stars stop counting.')) return;
+        if (!confirm(T('deleteTask', { title: tx(t, 'title') }))) return;
         s.tasks.splice(i, 1); save(); renderTaskSettings();
       }
     });
@@ -1354,10 +1698,10 @@ function addPhoto(t, file) {
       c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
       const prev = t.photo;
       t.photo = c.toDataURL('image/jpeg', .82);
-      if (!save()) { if (prev) t.photo = prev; else delete t.photo; save(); alert('That photo could not be saved: the browser storage is full.'); }
+      if (!save()) { if (prev) t.photo = prev; else delete t.photo; save(); alert(T('photoFull')); }
       renderTaskSettings();
     };
-    img.onerror = () => alert('That file is not a picture this browser can open.');
+    img.onerror = () => alert(T('notPicture'));
     img.src = rd.result;
   };
   rd.readAsDataURL(file);
@@ -1380,17 +1724,19 @@ function importData(e) {
     try { obj = JSON.parse(rd.result); } catch (err) { obj = null; }
     const all = obj && typeof obj === 'object' && Array.isArray(obj.profiles) && obj.profiles.length > 0;
     const one = obj && typeof obj === 'object' && obj.days && obj.settings;
-    if (!all && !one) { alert('That file is not a star chart backup.'); return; }
+    if (!all && !one) { alert(T('notBackup')); return; }
     if (all) {
-      if (!confirm('Replace all children and stars in this browser with the backup (' + obj.profiles.length + ' children)?')) return;
+      if (!confirm(T('replaceAll', { n: obj.profiles.length }))) return;
+      const keepLang = store.prefs.lang;
       store = normaliseStore(obj);
+      if (!(obj.prefs && LANGS.includes(obj.prefs.lang))) store.prefs.lang = keepLang;  // an older backup has no language: keep this one
     } else {
-      if (!confirm('Replace ' + data.settings.name + '\'s stars and pictures with this backup (' + Object.keys(obj.days).length + ' days)?')) return;
+      if (!confirm(T('replaceOne', { name: data.settings.name, n: Object.keys(obj.days).length }))) return;
       const p = normalise(obj); p.id = data.id; p.avatar = data.avatar;
       store.profiles[store.profiles.indexOf(data)] = p;
     }
     data = activeProfile(); selKey = keyOf(today()); weekStart = weekStartOf(today());
-    save(); closeOverlay(); toast('Backup restored ✔');
+    save(); closeOverlay(); applyStatic(); toast(T('restored'));
   };
   rd.readAsText(f);
 }
@@ -1411,21 +1757,21 @@ function renderGame() {
   card.hidden = !g.on || selKey !== keyOf(today());
   if (card.hidden) return;
   const gm = g.game, bestN = data.settings.gameBest[gm.id] || 0, best = bestN ? ' · 🏆 ' + bestN : '';
-  const next = todaysGame(data, keyOf(addDays(today(), 1))), tomorrow = 'Tomorrow: ' + next.icon + ' ' + esc(next.name);
+  const next = todaysGame(data, keyOf(addDays(today(), 1))), tomorrow = esc(T('tomorrowGame', { icon: next.icon, game: gameName(next) }));
   const row = (cls, icon, title, sub, btn) => (btn ? '<button type="button" id="gameBtn"' : '<div') + ' class="gamebtn ' + cls + '">' +
     '<span class="gi">' + icon + '</span><span><b>' + title + '</b><small>' + sub + '</small></span>' + (btn ? '</button>' : '</div>');
   const icon = '<span class="gb">' + gm.icon + '</span>', locked = icon + '<i>🔒</i>';
-  if (g.unlocked && g.left > 0) card.innerHTML = row('ready', icon, 'Play!', esc(gm.name) + ' · ' + mmss(g.left) + ' left today' + best, true);
-  else if (g.unlocked) card.innerHTML = row('done', '<span class="gb">🌙</span>', 'Played today', tomorrow);
-  else if (g.done) card.innerHTML = row('locked', locked, 'Tomorrow!', 'More stars open the game. ' + tomorrow);
-  else card.innerHTML = row('locked', locked, g.toRate + ' still to rate', 'Then, with enough stars, ' + esc(gm.name) + ' opens');
+  if (g.unlocked && g.left > 0) card.innerHTML = row('ready', icon, esc(T('play')), esc(T('leftToday', { game: gameName(gm), t: mmss(g.left) })) + best, true);
+  else if (g.unlocked) card.innerHTML = row('done', '<span class="gb">🌙</span>', esc(T('playedToday')), tomorrow);
+  else if (g.done) card.innerHTML = row('locked', locked, esc(T('tomorrow')), esc(T('moreStarsOpen', { next: '\u0000' })).replace('\u0000', tomorrow));
+  else card.innerHTML = row('locked', locked, esc(T('toRate', { n: g.toRate })), esc(T('thenOpens', { game: gameName(gm) })));
   const b = $('#gameBtn'); if (b) b.addEventListener('click', () => startGame());
 }
 function gameUnlocked() {
   const gm = gameState().game;
-  toast(gm.icon + ' ' + gm.name + ' is open! Well done, ' + data.settings.name + '!');
+  toast(T('gameOpen', { icon: gm.icon, game: gameName(gm), name: data.settings.name }));
   setTimeout(() => sfx.win(), 300);
-  sayEnglish('Well done! You opened ' + gm.name + '!');
+  sayInLang(T('sayGameOpen', { game: gameName(gm) }));
   const b = $('#gameBtn'); if (b && !reduced) b.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 function balloonSvg(c) {
@@ -1435,13 +1781,14 @@ function balloonSvg(c) {
 }
 // Six small games. Each child gets one a day: every block of six days shows all six in a
 // shuffled order (seeded by the block and the child), and the same game never comes twice in a row.
+// A game's name and its first spoken line are in I18N: game_<id> and say_<id>.
 const GAMES = [
-  { id:'balloons', icon:'🎈', name:'Balloon pop',  say:'Pop the balloons!', make: balloonGame },
-  { id:'memory',   icon:'🃏', name:'Memory match', say:'Find the pairs!', make: memoryGame },
-  { id:'catch',    icon:'🧺', name:'Star catcher', say:'Move the basket and catch the stars!', make: catchGame },
-  { id:'peek',     icon:'🐹', name:'Peek-a-boo',   say:'Tap the animals when they peek out!', make: peekGame },
-  { id:'count',    icon:'🔢', name:'Counting',     say:'Let us count!', make: countGame },
-  { id:'ttt',      icon:'⭕', name:'Tic-tac-toe',  say:'Tic-tac-toe with Teddy! Make three in a row!', make: tttGame },
+  { id:'balloons', icon:'🎈', make: balloonGame },
+  { id:'memory',   icon:'🃏', make: memoryGame },
+  { id:'catch',    icon:'🧺', make: catchGame },
+  { id:'peek',     icon:'🐹', make: peekGame },
+  { id:'count',    icon:'🔢', make: countGame },
+  { id:'ttt',      icon:'⭕', make: tttGame },
 ];
 function hashStr(str) { let h = 2166136261; for (const ch of str) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; }
 function seededRandom(seed) {
@@ -1467,14 +1814,14 @@ function startGame(forceId) {
     '<span class="cloud" style="top:66%;--d:52s;animation-delay:-18s">☁️</span>' : '') +
     '<div class="gfield" id="gField"></div>' +
     '<div class="gtop"><div class="gtime" aria-hidden="true"><i id="gBar"></i></div><div class="gscore">' + def.icon + ' <b id="gScore">0</b></div>' +
-    '<button type="button" class="iconbtn" id="gClose" aria-label="Stop the game">✕</button></div>';
+    '<button type="button" class="iconbtn" id="gClose" aria-label="' + esc(T('stopGame')) + '">✕</button></div>';
   el.hidden = false; document.body.style.overflow = 'hidden';
   const field = $('#gField');
   game = { def, profile:data, tk:keyOf(today()), score:0, left:g.left, limit:g.limit, last:performance.now(), saveIn:5, over:false, raf:0 };
+  sayInLang(T('say_' + def.id));  // before make(): a game's own first line then follows it
   game.mod = def.make(field, gameApi(field)) || {};
   $('#gClose').addEventListener('click', () => endGame(false));
   game.raf = requestAnimationFrame(gameTick);
-  sayEnglish(def.say);
 }
 function gameApi(field) {
   return {
@@ -1524,13 +1871,13 @@ function endGame(timeUp, silent) {
   const end = document.createElement('div');
   end.className = 'gend';
   end.innerHTML = '<div class="hero"><span class="bounce">' + (timeUp ? '⏰' : g.def.icon) + '</span></div><h2>' + g.def.icon + ' ' + g.score + ' 🎉</h2>' +
-    (record ? '<p class="cheer">🏆 New record!</p>' : '') +
-    '<p class="cheer">' + (timeUp ? 'Time is up. See you tomorrow! 🌙' : mmss(g.limit - (g.profile.days[g.tk].play || 0)) + ' left for later today') + '</p>' +
-    '<button type="button" class="reportbtn" id="gDone">OK</button>';
+    (record ? '<p class="cheer">' + esc(T('newRecord')) + '</p>' : '') +
+    '<p class="cheer">' + esc(timeUp ? T('timeUp') : T('leftLater', { t: mmss(g.limit - (g.profile.days[g.tk].play || 0)) })) + '</p>' +
+    '<button type="button" class="reportbtn" id="gDone">' + esc(T('ok')) + '</button>';
   $('#game').appendChild(end);
   $('#gDone').addEventListener('click', closeGame);
   if (timeUp) sfx.win();
-  sayEnglish((timeUp ? 'Time is up! ' : '') + 'You scored ' + g.score + '!' + (record ? ' A new record!' : '') + (timeUp ? ' See you tomorrow!' : ''));
+  sayInLang([timeUp && T('sayTimeUp'), T('sayScored', { n: g.score }), record && T('sayRecord'), timeUp && T('sayTomorrow')].filter(Boolean).join(' '));
 }
 function closeGame() { const el = $('#game'); el.hidden = true; el.className = 'game'; el.innerHTML = ''; document.body.style.overflow = ''; render(); }
 
@@ -1571,7 +1918,7 @@ function memoryGame(field, api) {
   let open = [], busy = false, pairsLeft = 0;
   const deal = () => {
     const pick = shuffle([...MEMO]).slice(0, 6), cards = shuffle([...pick, ...pick]);
-    grid.innerHTML = cards.map(c => '<button type="button" class="mcard" data-c="' + c + '" aria-label="Card"><span class="mi">' +
+    grid.innerHTML = cards.map(c => '<button type="button" class="mcard" data-c="' + c + '" aria-label="' + esc(T('card')) + '"><span class="mi">' +
       '<span class="mf mb">⭐</span><span class="mf mfront">' + c + '</span></span></button>').join('');
     open = []; busy = false; pairsLeft = 6;
   };
@@ -1638,7 +1985,7 @@ function catchGame(field, api) {
 const PEEKERS = ['🐹', '🐰', '🐸', '🐼', '🐶', '🐱', '🦊', '🐻', '🐨', '🐷'];
 function peekGame(field, api) {
   const grid = document.createElement('div'); grid.className = 'pgrid';
-  grid.innerHTML = Array.from({ length: 9 }, (_, i) => '<button type="button" class="hole" data-i="' + i + '" aria-label="Hole"><span class="critter"></span></button>').join('');
+  grid.innerHTML = Array.from({ length: 9 }, (_, i) => '<button type="button" class="hole" data-i="' + i + '" aria-label="' + esc(T('hole')) + '"><span class="critter"></span></button>').join('');
   field.appendChild(grid);
   const holes = [...grid.children].map(el => ({ el, c: el.firstChild, up: false, hit: false, gold: false, until: 0 }));
   let t = 0, elapsed = 0, spawnIn = .6;
@@ -1668,8 +2015,8 @@ const TTT_LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5,
 function tttGame(field, api) {
   const me = (game && game.profile.avatar) || '⭐', wrap = document.createElement('div');
   wrap.className = 'twrap';
-  wrap.innerHTML = '<div class="tvs"><span>' + esc(me) + '</span><small>vs</small><span>🐻</span></div><div class="tmsg"></div><div class="tboard">' +
-    Array.from({ length: 9 }, (_, i) => '<button type="button" class="tcell" data-i="' + i + '" aria-label="Square ' + (i + 1) + '"></button>').join('') + '</div>';
+  wrap.innerHTML = '<div class="tvs"><span>' + esc(me) + '</span><small>' + esc(T('vs')) + '</small><span>🐻</span></div><div class="tmsg"></div><div class="tboard">' +
+    Array.from({ length: 9 }, (_, i) => '<button type="button" class="tcell" data-i="' + i + '" aria-label="' + esc(T('square', { n: i + 1 })) + '"></button>').join('') + '</div>';
   field.appendChild(wrap);
   const board = wrap.querySelector('.tboard'), cells = [...board.children], msg = wrap.querySelector('.tmsg');
   let b = [], busy = false;
@@ -1688,9 +2035,9 @@ function tttGame(field, api) {
     busy = true;
     if (r.line) r.line.forEach(i => cells[i].classList.add('win'));
     const p = api.spot(board);
-    if (r.who === 'k') { api.add(3, p.x, p.y, '#ffb800'); msg.textContent = '🎉'; sayEnglish('You win!'); }
-    else if (r.who === 'draw') { api.add(1, p.x, p.y, '#4dabf7', 'ding'); msg.textContent = '🤝'; sayEnglish('A draw!'); }
-    else { msg.textContent = '🐻'; sayEnglish('Teddy wins. Try again!'); }
+    if (r.who === 'k') { api.add(3, p.x, p.y, '#ffb800'); msg.textContent = '🎉'; sayInLang(T('sayWin3')); }
+    else if (r.who === 'draw') { api.add(1, p.x, p.y, '#4dabf7', 'ding'); msg.textContent = '🤝'; sayInLang(T('sayDraw')); }
+    else { msg.textContent = '🐻'; sayInLang(T('sayTeddy')); }
     setTimeout(() => { if (game && !game.over) start(); }, 1700);
     return true;
   };
@@ -1716,15 +2063,16 @@ function tttGame(field, api) {
   return {};
 }
 
-/* 🔢 Counting: "How many apples?" Tap the right number; wrong numbers just fade, no loss. */
-const COUNT_THINGS = [['🍎', 'apples'], ['⭐', 'stars'], ['🐟', 'fish'], ['🎈', 'balloons'], ['🐞', 'ladybirds'],
-  ['🌸', 'flowers'], ['🍓', 'strawberries'], ['🚗', 'cars'], ['🐥', 'chicks'], ['🍪', 'cookies']];
+/* 🔢 Counting: "How many apples?" Tap the right number; wrong numbers just fade, no loss.
+   The words are I18N cw: the form that follows "How many" (English plural, Finnish partitive: "Montako omenaa?"). */
+const COUNT_THINGS = [['🍎', 'apple'], ['⭐', 'star'], ['🐟', 'fish'], ['🎈', 'balloon'], ['🐞', 'ladybird'],
+  ['🌸', 'flower'], ['🍓', 'strawberry'], ['🚗', 'car'], ['🐥', 'chick'], ['🍪', 'cookie']];
 function countGame(field, api) {
   const box = document.createElement('div'); box.className = 'cwrap';
   box.innerHTML = '<div class="cbox"></div><div class="cnums"></div>';
   field.appendChild(box);
   let right = 0, answer = 0, busy = false;
-  const next = () => {
+  const next = first => {
     const max = right < 5 ? 5 : right < 12 ? 7 : 10;
     let n; do { n = 1 + Math.floor(Math.random() * max); } while (n === answer);
     answer = n;
@@ -1733,7 +2081,7 @@ function countGame(field, api) {
     const near = shuffle([n - 2, n - 1, n + 1, n + 2].filter(v => v >= 1 && v <= 10)).slice(0, 2);
     box.querySelector('.cnums').innerHTML = [n, ...near].sort((a, b) => a - b).map(v => '<button type="button" class="cnum" data-n="' + v + '">' + v + '</button>').join('');
     busy = false;
-    sayEnglish('How many ' + word + '?');
+    sayInLang(T('howMany', { what: T('cw')[word] }), first);  // the first question waits for the game's intro
   };
   box.addEventListener('click', e => {
     const b = e.target.closest('.cnum'); if (!b || busy || b.disabled) return;
@@ -1741,42 +2089,49 @@ function countGame(field, api) {
     if (v === answer) {
       busy = true; right++; b.classList.add('right');
       const p = api.spot(b); api.add(1, p.x, p.y - 30, '#51cf66', 'ding');
-      sayEnglish('Yes! ' + v + '!');
+      sayInLang(T('sayYes', { n: v }));
       setTimeout(() => { if (game && !game.over) next(); }, 1100);
-    } else { b.classList.add('wrong'); b.disabled = true; sayEnglish('Try again!'); }
+    } else { b.classList.add('wrong'); b.disabled = true; sayInLang(T('tryAgain')); }
   });
-  next();
+  next(true);
   return {};
 }
 window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
 
-/* ---------- bedtime story: one complete 7-10 minute LibriVox story a day, random, never repeated ---------- */
-// stories.json (built by tools/build-stories.py): stories = [book, title, file or [[file, secs], ...], secs, themes, picture].
-let catalog = null, catalogLoading = false, storyPlaying = null;  // storyPlaying = { idx, tr, profile, tonight, savedAt }
+/* ---------- bedtime story: one LibriVox story a day, read by a real person, random, never repeated ---------- */
+// The stories follow the app language. English: stories.json (tools/build-stories.py), 353 complete 7-10 minute stories.
+// Finnish: stories-fi.json (tools/build-stories-fi.py), the only free Finnish children's recordings: 4 Andersen tales.
+// Both: stories = [book, title, file or [[file, secs], ...], secs, themes, picture].
+const STORY_FILES = { en: 'stories.json', fi: 'stories-fi.json' };
+let catalogs = {}, catalog = null, catalogLoading = null, storyPlaying = null;  // storyPlaying = { idx, tr, profile, tonight, savedAt }
 const storyAudio = () => $('#storyAudio');
 const ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
 const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" fill="currentColor"/></svg>';
 function loadCatalog() {
-  if (catalog || catalogLoading) return;
-  catalogLoading = true;
-  fetch('stories.json').then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))).then(d => {
+  const l = lang();
+  if (catalogs[l]) { catalog = catalogs[l]; return; }
+  if (catalogLoading === l) return;
+  catalogLoading = l;
+  fetch(STORY_FILES[l]).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))).then(d => {
     if (d.v !== 2) throw new Error('old story list');
+    d.lang = l;
     d.keys = d.stories.map(x => hashStr(Array.isArray(x[2]) ? x[2][0][0] : x[2]).toString(36));  // stable across rebuilds
     d.index = new Map(d.keys.map((k, i) => [k, i]));
     d.counts = {}; d.stories.forEach(x => x[4].split(',').forEach(k => { if (k) d.counts[k] = (d.counts[k] || 0) + 1; }));
-    catalog = d; catalogLoading = false; renderStory();
-  }).catch(() => { catalogLoading = false; const c = $('#storyCard .small'); if (c && !catalog) c.textContent = 'The stories need the internet the first time. Try again later.'; });
+    catalogs[l] = d; if (catalogLoading === l) catalogLoading = null;
+    if (lang() === l) { catalog = d; renderStory(); }
+  }).catch(() => { if (catalogLoading === l) catalogLoading = null; const c = $('#storyCard .small'); if (c && !catalog) c.textContent = T('storyNeedsNet'); });
 }
 const storyTracks = i => { const x = catalog.stories[i]; return Array.isArray(x[2]) ? x[2] : [[x[2], x[3]]]; };
 function pickStory(theme, not) {
-  const heard = new Set(data.settings.story.heard), pool = [];
+  const heard = new Set(storyOf(data.settings).heard), pool = [];
   catalog.stories.forEach((x, i) => { if (i !== not && (theme === 'any' || x[4].split(',').includes(theme))) pool.push(i); });
   const fresh = pool.filter(i => !heard.has(catalog.keys[i])), from = fresh.length ? fresh : pool;  // all heard: they can come again
   return from.length ? from[Math.floor(Math.random() * from.length)] : 0;
 }
 // Today's story for the current child: a new random one each day.
 function tonight() {
-  const ss = data.settings.story, tk = keyOf(today());
+  const ss = storyOf(data.settings), tk = keyOf(today());
   let i = ss.day === tk ? catalog.index.get(ss.id) : undefined;
   if (i === undefined) {
     if (ss.day !== tk && ss.id) ss.prev = ss.id;
@@ -1787,7 +2142,7 @@ function tonight() {
   return i;
 }
 function chooseStory(theme) {
-  const ss = data.settings.story, cur = tonight();
+  const ss = storyOf(data.settings), cur = tonight();
   stopStory();
   const i = pickStory(theme, cur);
   Object.assign(ss, { id: catalog.keys[i], theme, tr: 0, t: 0, done: false });
@@ -1797,20 +2152,21 @@ function renderStory() {
   const card = $('#storyCard');
   card.hidden = !data.settings.storyOn || selKey !== keyOf(today());
   if (card.hidden) return;
-  if (!catalog) { card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span></div><p class="small">Loading the stories…</p>'; loadCatalog(); return; }
-  const ss = data.settings.story, i = tonight(), x = catalog.stories[i], b = catalog.books[x[0]];
+  if (catalog && catalog.lang !== lang()) { stopStory(); catalog = catalogs[lang()] || null; }  // the language changed
+  if (!catalog) { card.innerHTML = '<div class="storyhead"><span>🌙 <b>' + esc(T('tonightStory')) + '</b></span></div><p class="small">' + esc(T('loadingStories')) + '</p>'; loadCatalog(); return; }
+  const ss = storyOf(data.settings), i = tonight(), x = catalog.stories[i], b = catalog.books[x[0]];
   const mine = storyPlaying && storyPlaying.profile === data, playing = mine && !storyAudio().paused;
-  const chips = Object.entries(catalog.themes).filter(([k]) => (catalog.counts[k] || 0) >= 3).map(([k, v]) =>
-    '<button type="button" class="tchip' + (ss.theme === k ? ' on' : '') + '" data-theme="' + k + '" title="' + esc(v[1]) + '" aria-label="A story about ' +
-    esc(v[1]) + '"><span aria-hidden="true">' + v[0] + '</span><span class="tlabel">' + esc(v[1]) + '</span></button>').join('');
-  card.innerHTML = '<div class="storyhead"><span>🌙 <b>Tonight\'s story</b></span><button type="button" class="linkbtn" id="storyNew">🎲 Another</button></div>' +
+  const chips = catalog.stories.length < 10 ? '' : Object.entries(catalog.themes).filter(([k]) => (catalog.counts[k] || 0) >= 3).map(([k, v]) => { const tn = themeName(k, v[1]); return (
+    '<button type="button" class="tchip' + (ss.theme === k ? ' on' : '') + '" data-theme="' + k + '" title="' + esc(tn) + '" aria-label="' + esc(T('storyAbout', { theme: tn })) +
+    '"><span aria-hidden="true">' + v[0] + '</span><span class="tlabel">' + esc(tn) + '</span></button>'); }).join('');
+  card.innerHTML = '<div class="storyhead"><span>🌙 <b>' + esc(T('tonightStory')) + '</b></span><button type="button" class="linkbtn" id="storyNew">' + esc(T('anotherStory')) + '</button></div>' +
     '<div class="storyrow"><div class="storypic" aria-hidden="true">' + esc(x[5]) + '</div><div class="storytext"><b>' + esc(x[1]) + '</b>' +
-    '<small>' + esc(b.t) + ' · ' + esc(b.a) + '</small><small>' + Math.max(1, Math.round(x[3] / 60)) + ' min' + (ss.done ? ' · ✅ heard' : '') + '</small></div></div>' +
-    '<div class="storyplay"><button type="button" class="playbtn" id="storyPlay" aria-label="' + (playing ? 'Pause' : 'Play the story') + '">' + (playing ? ICON_PAUSE : ICON_PLAY) + '</button>' +
+    '<small>' + esc(b.t) + ' · ' + esc(b.a) + '</small><small>' + esc(T('storyMin', { n: Math.max(1, Math.round(x[3] / 60)) }) + (ss.done ? T('storyHeard') : '')) + '</small></div></div>' +
+    '<div class="storyplay"><button type="button" class="playbtn" id="storyPlay" aria-label="' + esc(playing ? T('pause') : T('playStory')) + '">' + (playing ? ICON_PAUSE : ICON_PLAY) + '</button>' +
     '<div class="storyprog"><div class="track sm"><div class="fill" id="storyFill"></div></div><small id="storyTime"></small></div></div>' +
-    '<div class="tchips" role="group" aria-label="Pick a theme">' + chips + '</div>' +
-    '<div class="storyacts">' + (ss.prev && catalog.index.has(ss.prev) ? '<button type="button" class="linkbtn" id="storyPrev">⏮ Last night\'s story</button>' : '<span></span>') +
-    '<small>' + ss.heard.length + ' of ' + catalog.stories.length + ' heard</small></div>';
+    (chips ? '<div class="tchips" role="group" aria-label="' + esc(T('pickTheme')) + '">' + chips + '</div>' : '') +
+    '<div class="storyacts">' + (ss.prev && catalog.index.has(ss.prev) ? '<button type="button" class="linkbtn" id="storyPrev">' + esc(T('lastNight')) + '</button>' : '<span></span>') +
+    '<small>' + esc(T('heardOf', { n: ss.heard.length, m: catalog.stories.length })) + '</small></div>';
   $('#storyPlay').addEventListener('click', () => {
     const a = storyAudio();
     if (playing) { a.pause(); return; }
@@ -1818,12 +2174,13 @@ function renderStory() {
     playStory(i, true);
   });
   $('#storyNew').addEventListener('click', () => chooseStory(ss.theme));
-  card.querySelector('.tchips').addEventListener('click', e => { const c = e.target.closest('[data-theme]'); if (c) chooseStory(c.dataset.theme); });
+  const tc = card.querySelector('.tchips');  // no theme row for a short list
+  if (tc) tc.addEventListener('click', e => { const c = e.target.closest('[data-theme]'); if (c) chooseStory(c.dataset.theme); });
   const prev = $('#storyPrev'); if (prev) prev.addEventListener('click', () => playStory(catalog.index.get(ss.prev), false));
   updateStoryProgress();
 }
 function playStory(i, resume) {
-  const a = storyAudio(), ss = data.settings.story, tracks = storyTracks(i), base = catalog.books[catalog.stories[i][0]].b;
+  const a = storyAudio(), ss = storyOf(data.settings), tracks = storyTracks(i), base = catalog.books[catalog.stories[i][0]].b;
   const isTonight = catalog.keys[i] === ss.id, same = resume && isTonight;
   const tr = same ? Math.min(ss.tr || 0, tracks.length - 1) : 0, startAt = same ? ss.t || 0 : 0;
   storyPlaying = { idx: i, tr, profile: data, tonight: isTonight, savedAt: 0 };
@@ -1834,7 +2191,7 @@ function playStory(i, resume) {
   renderStory();
 }
 function stopStory() { const a = storyAudio(); if (a) a.pause(); storyPlaying = null; }
-function storyFailed() { if (!storyPlaying) return; storyPlaying = null; toast('The story could not start. Is the internet on?'); renderStory(); }
+function storyFailed() { if (!storyPlaying) return; storyPlaying = null; toast(T('storyFailed')); renderStory(); }
 function storyElapsed() {
   if (!storyPlaying || !catalog) return null;
   const before = storyTracks(storyPlaying.idx).slice(0, storyPlaying.tr).reduce((n, q) => n + q[1], 0);
@@ -1842,18 +2199,18 @@ function storyElapsed() {
 }
 function updateStoryProgress() {
   const f = $('#storyFill'), t = $('#storyTime'); if (!f || !t || !catalog) return;
-  const ss = data.settings.story, i = catalog.index.get(ss.id), mine = storyPlaying && storyPlaying.profile === data, e = mine ? storyElapsed() : null;
+  const ss = storyOf(data.settings), i = catalog.index.get(ss.id), mine = storyPlaying && storyPlaying.profile === data, e = mine ? storyElapsed() : null;
   let now, total;
   if (e) { now = e.now; total = e.total; }
   else { now = storyTracks(i).slice(0, ss.tr).reduce((n, q) => n + q[1], 0) + (ss.t || 0); total = catalog.stories[i][3]; }
   f.style.width = Math.min(100, total ? now / total * 100 : 0) + '%';
-  t.textContent = mmss(now) + ' / ' + mmss(total) + (mine && !storyPlaying.tonight ? ' · last night\'s story' : '');
+  t.textContent = mmss(now) + ' / ' + mmss(total) + (mine && !storyPlaying.tonight ? T('lastNightShort') : '');
 }
 function storyMedia(i) {
   if (!('mediaSession' in navigator)) return;
   const x = catalog.stories[i], b = catalog.books[x[0]];
   try {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: x[1], artist: b.t + ' · ' + b.a, album: 'Ihaaya bedtime stories',
+    navigator.mediaSession.metadata = new MediaMetadata({ title: x[1], artist: b.t + ' · ' + b.a, album: T('storyAlbum'),
       artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }] });
     navigator.mediaSession.setActionHandler('play', () => storyAudio().play().catch(storyFailed));
     navigator.mediaSession.setActionHandler('pause', () => storyAudio().pause());
@@ -1865,13 +2222,13 @@ function storyHeard(ss) { ss.done = true; if (!ss.heard.includes(ss.id)) ss.hear
   a.addEventListener('play', renderStory);
   a.addEventListener('pause', () => {  // remember where she fell asleep
     const p = storyPlaying;
-    if (p && p.tonight) { const ss = p.profile.settings.story; ss.tr = p.tr; ss.t = Math.floor(a.currentTime); save(); }
+    if (p && p.tonight) { const ss = storyOf(p.profile.settings); ss.tr = p.tr; ss.t = Math.floor(a.currentTime); save(); }
     renderStory();
   });
   a.addEventListener('timeupdate', () => {
     updateStoryProgress();
     const p = storyPlaying; if (!p || !p.tonight) return;  // replaying last night's story changes nothing
-    const ss = p.profile.settings.story;
+    const ss = storyOf(p.profile.settings);
     if (Date.now() - p.savedAt > 5000) { ss.tr = p.tr; ss.t = Math.floor(a.currentTime); p.savedAt = Date.now(); save(); }
     const e = storyElapsed();
     if (e && e.now >= e.total * .9 && !ss.done) { storyHeard(ss); save(); }
@@ -1880,19 +2237,19 @@ function storyHeard(ss) { ss.done = true; if (!ss.heard.includes(ss.id)) ss.hear
     const p = storyPlaying; if (!p) return;
     const tracks = storyTracks(p.idx), base = catalog.books[catalog.stories[p.idx][0]].b;
     if (p.tr + 1 < tracks.length) { p.tr++; a.src = base + tracks[p.tr][0]; a.play().catch(storyFailed); return; }
-    if (p.tonight) { const ss = p.profile.settings.story; storyHeard(ss); ss.tr = 0; ss.t = 0; save(); }
-    storyPlaying = null; renderStory(); toast('🌙 The end. Sweet dreams!');
+    if (p.tonight) { const ss = storyOf(p.profile.settings); storyHeard(ss); ss.tr = 0; ss.t = 0; save(); }
+    storyPlaying = null; renderStory(); toast(T('storyEnd'));
   });
   a.addEventListener('error', () => { if (storyPlaying && a.src) storyFailed(); });
 })();
 
 /* ---------- how to use: pointers on the main screen ---------- */
-const TOUR = [  // the basics only; help.html has the rest
-  { el: '#tasks .task:not(.count) .pic', t: '👆 Tap the picture', p: 'Hear the question.' },
-  { el: '#tasks .task:not(.count) .scale', t: '⭐ Stars or ❌ crosses', p: 'Went well: 1–5 stars. Not so well: 1–5 crosses.' },
-  { el: '#tasks .cries', t: '😢 + for each cry', p: 'Grown-ups tap it. Each cry takes 2 stars.' },
-  { el: '#meBtn', t: '👪 Parent menu', p: 'Children, settings, backup and the PIN.' },
-  { el: '#helpBtn', t: '❓ Help', p: 'This tour again, and the full help page.', help: true },
+const TOUR = [  // the basics only; help.html has the rest. The words are I18N tour<n>t (title) and tour<n>p.
+  { el: '#tasks .task:not(.count) .pic', k: 'tour1' },
+  { el: '#tasks .task:not(.count) .scale', k: 'tour2' },
+  { el: '#tasks .cries', k: 'tour3' },
+  { el: '#meBtn', k: 'tour4' },
+  { el: '#helpBtn', k: 'tour5', help: true },
 ]
 let tour = null;
 function startTour() {
@@ -1902,9 +2259,9 @@ function startTour() {
   const box = document.createElement('div');
   box.className = 'tour';
   box.innerHTML = '<div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-live="polite"><div class="tour-n"></div><b class="tour-t"></b>' +
-    '<p class="tour-p"></p><div class="tour-btns"><button type="button" class="btn" data-t="skip">Skip</button><span></span>' +
-    '<button type="button" class="btn" data-t="back">Back</button><a class="btn tour-help" href="help.html" target="_blank" rel="noopener" hidden>📖 Help</a>' +
-    '<button type="button" class="btn primary" data-t="next">Next</button></div></div>';
+    '<p class="tour-p"></p><div class="tour-btns"><button type="button" class="btn" data-t="skip">' + esc(T('skip')) + '</button><span></span>' +
+    '<button type="button" class="btn" data-t="back">' + esc(T('back')) + '</button><a class="btn tour-help" href="' + helpHref() + '" target="_blank" rel="noopener" hidden>' + esc(T('helpShort')) + '</a>' +
+    '<button type="button" class="btn primary" data-t="next">' + esc(T('next')) + '</button></div></div>';
   document.body.appendChild(box);
   tour = { box, steps, i: 0 };
   box.addEventListener('click', e => {
@@ -1923,10 +2280,10 @@ function showStep(i) {
   tour.i = Math.max(0, Math.min(i, tour.steps.length - 1));
   const x = tour.steps[tour.i], q = c => tour.box.querySelector(c);
   q('.tour-n').textContent = (tour.i + 1) + ' / ' + tour.steps.length;
-  q('.tour-t').textContent = x.t; q('.tour-p').textContent = x.p;
+  q('.tour-t').textContent = T(x.k + 't'); q('.tour-p').textContent = T(x.k + 'p');
   q('[data-t="back"]').hidden = tour.i === 0;
   q('.tour-help').hidden = !x.help; q('[data-t="skip"]').hidden = !!x.help;
-  q('[data-t="next"]').textContent = tour.i + 1 < tour.steps.length ? 'Next' : 'Got it ✔';
+  q('[data-t="next"]').textContent = tour.i + 1 < tour.steps.length ? T('next') : T('gotIt');
   const el = document.querySelector(x.el);
   if (el) el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
   placeStep(); setTimeout(placeStep, 420); setTimeout(placeStep, 950);  // again once a long scroll has finished
@@ -1953,11 +2310,10 @@ function endTour() {
   tour = null; store.prefs.toured = true; save();
 }
 function showHelp() {
-  openOverlay('<button type="button" class="iconbtn close" data-close aria-label="Close">✕</button><h2>❓ How it works</h2>' +
-    '<ul class="helplist"><li>👆 Tap a picture to hear the question.</li><li>⭐ Went well: 1–5 stars. ❌ Not so well: 1–5 crosses.</li>' +
-    '<li>😢 Grown-ups tap + for each cry (−2 ⭐).</li><li>🎮 A good day opens a game. 🌙 A story every night.</li>' +
-    '<li>👪 The picture at the top right is the parent menu.</li></ul>' +
-    '<div class="btnrow helpbtns"><button type="button" class="btn primary" id="hTour">👀 Show me around</button><a class="btn" href="help.html" target="_blank" rel="noopener">📖 Full help page</a></div>', 'settings');
+  openOverlay(closeBtn() + '<h2>' + esc(T('helpTitle')) + '</h2>' +
+    '<ul class="helplist">' + ['help1', 'help2', 'help3', 'help4', 'help5'].map(k => '<li>' + esc(T(k)) + '</li>').join('') + '</ul>' +
+    '<div class="btnrow helpbtns"><button type="button" class="btn primary" id="hTour">' + esc(T('showAround')) + '</button>' +
+    '<a class="btn" href="' + helpHref() + '" target="_blank" rel="noopener">' + esc(T('fullHelp')) + '</a></div>', 'settings');
   $('#hTour').addEventListener('click', () => { closeOverlay(); setTimeout(startTour, 250); });
 }
 $('#helpBtn').addEventListener('click', showHelp);
@@ -1974,23 +2330,28 @@ function showLanding() {
   $('#landing').hidden = false; document.body.style.overflow = 'hidden';
   if (pf.pin) pinPad(box, 'unlock', enterApp, null, true);
   else if (!pf.pinOff) pinPad(box, 'set', enterApp, null, true);
-  else { box.innerHTML = '<button type="button" class="reportbtn" id="landStart">Start ⭐</button>'; $('#landStart').addEventListener('click', enterApp); }
+  else {
+    const draw = () => { box.innerHTML = '<button type="button" class="reportbtn" id="landStart">' + esc(T('start')) + '</button>'; $('#landStart').addEventListener('click', enterApp); };
+    draw(); landRefresh = draw;
+  }
 }
 function enterApp() {
   if (store.profiles.some(p => !p.settings.name)) { showNameStep(); return; }
-  if (store.profiles.length < 2) { hideLanding(); sayEnglish('Hello ' + data.settings.name + '!'); return; }
+  if (store.profiles.length < 2) { hideLanding(); sayInLang(T('hello', { name: data.settings.name })); return; }
   const box = $('#landPad');
-  box.innerHTML = '<h2>Who is rating today?</h2><div class="who">' + store.profiles.map(p =>
+  box.innerHTML = '<h2 id="whoTitle"></h2><div class="who">' + store.profiles.map(p =>
     '<button type="button" class="whobtn" data-kid="' + esc(p.id) + '"><span class="av">' + esc(p.avatar) + '</span><b>' +
     esc(p.settings.name) + '</b></button>').join('') + '</div>';
+  landRefresh = () => { $('#whoTitle').textContent = T('whoRating'); };
+  landRefresh();
   box.querySelector('.who').addEventListener('click', e => {
     const b = e.target.closest('[data-kid]'); if (!b) return;
     hideLanding();
-    if (b.dataset.kid !== data.id) switchTo(b.dataset.kid); else sayEnglish('Hello ' + data.settings.name + '!');
+    if (b.dataset.kid !== data.id) switchTo(b.dataset.kid); else sayInLang(T('hello', { name: data.settings.name }));
   });
 }
 function hideLanding() {
-  $('#landing').hidden = true; document.body.style.overflow = ''; render();
+  $('#landing').hidden = true; document.body.style.overflow = ''; landRefresh = null; render();
   if (!store.prefs.toured) setTimeout(startTour, 700);
 }
 
@@ -2010,6 +2371,8 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('focus', checkNewDay);
 setInterval(checkNewDay, 60 * 1000);
 
+$('#langSw').addEventListener('click', e => { const b = e.target.closest('[data-lang]'); if (b) chooseLang(b.dataset.lang); });
+applyStatic();
 render();
 showLanding();
 // Works as a phone app without internet: sw.js keeps a copy (network first, so updates show at once).
@@ -2018,6 +2381,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 // For checking the page headlessly.
 window.__starChart = { get data() { return data; }, get store() { return store; }, get game() { return game; }, startTour, get tour() { return tour; }, get catalog() { return catalog; }, get storyPlaying() { return storyPlaying; }, playStory, tonight, chooseStory, gameState, todaysGame: k => todaysGame(data, k), playGame: id => startGame(id), switchTo, openParentMenu, isUnlocked, showLanding, render, showReport, showSettings, weekStats: () => weekStats(weekStart),
+  setLang, get storyState() { return storyOf(data.settings); },
   setDay(k) { selKey = k; weekStart = weekStartOf(fromKey(k)); render(); } };
 })();
 </script>

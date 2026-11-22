@@ -6,6 +6,17 @@
 <meta name="theme-color" content="#fff8ec">
 <title>Ihaaya · Help</title>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
+<script>
+// The language: ?lang=fi|en, else the app's own choice (prefs.lang), else the phone's language.
+(function () {
+  var l = (location.search.match(/[?&]lang=(en|fi)(?:&|$)/) || [])[1];
+  if (!l) { try { var st = JSON.parse(localStorage.getItem('star-chart-v3') || 'null'); if (st && st.prefs && /^(en|fi)$/.test(st.prefs.lang)) l = st.prefs.lang; } catch (e) { /* no storage */ } }
+  if (!l) l = /^fi\b/i.test(navigator.language || '') ? 'fi' : 'en';
+  document.documentElement.lang = l;
+  document.documentElement.setAttribute('data-lang', l);
+  if (l === 'fi') document.title = 'Ihaaya · Ohje';
+})();
+</script>
 <style>
 :root{--bg:#fff8ec;--card:#ffffff;--ink:#2d2350;--muted:#6c6488;--line:#efe3cd;--accent:#7c4dff;--soft:#ffedd0}
 @media (prefers-color-scheme: dark){:root{--bg:#17142b;--card:#241f42;--ink:#f4efff;--muted:#b9b0d8;--line:#3a3362;--accent:#a98bff;--soft:#231e40}}
@@ -15,6 +26,10 @@ body{margin:0;background:var(--bg);color:var(--ink);line-height:1.45;-webkit-tex
 .wrap{max-width:680px;margin:0 auto;padding:max(18px, env(safe-area-inset-top)) 16px 40px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .back{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:14px;background:var(--card);color:var(--ink);text-decoration:none;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.lang{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--card);box-shadow:0 4px 14px rgba(0,0,0,.06);flex:none}
+.lang a{padding:7px 12px;border-radius:999px;color:var(--muted);text-decoration:none;font-weight:800;font-size:14px}
+html:not([data-lang="fi"]) .lang a[hreflang="en"],html[data-lang="fi"] .lang a[hreflang="fi"]{background:var(--accent);color:#fff}
+html:not([data-lang="fi"]) [data-l="fi"],html[data-lang="fi"] [data-l="en"]{display:none}
 h1{font-size:28px;margin:14px 0 0}
 .tag{color:var(--accent);font-weight:700;margin:2px 0 16px}
 .toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
@@ -33,7 +48,10 @@ summary{cursor:pointer;font-weight:700}
 </head>
 <body>
 <main class="wrap">
-  <div class="top"><a class="back" href="./">← Back to Ihaaya</a></div>
+  <div class="top"><a class="back" href="./"><span data-l="en">← Back to Ihaaya</span><span data-l="fi">← Takaisin Ihaayaan</span></a>
+    <nav class="lang" aria-label="Language · Kieli"><a href="?lang=en" hreflang="en" lang="en">EN</a><a href="?lang=fi" hreflang="fi" lang="fi">FI</a></nav></div>
+
+  <div data-l="en" lang="en">
   <h1>⭐ How Ihaaya works</h1>
   <p class="tag">Shine a little brighter every day.</p>
   <nav class="toc" aria-label="On this page">
@@ -45,6 +63,7 @@ summary{cursor:pointer;font-weight:700}
     <h2>🚀 Start (2 minutes)</h2>
     <ol>
       <li>Add it to the phone as an app: iPhone Safari → Share → <b>Add to Home Screen</b>. Android Chrome → ⋮ → <b>Install app</b>.</li>
+      <li>Pick the language above the PIN pad: <b>English</b> or <b>Suomi</b>.</li>
       <li>Choose a 4‑digit <b>parent PIN</b> that only grown‑ups know.</li>
       <li>Type your child's <b>name</b> and pick a picture. That's it.</li>
     </ol>
@@ -73,7 +92,7 @@ summary{cursor:pointer;font-weight:700}
     <h2>🎁 Game, story and report</h2>
     <ul>
       <li><b>🎮 Daily game:</b> opens when every picture is rated and the day reaches the goal. 3 minutes a day, one of six games.</li>
-      <li><b>🌙 Bedtime story:</b> every night, no stars needed. 7–10 minutes, never one already heard. Theme pictures or 🎲 pick another. Needs internet.</li>
+      <li><b>🌙 Bedtime story:</b> every night, no stars needed, read by a real person. In English: 7–10 minutes, never one already heard; theme pictures or 🎲 pick another. In Finnish there are only 4 free tales so far (Andersen), so they come again. Needs internet.</li>
       <li><b>🎁 Weekly report:</b> on the report day (Friday): running stars when the week reaches the goal, gentle tips when not.</li>
     </ul>
   </section>
@@ -97,9 +116,9 @@ summary{cursor:pointer;font-weight:700}
     <details><summary>🌙 Bedtime story</summary>
       <p>On or off. "Forget the stories heard" lets old stories come again.</p></details>
     <details><summary>🖼️ Pictures (tasks)</summary>
-      <p>Tick the tasks to use, change the emoji, add a 📷 photo (her own toothbrush, her bed), edit the question that is read aloud, or add your own task.</p></details>
+      <p>Tick the tasks to use, change the emoji, add a 📷 photo (her own toothbrush, her bed), edit the question that is read aloud, or add your own task. The ready-made pictures follow the app language until you change their words.</p></details>
     <details><summary>🔊 Sounds and words</summary>
-      <p>Happy sounds, reading questions aloud, the voice language (English, Hindi, Finnish…), and words under the pictures.</p></details>
+      <p>The app language (English or Suomi; the voice changes with it), happy sounds, reading questions aloud, the voice language (English, Hindi, Finnish…), and words under the pictures. For a more natural voice, download an Enhanced or Premium voice on the phone (iPhone: Settings → Accessibility → Spoken Content → Voices); the app picks the best one.</p></details>
     <details><summary>💾 Backup and reset</summary>
       <p>Download a backup now and then; restore it on another phone to move the stars. "Clear stars" starts a child's chart fresh; "Remove" deletes the child.</p></details>
   </section>
@@ -112,8 +131,94 @@ summary{cursor:pointer;font-weight:700}
       <li>Stories are free recordings from LibriVox.org, played from the Internet Archive.</li>
     </ul>
   </section>
+  </div>
 
-  <p class="muted" style="text-align:center;margin-top:18px"><a class="back" href="./">← Back to Ihaaya</a></p>
+  <div data-l="fi" lang="fi">
+  <h1>⭐ Näin Ihaaya toimii</h1>
+  <p class="tag">Loista vähän kirkkaammin joka päivä.</p>
+  <nav class="toc" aria-label="Tällä sivulla">
+    <a href="#fi-start">Aloitus</a><a href="#fi-daily">Joka päivä</a><a href="#fi-count">Tähdet</a><a href="#fi-rewards">Peli, satu, raportti</a>
+    <a href="#fi-parents">Vanhemmille</a><a href="#fi-settings">Asetukset</a><a href="#fi-data">Tiedot</a>
+  </nav>
+
+  <section id="fi-start">
+    <h2>🚀 Aloitus (2 minuuttia)</h2>
+    <ol>
+      <li>Lisää sovellus puhelimeen: iPhonen Safari → Jaa → <b>Lisää Koti-valikkoon</b>. Androidin Chrome → ⋮ → <b>Asenna sovellus</b>.</li>
+      <li>Valitse kieli PIN-näppäimistön yläpuolelta: <b>English</b> tai <b>Suomi</b>.</li>
+      <li>Valitse 4-numeroinen <b>PIN-koodi</b>, jonka vain aikuiset tietävät.</li>
+      <li>Kirjoita lapsen <b>nimi</b> ja valitse kuva. Siinä kaikki.</li>
+    </ol>
+  </section>
+
+  <section id="fi-daily">
+    <h2>🌙 Joka päivä</h2>
+    <ul>
+      <li><b>👆 Napauta kuvaa</b>, niin kuulet sen kysymyksen ääneen.</li>
+      <li>Lapsi vastaa: <b>1–5 ⭐</b>, jos meni hyvin, <b>1–5 ❌</b>, jos ei. Saman napauttaminen uudelleen tyhjentää valinnan.</li>
+      <li>Aikuinen napauttaa <b>+ 😢-kuvan kohdalla</b> aina, kun lapsi itkee. Itkun poistaminen vaatii PIN-koodin.</li>
+      <li>Lisää halutessasi <b>💌 ihana hetki</b>; se näkyy viikkoraportissa.</li>
+    </ul>
+  </section>
+
+  <section id="fi-count">
+    <h2>⭐ Näin tähdet lasketaan</h2>
+    <ul>
+      <li>Tähdet lisäävät, ristit vähentävät ja jokainen itku vie <b>2 tähteä</b>. Päivä ei mene koskaan alle nollan.</li>
+      <li>Tulos = tähdet ÷ suurin mahdollinen (5 jokaisesta arvioidusta kuvasta). Tavoite <b>60 %</b> ≈ 3 tähteä kuvaa kohden.</li>
+      <li>Tähdet kasvattavat myös tasoja: 🌱 → 🌷 → 🐣 → 🦋 → … → 👑.</li>
+    </ul>
+  </section>
+
+  <section id="fi-rewards">
+    <h2>🎁 Peli, satu ja raportti</h2>
+    <ul>
+      <li><b>🎮 Päivän peli:</b> aukeaa, kun kaikki kuvat on arvioitu ja päivä yltää tavoitteeseen. 3 minuuttia päivässä, yksi kuudesta pelistä.</li>
+      <li><b>🌙 Iltasatu:</b> joka ilta, tähtiä ei tarvita, oikean ihmisen lukemana. Suomeksi vapaita satuja on vasta neljä (H. C. Andersen), joten ne toistuvat; 🎲 vaihtaa sadun. Englanniksi satuja on 353. Tarvitsee internetin.</li>
+      <li><b>🎁 Viikkoraportti:</b> raporttipäivänä (perjantaina): juoksevia tähtiä, kun viikon tavoite täyttyy, ja lempeitä vinkkejä, kun ei.</li>
+    </ul>
+  </section>
+
+  <section id="fi-parents">
+    <h2>👪 Vanhempien valikko</h2>
+    <p>Napauta lapsen kuvaa oikeassa yläkulmassa ja anna PIN-koodi.</p>
+    <ul>
+      <li>Lapsen vaihto · <b>＋ Lisää lapsi</b> · <b>✏️</b> nimi ja kuva · <b>🗑️</b> poista lapsi</li>
+      <li>⚙️ Asetukset · 🔤 sanat kuvien alla · 💾 varmuuskopio · 🔢 vaihda tai poista PIN-koodi · 🔒 lukitse</li>
+    </ul>
+  </section>
+
+  <section id="fi-settings">
+    <h2>⚙️ Asetukset</h2>
+    <p class="muted">Näkyvissä olevalle lapselle, paitsi ”Äänet ja sanat” (koko puhelimelle).</p>
+    <details><summary>Nimi, kuva, raporttipäivä, tavoite, palkinto</summary>
+      <p>Viikkoraportin päivä (viikko päättyy siihen), tavoite % (oletus 60 %) ja palkinto, joka näkyy, kun tavoite täyttyy.</p></details>
+    <details><summary>🎮 Päivän peli</summary>
+      <p>Päällä tai pois, ja 2, 3 tai 5 minuuttia päivässä.</p></details>
+    <details><summary>🌙 Iltasatu</summary>
+      <p>Päällä tai pois. ”Unohda kuullut sadut” päästää vanhat sadut tulemaan taas.</p></details>
+    <details><summary>🖼️ Kuvat (tehtävät)</summary>
+      <p>Valitse käytettävät tehtävät, vaihda emoji, lisää 📷 valokuva (lapsen oma hammasharja, oma sänky), muokkaa ääneen luettavaa kysymystä tai lisää oma tehtävä. Valmiit kuvat seuraavat sovelluksen kieltä, kunnes muutat niiden sanoja.</p></details>
+    <details><summary>🔊 Äänet ja sanat</summary>
+      <p>Sovelluksen kieli (English tai Suomi; puheääni vaihtuu samalla), iloiset äänet, kysymysten lukeminen ääneen, puheäänen kieli (suomi, englanti, hindi…) ja sanat kuvien alla. Luonnollisemman äänen saat, kun lataat puhelimeen parannetun äänen (iPhone: Asetukset → Käyttöapu → Puhuttu sisältö → Äänet); sovellus valitsee parhaan.</p></details>
+    <details><summary>💾 Varmuuskopio ja tyhjennys</summary>
+      <p>Lataa varmuuskopio aina välillä; palauta se toiseen puhelimeen, niin tähdet siirtyvät. ”Tyhjennä tähdet” aloittaa lapsen taulun alusta; ”Poista” poistaa lapsen.</p></details>
+  </section>
+
+  <section id="fi-data">
+    <h2>🔒 Tiedot ja PIN-koodi</h2>
+    <ul>
+      <li>Tähdet, muistiinpanot ja valokuvat pysyvät <b>vain tässä puhelimessa</b>; mitään ei lähetetä minnekään. Jokaisella puhelimella on omansa, joten käytä yhtä puhelinta tai siirrä tähdet varmuuskopiolla.</li>
+      <li>PIN-koodi pitää pienet sormet poissa vanhempien valikosta. Unohtuiko? Napauta <b>Unohtuiko PIN-koodi?</b> ja kirjoita <kbd>NOLLAA</kbd>: PIN-koodi poistuu käytöstä ja tähdet säilyvät.</li>
+      <li>Sadut ovat LibriVox.orgin ilmaisia äänitteitä, jotka soitetaan Internet Archivesta.</li>
+    </ul>
+  </section>
+  </div>
+
+  <p class="muted" style="text-align:center;margin-top:18px"><a class="back" href="./"><span data-l="en">← Back to Ihaaya</span><span data-l="fi">← Takaisin Ihaayaan</span></a></p>
 </main>
+<script>
+document.querySelectorAll('.lang a').forEach(function (a) { if (a.hreflang === document.documentElement.lang) a.setAttribute('aria-current', 'true'); });
+</script>
 </body>
 </html>
