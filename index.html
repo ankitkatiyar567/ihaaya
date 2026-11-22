@@ -114,6 +114,7 @@ h1 .name{color:var(--accent)}
 @keyframes twinkle{50%{transform:scale(.45);opacity:.55}}
 .ltitle{font-size:38px;margin:16px 0 0;line-height:1.1;letter-spacing:.5px}
 .ltag{margin:4px 0 6px;font-size:17px;font-weight:600;color:var(--muted)}
+.lfree{margin:0 0 8px;font-size:14px;font-weight:700;color:var(--muted)}
 .langsw{display:inline-flex;gap:2px;padding:3px;margin:4px auto 0;border-radius:999px;background:var(--card);box-shadow:var(--shadow)}
 .langsw button{border:0;background:none;border-radius:999px;padding:7px 16px;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer;min-height:36px}
 .langsw button[aria-pressed="true"]{background:var(--accent);color:#fff}
@@ -404,6 +405,7 @@ body{overscroll-behavior-y:none}
     <div class="logo" id="landLogo" role="img" aria-label="Ihaaya logo" data-i18n-aria="logoAria"></div>
     <h1 class="ltitle">Ihaaya</h1>
     <p class="ltag" data-i18n="tagline">Shine a little brighter every day.</p>
+    <p class="lfree" data-i18n="freeNote">💚 Free: we never charge any money.</p>
     <div class="langsw" id="langSw" role="group" aria-label="Language · Kieli"></div>
     <div class="landpad" id="landPad"></div>
   </div>
@@ -543,7 +545,7 @@ const TASKS_FI = {
 };
 const I18N = {
   en: {
-    tagline:'Shine a little brighter every day.', logoAria:'Ihaaya logo', language:'Language',
+    tagline:'Shine a little brighter every day.', freeNote:'💚 Free: we never charge any money.', logoAria:'Ihaaya logo', language:'Language',
     close:'Close', save:'Save', saved:'Saved ✔', add:'Add', done:'Done', ok:'OK', name:'Name', theirPicture:'Their picture', del:'Delete', remove:'Remove',
     // landing and PIN
     pinTitleLanding:'Parent PIN, please', pinTitleUnlock:'🔒 Parents only', pinTitleSet:'Choose a 4-digit parent PIN', pinTitleConfirm:'Type the PIN again',
@@ -651,7 +653,7 @@ const I18N = {
     showAround:'👀 Show me around', fullHelp:'📖 Full help page',
   },
   fi: {
-    tagline:'Loista vähän kirkkaammin joka päivä.', logoAria:'Ihaaya-logo', language:'Kieli',
+    tagline:'Loista vähän kirkkaammin joka päivä.', freeNote:'💚 Ilmainen: emme veloita mitään.', logoAria:'Ihaaya-logo', language:'Kieli',
     close:'Sulje', save:'Tallenna', saved:'Tallennettu ✔', add:'Lisää', done:'Valmis', ok:'OK', name:'Nimi', theirPicture:'Lapsen kuva', del:'Poista', remove:'Poista',
     // aloitus ja PIN-koodi
     pinTitleLanding:'Vanhemman PIN-koodi', pinTitleUnlock:'🔒 Vain aikuisille', pinTitleSet:'Valitse 4-numeroinen PIN-koodi', pinTitleConfirm:'Anna PIN-koodi uudelleen',
