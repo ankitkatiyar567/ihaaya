@@ -25,8 +25,9 @@ Only real people reading (Ankit, 2026-11-22: no robotic voices), only stories fo
    Not used: Aava-kirjat (says it is made with AI), Iltasatumaailma (likely AI), Lasten sadut (Podplay only),
    Sveriges Radio Taikalipas (waiting for Sveriges Radio's permission).
 
-Same format as stories.json, so the app plays both the same way: a podcast's book has "pod": 1 and an empty
-"b", and the file is the full episode address. Every file is checked: LibriVox against archive.org/metadata, podcast
+Same format as stories.json, so the app plays both the same way: a podcast's "b" is empty and the file
+is the full episode address. The app thanks every source by name at the bottom (I18N credits in index.html):
+add a new show there too. Every file is checked: LibriVox against archive.org/metadata, podcast
 episodes with a 2-byte request; lengths come from archive.org or the feed.
 
 Usage: python3 tools/build-stories-fi.py
@@ -175,7 +176,7 @@ def podcast(book, show):
 def build():
     books, stories = [BOOK], librivox()
     for show in PODCASTS:
-        books.append({"t": show["t"], "a": show["a"], "b": "", "pod": 1})  # pod: the card says "streamed from the podcast …"
+        books.append({"t": show["t"], "a": show["a"], "b": ""})
         stories += podcast(len(books) - 1, show)
     out = {"v": 2, "lang": "fi", "themes": THEMES_FI, "books": books, "stories": stories}
     path = os.path.join(ROOT, "stories-fi.json")
