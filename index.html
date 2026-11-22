@@ -641,6 +641,7 @@ const I18N = {
     anotherStory:'🎲 Another', storyHeard:' · ✅ heard', pause:'Pause', playStory:'Play the story', pickTheme:'Pick a theme', storyAbout:'A story about {theme}',
     lastNight:'⏮ Last night\'s story', heardOf:'{n} of {m} heard', lastNightShort:' · last night\'s story', storyFailed:'The story could not start. Is the internet on?',
     storyEnd:'🌙 The end. Sweet dreams!', storyAlbum:'Ihaaya bedtime stories', storyMin:'{n} min',
+    storySrcLv:'Streamed from LibriVox.org (Internet Archive)', storySrcPod:'Streamed from the podcast {name} ({by})',
     // theme names as stories.json has them; another language shows its own name only while the catalog's name is this one
     themes:{ animals:'Animals', fairy:'Fairy tales & magic', royal:'Princes & princesses', toys:'Toys & dolls', nature:'Farm & nature',
       night:'Moon & stars', fables:'Fables', world:'Tales from far away' },
@@ -755,6 +756,7 @@ const I18N = {
     anotherStory:'🎲 Toinen satu', storyHeard:' · ✅ kuultu', pause:'Tauko', playStory:'Kuuntele satu', pickTheme:'Valitse aihe', storyAbout:'Aihe: {theme}',
     lastNight:'⏮ Eilisillan satu', heardOf:'{n} / {m} kuultu', lastNightShort:' · eilisillan satu', storyFailed:'Satu ei käynnistynyt. Onko internet päällä?',
     storyEnd:'🌙 Satu loppui. Kauniita unia!', storyAlbum:'Ihaayan iltasadut', storyMin:'{n} min',
+    storySrcLv:'Suoratoisto LibriVox.orgista (Internet Archive)', storySrcPod:'Suoratoisto podcastista {name} ({by})',
     themes:{ animals:'Eläimet', fairy:'Sadut ja taikuus', royal:'Prinssit ja prinsessat', toys:'Lelut ja nuket', nature:'Maatila ja luonto',
       night:'Kuu ja tähdet', fables:'Faabelit', world:'Tarinoita kaukaa' },
     // esittely ja ohje
@@ -2104,7 +2106,8 @@ window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); 
 /* ---------- bedtime story: one story a day, read by a real person, random, never repeated ---------- */
 // The stories follow the app language. English: stories.json (tools/build-stories.py), 353 complete 7-10 minute stories.
 // Finnish: stories-fi.json (tools/build-stories-fi.py), 43 stories: 4 LibriVox Andersen tales + episodes of four Finnish
-// children's podcasts, streamed from each podcast's own feed (their book has b = '' and the file is the full address).
+// children's podcasts, streamed from each podcast's own feed (their book has pod: 1, b = '' and the file is the full address).
+// The card says where each story is streamed from (storySrcLv / storySrcPod).
 // Both: stories = [book, title, file or [[file, secs], ...], secs, themes, picture].
 const STORY_FILES = { en: 'stories.json', fi: 'stories-fi.json' };
 let catalogs = {}, catalog = null, catalogLoading = null, storyPlaying = null;  // storyPlaying = { idx, tr, profile, tonight, savedAt }
@@ -2165,7 +2168,9 @@ function renderStory() {
     '"><span aria-hidden="true">' + v[0] + '</span><span class="tlabel">' + esc(tn) + '</span></button>'); }).join('');
   card.innerHTML = '<div class="storyhead"><span>🌙 <b>' + esc(T('tonightStory')) + '</b></span><button type="button" class="linkbtn" id="storyNew">' + esc(T('anotherStory')) + '</button></div>' +
     '<div class="storyrow"><div class="storypic" aria-hidden="true">' + esc(x[5]) + '</div><div class="storytext"><b>' + esc(x[1]) + '</b>' +
-    '<small>' + esc(b.t) + ' · ' + esc(b.a) + '</small><small>' + esc(T('storyMin', { n: Math.max(1, Math.round(x[3] / 60)) }) + (ss.done ? T('storyHeard') : '')) + '</small></div></div>' +
+    (b.pod ? '<small class="ssrc">' + esc(T('storySrcPod', { name: b.t, by: b.a })) + '</small>'  // where the story is streamed from
+      : '<small>' + esc(b.t) + ' · ' + esc(b.a) + '</small><small class="ssrc">' + esc(T('storySrcLv')) + '</small>') +
+    '<small>' + esc(T('storyMin', { n: Math.max(1, Math.round(x[3] / 60)) }) + (ss.done ? T('storyHeard') : '')) + '</small></div></div>' +
     '<div class="storyplay"><button type="button" class="playbtn" id="storyPlay" aria-label="' + esc(playing ? T('pause') : T('playStory')) + '">' + (playing ? ICON_PAUSE : ICON_PLAY) + '</button>' +
     '<div class="storyprog"><div class="track sm"><div class="fill" id="storyFill"></div></div><small id="storyTime"></small></div></div>' +
     (chips ? '<div class="tchips" role="group" aria-label="' + esc(T('pickTheme')) + '">' + chips + '</div>' : '') +
