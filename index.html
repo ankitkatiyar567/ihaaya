@@ -668,7 +668,7 @@ const I18N = {
     weekAria:'Viikko', dayAria:'Päivä', gameAria:'Päivän peli', storyAria:'Iltasatu', prevWeek:'Edellinen viikko', nextWeek:'Seuraava viikko', backToToday:'Takaisin tähän päivään',
     todayChip:'Tänään', legend:'👆 kuva = kuuntele · ⭐ meni hyvin · ❌ ei niin hyvin · 😢 itku = −2 ⭐', hideLine:'Piilota tämä rivi',
     noteLabel:'💌 Päivän ihana hetki (vapaaehtoinen)', notePh:'Jakoi värikynät serkun kanssa…', weeklyReport:'🎁 Viikkoraportti',
-    footer:'Iltasadut: vapaaehtoisten lukemia, vapaasti käytettäviä äänitteitä LibriVox.orgista. Napauta kuvaa, niin kuulet kysymyksen. Aikuisille: oikean yläkulman kuva avaa vanhempien valikon (lapsen vaihto, uusi lapsi, asetukset, varmuuskopio).',
+    footer:'Iltasadut: oikeiden ihmisten lukemia, LibriVox.orgista ja suomalaisista lastenpodcasteista. Napauta kuvaa, niin kuulet kysymyksen. Aikuisille: oikean yläkulman kuva avaa vanhempien valikon (lapsen vaihto, uusi lapsi, asetukset, varmuuskopio).',
     chartTitle:'{name} · tähtitaulu ⭐', levelNext: v => ' · vielä ' + v.n + ' tasoon ' + v.icon, levelTop:' · huipputaso!',
     levels:['Pieni siemen', 'Tulppaani', 'Tipu', 'Perhonen', 'Delfiini', 'Yksisarvinen', 'Raketti', 'Sateenkaari', 'Tähtikuningatar', 'Loistava tähti'],
     wd:['sunnuntai', 'maanantai', 'tiistai', 'keskiviikko', 'torstai', 'perjantai', 'lauantai'],
@@ -712,9 +712,10 @@ const I18N = {
     gameH:'🎮 Päivän peli', gameP:'Kun kaikki kuvat on arvioitu ja päivä yltää tavoitteeseen, päivän peli aukeaa muutamaksi minuutiksi, vain sinä päivänä. ' +
       'Pelejä on kuusi (ilmapallot, muistipeli, tähtien nappaus, kukkuu, laskupeli, ristinolla): yksi päivässä, vaihtuvassa järjestyksessä, kukin kerran kuudessa päivässä.',
     gameOn:'Päivän peli käytössä', minutesDay:'Minuuttia päivässä', nMinutes:'{n} minuuttia',
-    storyH:'🌙 Iltasatu', storyP:'Joka ilta yksi satu, oikean ihmisen lukemana. Suomeksi vapaasti käytettäviä lastensatuja on vasta neljä: ' +
-      'H. C. Andersenin satuja LibriVox.orgin vapaaehtoisten lukemina. Kun kaikki on kuultu, ne alkavat alusta, ja 🎲 vaihtaa toiseen. ' +
-      'Englanninkielisiä satuja on 353 (kieli: English). Sadut soivat Internet Archivesta, joten tarvitaan internet.',
+    storyH:'🌙 Iltasatu', storyP:'Joka ilta yksi satu, oikean ihmisen lukemana, satunnaisessa järjestyksessä eikä koskaan jo kuultu. Suomeksi satuja on 43: ' +
+      'H. C. Andersenin satuja LibriVox.orgin vapaaehtoisten lukemina sekä suomalaisia lastenpodcasteja (Hippo-satuja lapsille, Kauneimmat lastensadut, ' +
+      'Iltasatu lapselle, Satuhetki), jotka soivat podcastien omista osoitteista. Kun kaikki on kuultu, ne alkavat alusta. ' +
+      'Napauta aihekuvaa, niin saat sadun siitä aiheesta, tai 🎲 vaihtaa toiseen. Englanninkielisiä satuja on 353 (kieli: English). Tarvitaan internet.',
     storyOn:'Iltasatu käytössä', storyForget:'Unohda kuullut sadut ({n})', storyForgetConfirm:'Unohdetaanko, mitkä sadut {name} on kuullut? Ne voivat sitten tulla uudelleen.',
     storyForgotToast:'Kaikki sadut voivat tulla taas 🌙',
     soundsH:'Äänet ja sanat', soundsP:'Nämä koskevat tätä puhelinta tai tietokonetta ja kaikkia lapsia.', happySounds:'Iloiset äänet',
@@ -2098,9 +2099,10 @@ function countGame(field, api) {
 }
 window.addEventListener('pagehide', () => { if (game && !game.over) savePlay(); });
 
-/* ---------- bedtime story: one LibriVox story a day, read by a real person, random, never repeated ---------- */
+/* ---------- bedtime story: one story a day, read by a real person, random, never repeated ---------- */
 // The stories follow the app language. English: stories.json (tools/build-stories.py), 353 complete 7-10 minute stories.
-// Finnish: stories-fi.json (tools/build-stories-fi.py), the only free Finnish children's recordings: 4 Andersen tales.
+// Finnish: stories-fi.json (tools/build-stories-fi.py), 43 stories: 4 LibriVox Andersen tales + episodes of four Finnish
+// children's podcasts, streamed from each podcast's own feed (their book has b = '' and the file is the full address).
 // Both: stories = [book, title, file or [[file, secs], ...], secs, themes, picture].
 const STORY_FILES = { en: 'stories.json', fi: 'stories-fi.json' };
 let catalogs = {}, catalog = null, catalogLoading = null, storyPlaying = null;  // storyPlaying = { idx, tr, profile, tonight, savedAt }
